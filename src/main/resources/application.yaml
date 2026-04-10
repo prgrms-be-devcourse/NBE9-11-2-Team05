@@ -39,3 +39,8 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
 
+animal:
+  api:
+    base-url: ${ANIMAL_API_BASE_URL}
+    service-key: ${ANIMAL_API_SERVICE_KEY}
+    return-type: ${ANIMAL_API_RETURN_TYPE:json}
