@@ -2,12 +2,8 @@ spring:
   application:
     name: demo
 
-    # db 커넥션 설정. 추후 docker 연동
-  datasource:
-    url:
-    username:
-    password:
-    driver-class-name:
+  profiles:
+    active: dev
 
   output:
     ansi:
