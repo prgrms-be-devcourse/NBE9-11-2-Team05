@@ -1,6 +1,6 @@
 package com.team05.demo.domain.animal.entity;
 
-import com.team05.demo.global.common.BaseEntity;
+import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
