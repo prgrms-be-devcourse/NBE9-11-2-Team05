@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface CheerRepository extends JpaRepository<Cheer, Long> {
     List<Cheer> findByUserId(Long userId);
+    List<Cheer> findByAnimalId(Long animalId);
+
 }
