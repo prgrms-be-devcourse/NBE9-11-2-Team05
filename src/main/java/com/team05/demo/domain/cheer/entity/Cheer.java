@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "cheers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Cheer extends BaseEntity {
 
@@ -21,6 +22,12 @@ public class Cheer extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "deserstion_no")
+    @JoinColumn(name = "animal_id") // ERD개선 후 animal_id 로 수정
     private Animal animal;
+
+    public Cheer(User user, Animal animal) {
+        this.user = user;
+        this.animal = animal;
+    }
+
 }

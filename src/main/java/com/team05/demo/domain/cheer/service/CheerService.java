@@ -10,7 +10,9 @@ public class CheerService {
 
     private final CheerRepository cheerRepository;
 
+    public void getTodaysStatus(int userId, String timezone) {
 
+    }
 
 
 }

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User extends BaseEntity {
@@ -32,10 +33,24 @@ public class User extends BaseEntity {
     private String role;
 
     @Column(nullable = false)
-    private int dailyHeartCount;
+    private int dailyCheerUsedCount = 0; // 기존 dailyHeartCount -> 불명확한 필드명
 
     @Column(nullable = false)
     private LocalDate lastHeartResetDate;
+
+    // 매일 자정마다 응원 횟수 초기화
+    public void resetDailyCheerCount() {
+        this.dailyCheerUsedCount = 0;
+    }
+
+    // 응원시 호출 메서드
+    public void useDailyCheer() {
+        this.dailyCheerUsedCount++;
+    }
+
+    public boolean hasRemainingCheers() {
+        return this.dailyCheerUsedCount < 5; // 5회 미만 확인
+    }
 
 
 }
