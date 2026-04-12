@@ -48,4 +48,9 @@ public class AnimalApiClient {
         return properties.getServiceKey();
     }
 
+    // API 응답 형식 반환
+    public String getReturnType() {
+        return properties.getReturnType();
+    }
+
 }

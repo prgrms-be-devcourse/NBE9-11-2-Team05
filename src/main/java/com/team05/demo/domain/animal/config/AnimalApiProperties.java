@@ -10,4 +10,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AnimalApiProperties {
     private String baseUrl; // API의 기본 URL
     private String serviceKey; // API 인증에 필요한 서비스 키
+    private String returnType; // API 응답 형식 (예: JSON, XML)
 }
