@@ -14,7 +14,7 @@ public class AnimalApiClientTest {
     void t1() {
         // given
         AnimalApiProperties properties = new AnimalApiProperties();
-        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2");
+        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicService_v2");
         properties.setServiceKey("test-key");
 
         AnimalApiClient animalApiClient = new AnimalApiClient(properties);
@@ -24,7 +24,7 @@ public class AnimalApiClientTest {
 
         // then
         assertEquals(
-                "https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2/abandonmentPublic_v2",
+                "https://apis.data.go.kr/1543061/abandonmentPublicService_v2/abandonmentPublic_v2",
                 result
         );
     }
@@ -34,7 +34,7 @@ public class AnimalApiClientTest {
     void t2() {
         // given
         AnimalApiProperties properties = new AnimalApiProperties();
-        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2");
+        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicService_v2");
         properties.setServiceKey("test-key");
 
         AnimalApiClient animalApiClient = new AnimalApiClient(properties);
@@ -44,7 +44,7 @@ public class AnimalApiClientTest {
 
         // then
         assertEquals(
-                "https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2/sido_v2",
+                "https://apis.data.go.kr/1543061/abandonmentPublicService_v2/sido_v2",
                 result
         );
 
@@ -55,7 +55,7 @@ public class AnimalApiClientTest {
     void t3() {
         // given
         AnimalApiProperties properties = new AnimalApiProperties();
-        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2");
+        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicService_v2");
         properties.setServiceKey("test-key");
 
         AnimalApiClient animalApiClient = new AnimalApiClient(properties);
@@ -65,7 +65,7 @@ public class AnimalApiClientTest {
 
         // then
         assertEquals(
-                "https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2/kind_v2",
+                "https://apis.data.go.kr/1543061/abandonmentPublicService_v2/kind_v2",
                 result
         );
     }
@@ -75,7 +75,7 @@ public class AnimalApiClientTest {
     void getServiceKey() {
         // given
         AnimalApiProperties properties = new AnimalApiProperties();
-        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicSrvc_v2");
+        properties.setBaseUrl("https://apis.data.go.kr/1543061/abandonmentPublicService_v2");
         properties.setServiceKey("test-key");
 
         AnimalApiClient animalApiClient = new AnimalApiClient(properties);

@@ -4,6 +4,7 @@ import com.team05.demo.domain.animal.client.AnimalApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 // 동물 관련 외부 API와의 통신을 담당하는 서비스 클래스
 @Service
@@ -18,12 +19,21 @@ public class AnimalExternalService {
                 + "&pageNo=1"
                 + "&numOfRows=10"
                 + "&_type=" + animalApiClient.getReturnType();
+        String safeUrl = url.replace(animalApiClient.getServiceKey(), "***");
 
-        return RestClient.create()
-                .get()
-                .uri(url)
-                .retrieve()
-                .body(String.class);
+        try {
+            return RestClient.create()
+                    .get()
+                    .uri(url)
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientResponseException e) {
+            throw new IllegalStateException(
+                    "Animal API call failed. url=%s, status=%s, response=%s"
+                            .formatted(safeUrl, e.getStatusCode(), e.getResponseBodyAsString()),
+                    e
+            );
+        }
     }
 
 }
