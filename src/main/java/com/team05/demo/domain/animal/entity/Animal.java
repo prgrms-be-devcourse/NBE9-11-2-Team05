@@ -33,7 +33,7 @@ public class Animal extends BaseEntity {
     private String colorCd; // 색상
 
     @Column(name = "age", nullable = false)
-    private Integer age; // 나이
+    private String age; // 나이
 
     @Column(name = "weight", nullable = false, length = 30)
     private String weight; // 몸무게 (예: 5kg, 10kg 등)
