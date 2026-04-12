@@ -89,7 +89,7 @@ public class CheerService {
     }
 
     // temperature = (heart_count / 목표_하트수) × 100 | 목표기본값 = 50
-    public double calculateTemperature(int cheersCount, int goalCount) {
+    private double calculateTemperature(int cheersCount, int goalCount) {
         return (double) cheersCount / goalCount;
     }
 
