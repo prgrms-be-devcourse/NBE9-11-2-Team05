@@ -1,7 +1,9 @@
 package com.team05.demo.domain.animal.entity;
 
 import com.team05.demo.global.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 import java.time.LocalDate;
