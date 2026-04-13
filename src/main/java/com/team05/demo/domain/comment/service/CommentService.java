@@ -5,9 +5,12 @@ import com.team05.demo.domain.animal.service.AnimalService;
 import com.team05.demo.domain.comment.dto.CommentReq;
 import com.team05.demo.domain.comment.dto.CommentRes;
 import com.team05.demo.domain.comment.entity.Comment;
+import com.team05.demo.domain.comment.errorCode.CommentErrorCode;
 import com.team05.demo.domain.comment.repository.CommentRepository;
 import com.team05.demo.domain.feed.entity.Feed;
 import com.team05.demo.domain.feed.service.FeedService;
+import com.team05.demo.global.exception.BusinessException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,5 +37,18 @@ public class CommentService{
         Comment comment = Comment.createFeedComment(feed, commentReq.content());
         Comment savedComment = commentRepository.save(comment);
         return CommentRes.from(savedComment);
+    }
+
+    public CommentRes updateComment(Long commentId, @Valid CommentReq commentReq) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
+        comment.updateContent(commentReq.content());
+        return CommentRes.from(commentRepository.save(comment));
+    }
+
+    public void deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
+        commentRepository.delete(comment);
     }
 }
