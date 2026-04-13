@@ -11,7 +11,10 @@ import java.time.LocalDate;
 @Table(name = "animals")
 public class Animal extends BaseEntity {
     @Id
-    @Column(name = "desertion_no", nullable = false, length = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id; // 유기동물 고유 ID (공고번호와는 별개로 DB에서 관리하는 고유 ID)
+
+    @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
     private String desertionNo; // 유기번호
 
     @Column(name = "process_state", nullable = false, length = 30)
@@ -26,8 +29,8 @@ public class Animal extends BaseEntity {
     @Column(name = "up_kind_nm", nullable = false, length = 30)
     private String upKindNm; // 종 (개, 고양이 등)
 
-    @Column(name = "kind_fill_name", nullable = false, length = 100)
-    private String kindFillName; // 품종 (예: 믹스견, 시바견 등)
+    @Column(name = "kind_full_name", nullable = false, length = 100)
+    private String kindFullNm; // 품종 (예: 믹스견, 시바견 등)
 
     @Column(name = "color_cd", nullable = false, length = 100)
     private String colorCd; // 색상
