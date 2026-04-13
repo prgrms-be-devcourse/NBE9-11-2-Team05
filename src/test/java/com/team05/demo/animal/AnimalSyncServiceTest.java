@@ -2,6 +2,7 @@ package com.team05.demo.animal;
 
 import com.team05.demo.domain.animal.client.AnimalApiClient;
 import com.team05.demo.domain.animal.config.AnimalApiProperties;
+import com.team05.demo.domain.animal.entity.Animal;
 import com.team05.demo.domain.animal.repository.AnimalRepository;
 import com.team05.demo.domain.animal.service.AnimalExternalService;
 import com.team05.demo.domain.animal.service.AnimalSyncService;
@@ -17,7 +18,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -92,5 +93,24 @@ public class AnimalSyncServiceTest {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read .env file", e);
         }
+    }
+
+    @Test
+    @DisplayName("저장된 Animal 데이터의 주요 필드를 검증한다")
+    void savedAnimalFields() {
+        // given
+        AnimalSyncService animalSyncService = createAnimalSyncService();
+
+        // when
+        animalSyncService.fetchAndSaveAnimals();
+
+        // then
+        Animal animal = animalRepository.findAll().get(0);
+
+        assertNotNull(animal.getDesertionNo());
+        assertEquals(0, animal.getTotalCheerCount());
+        assertNotNull(animal.getNoticeEdt());
+        assertNotNull(animal.getKindFullNm());
+        assertNotNull(animal.getPopfile1());
     }
 }
