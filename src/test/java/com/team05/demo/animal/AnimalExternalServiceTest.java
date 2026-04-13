@@ -2,6 +2,7 @@ package com.team05.demo.animal;
 
 import com.team05.demo.domain.animal.client.AnimalApiClient;
 import com.team05.demo.domain.animal.config.AnimalApiProperties;
+import com.team05.demo.domain.animal.dto.external.AnimalApiResponse;
 import com.team05.demo.domain.animal.service.AnimalExternalService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,12 +24,17 @@ public class AnimalExternalServiceTest {
         AnimalExternalService animalExternalService = createAnimalExternalService();
 
         // when
-        String response = animalExternalService.fetchAnimals();
+        AnimalApiResponse response = animalExternalService.fetchAnimals();
 
         // then
         assertNotNull(response);
-        assertFalse(response.isBlank());
-        System.out.println(response);
+        assertNotNull(response.getResponse());
+        assertNotNull(response.getResponse().getHeader());
+        assertNotNull(response.getResponse().getBody());
+        assertNotNull(response.getResponse().getBody().getItems());
+        assertNotNull(response.getResponse().getBody().getItems().getItem());
+
+        System.out.println(response.getResponse().getBody().getItems().getItem());
     }
 
     //테스트용 객체 생성 메서드 - 환경 변수 또는 .env 파일에서 설정을 읽어와 AnimalExternalService 객체를 생성
