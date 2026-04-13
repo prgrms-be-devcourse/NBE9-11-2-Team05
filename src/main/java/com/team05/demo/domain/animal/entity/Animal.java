@@ -10,9 +10,6 @@ import java.time.LocalDate;
 @Getter
 @Table(name = "animals")
 public class Animal extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id; // 유기동물 고유 ID (공고번호와는 별개로 DB에서 관리하는 고유 ID)
 
     @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
     private String desertionNo; // 유기번호
