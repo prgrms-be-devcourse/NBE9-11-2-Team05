@@ -113,4 +113,21 @@ public class AnimalSyncServiceTest {
         assertNotNull(animal.getKindFullNm());
         assertNotNull(animal.getPopfile1());
     }
+
+    @Test
+    @DisplayName("같은 유기동물 데이터는 중복 저장되지 않는다")
+    void doesNotSaveDuplicates() {
+        // given
+        AnimalSyncService animalSyncService = createAnimalSyncService();
+
+        // when
+        animalSyncService.fetchAndSaveAnimals();
+        long firstCount = animalRepository.count();
+
+        animalSyncService.fetchAndSaveAnimals();
+        long secondCount = animalRepository.count();
+
+        // then
+        assertEquals(firstCount, secondCount);
+    }
 }
