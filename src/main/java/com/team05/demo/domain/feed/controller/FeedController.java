@@ -21,7 +21,7 @@ public class FeedController {
     private final FeedService feedService;
 
     // 댓글 작성
-    @RequestMapping("/{feedId}/comments")
+    @PostMapping("/{feedId}/comments")
     public ResponseEntity<CommentRes> createFeedComment(
             @PathVariable Long feedId,
             @Valid @RequestBody CommentReq commentReq){
