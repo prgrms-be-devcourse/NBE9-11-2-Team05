@@ -39,18 +39,21 @@ public class User extends BaseEntity {
     private LocalDate lastHeartResetDate;
 
     // 매일 자정마다 응원 횟수 초기화
-    public void resetDailyCheerCount() {
+    public void resetDailyHeartCount() {
         this.dailyHeartCount = 0;
+        this.lastHeartResetDate = LocalDate.now();
     }
 
-    // 응원시 호출 메서드
+    // 응원사용
     public void useDailyCheer() {
         this.dailyHeartCount++;
     }
 
-    public boolean hasRemainingCheers() {
-        return this.dailyHeartCount < 5; // 5회 미만 확인
+    public boolean needsReset() {
+        return !this.lastHeartResetDate.equals(LocalDate.now());
     }
+
+
 
 
 }

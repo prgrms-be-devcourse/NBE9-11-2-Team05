@@ -88,6 +88,15 @@ public class CheerService {
         );
     }
 
+
+    private void checkAndReset(User user) {
+        LocalDate today = LocalDate.now();
+
+        // 마지막 초기화 날짜가 오늘 이전인 경우 (즉, 날짜가 바뀐경우)
+
+
+    }
+
     // temperature = (heart_count / 목표_하트수) × 100 | 목표기본값 = 50
     private double calculateTemperature(int cheersCount, int goalCount) {
         return (double) cheersCount / goalCount;
