@@ -1,18 +1,14 @@
 package com.team05.demo.domain.animal.entity;
 
-import com.team05.demo.domain.animal.dto.external.AnimalItem;
 import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
 @Table(name = "animals")
-@NoArgsConstructor
 public class Animal extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,11 +44,8 @@ public class Animal extends BaseEntity {
     @Column(name = "sex_cd", nullable = false, length = 10)
     private String sexCd; // 성별
 
-    @Column(name = "popfile1", nullable = false, length = 500)
-    private String popfile1; // 사진 URL
-
-    @Column(name = "popfile2", nullable = false, length = 500)
-    private String popfile2; // 사진 URL
+    @Column(name = "popfile", nullable = false, length = 500)
+    private String popfile; // 사진 URL
 
     @Column(name = "care_nm")
     private String careNm; // 보호소 이름
@@ -62,61 +55,4 @@ public class Animal extends BaseEntity {
 
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
-
-    private Animal(
-            String desertionNo,
-            String processState,
-            String noticeNo,
-            LocalDate noticeEdt,
-            String upKindNm,
-            String kindFullName,
-            String colorCd,
-            String age,
-            String weight,
-            String sexCd,
-            String popfile1,
-            String popfile2,
-            String careNm,
-            String careTel,
-            Integer totalCheerCount
-    ) {
-        this.desertionNo = desertionNo;
-        this.processState = processState;
-        this.noticeNo = noticeNo;
-        this.noticeEdt = noticeEdt;
-        this.upKindNm = upKindNm;
-        this.kindFullNm = kindFullName;
-        this.colorCd = colorCd;
-        this.age = age;
-        this.weight = weight;
-        this.sexCd = sexCd;
-        this.popfile1 = popfile1;
-        this.popfile2 = popfile2;
-        this.careNm = careNm;
-        this.careTel = careTel;
-        this.totalCheerCount = totalCheerCount;
-    }
-    public static Animal from(AnimalItem item){
-        return new Animal(
-                item.getDesertionNo(),
-                item.getProcessState(),
-                item.getNoticeNo(),
-                parseNoticeEdt(item.getNoticeEdt()),
-                item.getUpKindNm(),
-                item.getKindFullNm(),
-                item.getColorCd(),
-                item.getAge(),
-                item.getWeight(),
-                item.getSexCd(),
-                item.getPopfile1(),
-                item.getPopfile2(),
-                item.getCareNm(),
-                item.getCareTel(),
-                0 // 초기 응원 수는 0으로 설정
-        );
-    }
-    private static LocalDate parseNoticeEdt(String noticeEdt) {
-        return LocalDate.parse(noticeEdt, DateTimeFormatter.BASIC_ISO_DATE);
-    }
-
 }
