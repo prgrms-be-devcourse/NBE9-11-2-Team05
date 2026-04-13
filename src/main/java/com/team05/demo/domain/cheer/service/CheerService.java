@@ -32,7 +32,7 @@ public class CheerService {
                 () -> new ServiceException("400", "존재하지 않는 사용자")
         );
 
-        int usedToday = user.getDailyCheerUsedCount();
+        int usedToday = user.getDailyHeartCount();
         int remainingToday = 5 - usedToday;
 
         // 내일 자정 계산 (DB에 저장하지 않고, 매번 계산해서 사용)
@@ -66,7 +66,7 @@ public class CheerService {
                 () -> new ServiceException("400", "존재하지 않는 동물")
         );
         // 5회 제한 확인
-        if (user.getDailyCheerUsedCount() >= 5) {
+        if (user.getDailyHeartCount() >= 5) {
             throw new ServiceException("429", "오늘의 응원 하트를 모두 사용했습니다. 자정에 초기화됩니다.");
         }
         // cheer 객체 생성 & 저장
@@ -78,7 +78,7 @@ public class CheerService {
         // 응원 부여 후 동물의 최신 정보 조회
         int newCheerCount = animal.getTotalCheerCount();
         double newTemperature = calculateTemperature(newCheerCount, 50);
-        int remainingHeartsToday = 5 - user.getDailyCheerUsedCount();
+        int remainingHeartsToday = 5 - user.getDailyHeartCount();
 
         return new CheerRes(
                 animalId,
