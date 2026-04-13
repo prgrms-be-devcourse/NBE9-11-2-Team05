@@ -1,17 +1,18 @@
 package com.team05.demo.domain.animal.entity;
 
 import com.team05.demo.global.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
+import lombok.Getter;
 
 @Entity
 @Getter
 @Table(name = "animals")
 public class Animal extends BaseEntity {
-    @Id
-    @Column(name = "desertion_no", nullable = false, length = 50)
+
+    @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
     private String desertionNo; // 유기번호
 
     @Column(name = "process_state", nullable = false, length = 30)
