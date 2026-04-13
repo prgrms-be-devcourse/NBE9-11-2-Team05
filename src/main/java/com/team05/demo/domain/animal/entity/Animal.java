@@ -1,5 +1,6 @@
 package com.team05.demo.domain.animal.entity;
 
+import com.team05.demo.domain.animal.dto.external.AnimalItem;
 import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -95,12 +96,12 @@ public class Animal extends BaseEntity {
         this.careTel = careTel;
         this.totalCheerCount = totalCheerCount;
     }
-    public static Animal from(Animal item){
+    public static Animal from(AnimalItem item){
         return new Animal(
                 item.getDesertionNo(),
                 item.getProcessState(),
                 item.getNoticeNo(),
-                item.getNoticeEdt(),
+                parseNoticeEdt(item.getNoticeEdt()),
                 item.getUpKindNm(),
                 item.getKindFullNm(),
                 item.getColorCd(),
