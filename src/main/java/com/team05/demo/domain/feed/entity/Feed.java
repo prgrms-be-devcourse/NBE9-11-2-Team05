@@ -1,15 +1,17 @@
 package com.team05.demo.domain.feed.entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import com.team05.demo.domain.animal.entity.Animal;
-import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.enums.FeedCategory;
+import com.team05.demo.domain.comment.entity.Comment;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,5 +45,8 @@ public class Feed extends BaseEntity {
         this.content = content;
         this.imageUrl = imageUrl;
     }
+
+    @OneToMany (mappedBy = "feed", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
 }

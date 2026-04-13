@@ -1,6 +1,7 @@
 package com.team05.demo.domain.animal.entity;
 
 import com.team05.demo.domain.animal.dto.external.AnimalItem;
+import com.team05.demo.domain.comment.entity.Comment;
 import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -59,6 +62,9 @@ public class Animal extends BaseEntity {
 
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
+
+    @OneToMany (mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     private Animal(
             String desertionNo,
