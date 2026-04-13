@@ -115,7 +115,7 @@ public class AnimalSyncServiceTest {
     }
 
     @Test
-    @DisplayName("같은 유기동물 데이터는 중복 저장되지 않는다")
+    @DisplayName("같은 유기동물 데이터는 중복 저장 방지 테스트")
     void doesNotSaveDuplicates() {
         // given
         AnimalSyncService animalSyncService = createAnimalSyncService();
@@ -129,5 +129,34 @@ public class AnimalSyncServiceTest {
 
         // then
         assertEquals(firstCount, secondCount);
+    }
+
+    @Test
+    @DisplayName("저장된 Animal 데이터의 주요 필드를 검증")
+    void fetchAndSaveAnimals_savesAnimalFieldsCorrectly() {
+        // given
+        AnimalSyncService animalSyncService = createAnimalSyncService();
+
+        // when
+        animalSyncService.fetchAndSaveAnimals();
+
+        // then
+        Animal animal = animalRepository.findAll().get(0);
+
+        assertNotNull(animal.getId());
+        assertNotNull(animal.getDesertionNo());
+        assertNotNull(animal.getProcessState());
+        assertNotNull(animal.getNoticeNo());
+        assertNotNull(animal.getNoticeEdt());
+        assertNotNull(animal.getUpKindNm());
+        assertNotNull(animal.getKindFullNm());
+        assertNotNull(animal.getColorCd());
+        assertNotNull(animal.getAge());
+        assertNotNull(animal.getWeight());
+        assertNotNull(animal.getSexCd());
+        assertNotNull(animal.getPopfile1());
+        assertNotNull(animal.getCareNm());
+        assertNotNull(animal.getCareTel());
+        assertEquals(0, animal.getTotalCheerCount());
     }
 }
