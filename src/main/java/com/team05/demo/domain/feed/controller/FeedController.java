@@ -25,7 +25,7 @@ public class FeedController {
     public ResponseEntity<CommentRes> createFeedComment(
             @PathVariable Long feedId,
             @Valid @RequestBody CommentReq commentReq){
-        CommentRes res = commentService.createAnimalComment(feedId, commentReq);
+        CommentRes res = commentService.createFeedComment(feedId, commentReq);
         return ResponseEntity.ok(res);
     }
 
