@@ -19,7 +19,7 @@ public record FeedRes (
     public FeedRes(Feed feed){
        this(
                feed.getId(),
-               feed.getUser().getId(),
+               feed.getUser() != null ? feed.getUser().getId() : null, // null 체크
                feed.getContent(),
                feed.getImageUrl(),
                0,

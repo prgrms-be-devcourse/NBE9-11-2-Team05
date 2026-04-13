@@ -1,14 +1,12 @@
 package com.team05.demo.domain.feed.entity;
-
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import com.team05.demo.domain.animal.entity.Animal;
+import com.team05.demo.domain.feed.dto.FeedRequest;
+import com.team05.demo.domain.feed.enums.FeedCategory;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.global.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,15 +18,15 @@ import lombok.NoArgsConstructor;
 public class Feed extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = true) //임시!
     private User user;    // FK
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "desertion_no")
     private Animal animal; // FK
 
     @Column(nullable = false)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private FeedCategory category;
 
     @Column(nullable = false)
     private String title;
@@ -37,5 +35,13 @@ public class Feed extends BaseEntity {
     private String content;
 
     private String imageUrl;
+
+    public Feed(User user, FeedCategory category, String title, String content, String imageUrl){
+        this.user = user;
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
 
 }

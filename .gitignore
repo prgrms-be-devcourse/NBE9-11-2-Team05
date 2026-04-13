@@ -48,3 +48,6 @@ db_dev.trace.db
 
 # 도커 데이터는 각자 로컬에만 저장하고 Git에는 올리지 않음
 db/mysql/data/
+
+# macOS
+.DS_Store
