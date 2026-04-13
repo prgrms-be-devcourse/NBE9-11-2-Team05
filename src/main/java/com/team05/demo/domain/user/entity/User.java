@@ -4,11 +4,12 @@ import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -37,5 +38,17 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private LocalDate lastHeartResetDate;
 
+    // 매일 자정마다 응원 횟수 초기화
+    public void resetDailyHeartCountIfNeeded() {
+        if(!this.lastHeartResetDate.equals(LocalDate.now())){
+            this.dailyHeartCount = 0;
+            this.lastHeartResetDate = LocalDate.now();
+        }
+    }
+
+    // 응원사용
+    public void useDailyCheer() {
+        this.dailyHeartCount++;
+    }
 
 }

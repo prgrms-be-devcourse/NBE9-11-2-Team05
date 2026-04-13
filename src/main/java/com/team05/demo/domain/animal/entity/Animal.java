@@ -52,4 +52,5 @@ public class Animal extends BaseEntity {
 
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
+
 }
