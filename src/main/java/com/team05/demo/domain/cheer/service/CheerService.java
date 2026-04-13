@@ -35,9 +35,7 @@ public class CheerService {
         );
 
         // 초기화 필요하면 응원 개수 초기화
-        if (user.needsReset()) {
-            user.resetDailyHeartCount();
-        }
+        user.resetDailyHeartCountIfNeeded();
 
         int usedToday = user.getDailyHeartCount();
         int remainingToday = 5 - usedToday;
@@ -61,9 +59,8 @@ public class CheerService {
                 () -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND)
         );
 
-        if (user.needsReset()) {
-            user.resetDailyHeartCount();
-        }
+        // 초기화 필요하면 응원 개수 초기화
+        user.resetDailyHeartCountIfNeeded();
 
         // 5회 제한 확인
         if (user.getDailyHeartCount() >= 5) {
@@ -75,7 +72,8 @@ public class CheerService {
         cheerRepository.save(cheer);
         // user 응원 횟수 증가
         user.useDailyCheer();
-        animal.increaseCheerCount(); // todo: 동시성제어 처리
+        animalRepository.incrementCheerCount(animalId); // 원자적 업데이트(동시성 안전)
+
         // 응원 부여 후 동물의 최신 정보 조회
         int newCheerCount = animal.getTotalCheerCount();
         double newTemperature = calculateTemperature(newCheerCount, 50);
@@ -89,14 +87,6 @@ public class CheerService {
         );
     }
 
-
-    private void checkAndReset(User user) {
-        LocalDate today = LocalDate.now();
-
-        // 마지막 초기화 날짜가 오늘 이전인 경우 (즉, 날짜가 바뀐경우)
-
-
-    }
 
     // temperature = (heart_count / 목표_하트수) × 100 | 목표기본값 = 50
     private double calculateTemperature(int cheersCount, int goalCount) {
