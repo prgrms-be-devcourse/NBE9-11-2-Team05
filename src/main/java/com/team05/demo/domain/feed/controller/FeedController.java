@@ -22,7 +22,7 @@ public class FeedController {
 
     // 댓글 작성
     @RequestMapping("/{feedId}/comments")
-    public ResponseEntity<CommentRes> createAnimalComment(
+    public ResponseEntity<CommentRes> createFeedComment(
             @PathVariable Long feedId,
             @Valid @RequestBody CommentReq commentReq){
         CommentRes res = commentService.createAnimalComment(feedId, commentReq);
