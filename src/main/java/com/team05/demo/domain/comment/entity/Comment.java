@@ -50,17 +50,21 @@ public class Comment extends BaseEntity {
     }
 
     public static Comment createAnimalComment(Animal animal, String content){
-        return Comment.builder()
+        Comment comment =  Comment.builder()
                 .animal(animal)
                 .content(content)
                 .build();
+        animal.getComments().add(comment);
+        return comment;
     }
 
     public static Comment createFeedComment(Feed feed, String content){
-        return Comment.builder()
+        Comment comment = Comment.builder()
                 .feed(feed)
                 .content(content)
                 .build();
+        feed.getComments().add(comment);
+        return comment;
     }
 
     public void updateContent(String newContent) {
