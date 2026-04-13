@@ -1,14 +1,17 @@
 package com.team05.demo.domain.cheer.service;
 
 import com.team05.demo.domain.animal.entity.Animal;
+import com.team05.demo.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.demo.domain.animal.repository.AnimalRepository;
 import com.team05.demo.domain.cheer.dto.CheerRes;
 import com.team05.demo.domain.cheer.dto.CheerStatusDto;
 import com.team05.demo.domain.cheer.entity.Cheer;
+import com.team05.demo.domain.cheer.errorCode.CheerErrorCode;
 import com.team05.demo.domain.cheer.repository.CheerRepository;
 import com.team05.demo.domain.user.entity.User;
+import com.team05.demo.domain.user.errorCode.UserErrorCode;
 import com.team05.demo.domain.user.repository.UserRepository;
-import com.team05.demo.global.exception.ServiceException;
+import com.team05.demo.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +31,7 @@ public class CheerService {
     // 오늘 응원 상태 조회
     public CheerStatusDto getTodaysStatus(long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new ServiceException("400", "존재하지 않는 사용자")
+                () -> new BusinessException(UserErrorCode.USER_NOT_FOUND)
         );
 
         // 초기화 필요하면 응원 개수 초기화
@@ -51,11 +54,11 @@ public class CheerService {
     public CheerRes cheerAnimal(long userId, long animalId) {
         // 사용자 조회
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new ServiceException("400", "존재하지 않는 사용자")
+                () -> new BusinessException(UserErrorCode.USER_NOT_FOUND)
         );
         // 동물 조회
         Animal animal = animalRepository.findById(animalId).orElseThrow(
-                () -> new ServiceException("400", "존재하지 않는 동물")
+                () -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND)
         );
 
         if (user.needsReset()) {
@@ -64,7 +67,7 @@ public class CheerService {
 
         // 5회 제한 확인
         if (user.getDailyHeartCount() >= 5) {
-            throw new ServiceException("429", "오늘의 응원 하트를 모두 사용했습니다. 자정에 초기화됩니다.");
+            throw new BusinessException(CheerErrorCode.DAILY_CHEER_LIMIT_EXCEEDED);
         }
 
         // cheer 객체 생성 & 저장
