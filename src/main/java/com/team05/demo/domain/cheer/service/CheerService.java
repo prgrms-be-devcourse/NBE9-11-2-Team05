@@ -2,7 +2,6 @@ package com.team05.demo.domain.cheer.service;
 
 import com.team05.demo.domain.animal.entity.Animal;
 import com.team05.demo.domain.animal.repository.AnimalRepository;
-import com.team05.demo.domain.cheer.dto.AnimalCheersDto;
 import com.team05.demo.domain.cheer.dto.CheerRes;
 import com.team05.demo.domain.cheer.dto.CheerStatusDto;
 import com.team05.demo.domain.cheer.entity.Cheer;
@@ -32,6 +31,11 @@ public class CheerService {
                 () -> new ServiceException("400", "존재하지 않는 사용자")
         );
 
+        // 초기화 필요하면 응원 개수 초기화
+        if (user.needsReset()) {
+            user.resetDailyHeartCount();
+        }
+
         int usedToday = user.getDailyHeartCount();
         int remainingToday = 5 - usedToday;
 
@@ -41,18 +45,6 @@ public class CheerService {
         String resetAt = tomorrow_midnight.toString();
 
         return new CheerStatusDto(usedToday, remainingToday, resetAt);
-    }
-
-    // 동물 응원 정보 조회
-    public AnimalCheersDto getAnimalCheers(long animalId) {
-        Animal animal = animalRepository.findById(animalId).orElseThrow(
-                () -> new ServiceException("400", "존재하지 않는 동물")
-        );
-
-        int cheerCount = animal.getTotalCheerCount();
-        double temperature = calculateTemperature(cheerCount, 50);
-
-        return new AnimalCheersDto(animalId, cheerCount, temperature);
     }
 
     // 응원 부여
@@ -65,10 +57,16 @@ public class CheerService {
         Animal animal = animalRepository.findById(animalId).orElseThrow(
                 () -> new ServiceException("400", "존재하지 않는 동물")
         );
+
+        if (user.needsReset()) {
+            user.resetDailyHeartCount();
+        }
+
         // 5회 제한 확인
         if (user.getDailyHeartCount() >= 5) {
             throw new ServiceException("429", "오늘의 응원 하트를 모두 사용했습니다. 자정에 초기화됩니다.");
         }
+
         // cheer 객체 생성 & 저장
         Cheer cheer = new Cheer(user, animal);
         cheerRepository.save(cheer);

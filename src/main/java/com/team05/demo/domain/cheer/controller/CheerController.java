@@ -1,7 +1,6 @@
 package com.team05.demo.domain.cheer.controller;
 
 import com.team05.demo.domain.animal.repository.AnimalRepository;
-import com.team05.demo.domain.cheer.dto.AnimalCheersDto;
 import com.team05.demo.domain.cheer.dto.CheerRes;
 import com.team05.demo.domain.cheer.dto.CheerStatusDto;
 import com.team05.demo.domain.cheer.service.CheerService;
@@ -43,26 +42,7 @@ public class CheerController {
         );
     }
 
-    /**
-     * GET /api/v1/animals/{animalId}/cheers
-     * 특정 동물의 응원 수 및 온도 조회
-     * (인증 불필요)
-     * @param animalId 동물 ID
-     * @return RsData<AnimalCheersDto>
-     */
-    @GetMapping("/animals/{animalId}/cheers")
-    @Operation(summary = "응원 수 및 온도 조회")
-    public RsData<AnimalCheersDto> getAnimalCheers(
-            @PathVariable long animalId
-    ) {
-        AnimalCheersDto animalCheers = cheerService.getAnimalCheers(animalId);
 
-        return new RsData<>(
-                "동물의 응원 정보 조회 성공",
-                "200",
-                animalCheers
-        );
-    }
 
     /**
      * POST /api/v1/animals/{animalId}/cheers
