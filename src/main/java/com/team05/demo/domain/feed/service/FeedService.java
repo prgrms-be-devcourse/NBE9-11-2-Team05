@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.team05.demo.domain.feed.errorCode.FeedErrorCode;
+import com.team05.demo.global.exception.BusinessException;
+
 @Service
 @RequiredArgsConstructor
 public class FeedService {
@@ -18,5 +21,8 @@ public class FeedService {
     public Feed write(FeedRequest request, User user){
         Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl());
         return feedRepository.save(feed);
+    }
+    public Feed findByFeedId(Long id) {
+        return feedRepository.findById(id).orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
     }
 }
