@@ -23,7 +23,7 @@ public class Comment extends BaseEntity {
 
     // 피드글에 달린 댓글일 경우
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "desertion_no", nullable = true)
+    @JoinColumn(name = "animal_id", nullable = true)
     private Animal animal;
 
     @Column(length = 255, nullable = false)
