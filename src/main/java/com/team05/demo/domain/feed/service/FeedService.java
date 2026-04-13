@@ -24,6 +24,15 @@ public class FeedService {
         feedRepository.save(feed);
         return new FeedRes(feed);
     }
+
+    @Transactional
+    public FeedRes modify(Long feedId, FeedRequest request){
+        Feed feed = feedRepository.findById(feedId)
+                        .orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
+        feed.update(request.category(),request.title(),request.content(),request.imageUrl());
+        return new FeedRes(feed);
+    }
+
     public Feed findByFeedId(Long id) {
         return feedRepository.findById(id).orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
     }

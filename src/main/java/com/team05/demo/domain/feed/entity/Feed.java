@@ -45,6 +45,12 @@ public class Feed extends BaseEntity {
         this.content = content;
         this.imageUrl = imageUrl;
     }
+    public void update(FeedCategory category, String title, String content, String imageUrl){
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
 
     @OneToMany (mappedBy = "feed", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
