@@ -5,7 +5,6 @@ import com.team05.demo.domain.comment.dto.CommentRes;
 import com.team05.demo.domain.comment.service.CommentService;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
-import com.team05.demo.domain.feed.entity.Feed;
 import com.team05.demo.domain.feed.service.FeedService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,7 @@ public class FeedController {
     @PostMapping
     public ResponseEntity<FeedRes> write(@RequestBody FeedRequest request) {
         // JWT 구현 후 실제 user로 교체
-        Feed feed = feedService.write(request, null);
-        return ResponseEntity.status(201).body(new FeedRes(feed));
+        FeedRes res = feedService.write(request, null);
+        return ResponseEntity.status(201).body(res);
     }
 }
