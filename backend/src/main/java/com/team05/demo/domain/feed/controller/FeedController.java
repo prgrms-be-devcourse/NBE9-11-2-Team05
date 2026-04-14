@@ -3,13 +3,17 @@ package com.team05.demo.domain.feed.controller;
 import com.team05.demo.domain.comment.dto.CommentReq;
 import com.team05.demo.domain.comment.dto.FeedCommentRes;
 import com.team05.demo.domain.comment.service.CommentService;
+import com.team05.demo.domain.feed.dto.FeedListRes;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
+import com.team05.demo.domain.feed.repository.FeedRepository;
 import com.team05.demo.domain.feed.service.FeedService;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.domain.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +25,7 @@ public class FeedController {
     private final CommentService commentService;
     private final FeedService feedService;
     private final UserRepository userRepository;
+    private final FeedRepository feedRepository;
 
     // 댓글 작성
     @PostMapping("/{feedId}/comments")
@@ -77,5 +82,21 @@ public class FeedController {
 
         feedService.delete(feedId, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{feedId}")
+    public ResponseEntity<FeedRes> getFeed(
+            @PathVariable Long feedId
+    ){
+        FeedRes res = feedService.getFeed(feedId);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<FeedListRes>> getFeeds(
+            Pageable pageable
+    ){
+        Page<FeedListRes> feeds = feedService.getFeeds(pageable);
+        return ResponseEntity.ok(feeds);
     }
 }
