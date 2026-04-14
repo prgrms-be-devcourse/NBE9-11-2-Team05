@@ -52,3 +52,4 @@ db/mysql/data/
 # macOS
 .DS_Store
 env
+db/mysql/data/
