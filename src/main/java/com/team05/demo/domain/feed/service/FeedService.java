@@ -26,11 +26,20 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedRes modify(Long feedId, FeedRequest request){
+    public FeedRes modify(Long feedId, FeedRequest request, User user){
         Feed feed = feedRepository.findById(feedId)
                         .orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
+        feed.checkModify(user);
         feed.update(request.category(),request.title(),request.content(),request.imageUrl());
         return new FeedRes(feed);
+    }
+
+   @Transactional
+    public void delete(Long feedId, User user){
+        Feed feed = feedRepository.findById(feedId)
+                .orElseThrow(()->new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
+        feed.checkDelete(user);
+        feedRepository.delete(feed);
     }
 
     public Feed findByFeedId(Long id) {

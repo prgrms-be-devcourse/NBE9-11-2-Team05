@@ -46,7 +46,23 @@ public class FeedController {
     public ResponseEntity<FeedRes> modify(
             @PathVariable Long feedId,
             @RequestBody FeedRequest request){
-        FeedRes res = feedService.modify(feedId, request);
+
+        // JWT 구현 후 실제 user로 교체
+        User user = userRepository.findById(1L).orElseThrow();
+
+        FeedRes res = feedService.modify(feedId, request, user);
         return ResponseEntity.ok(res);
+    }
+
+    @DeleteMapping("/{feedId}")
+    public ResponseEntity<Void> delete (
+            @PathVariable Long feedId
+    ){
+
+        // JWT 구현 후 실제 user로 교체
+        User user = userRepository.findById(1L).orElseThrow();
+
+        feedService.delete(feedId, user);
+        return ResponseEntity.noContent().build();
     }
 }
