@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.team05.demo.animal.AnimalExternalServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-14T06:49:47.554Z" hostname="macui-MacBookAir.local" time="1.492">
+  <properties/>
+  <testcase name="외부 유기동물 목록 API 호출 테스트" classname="com.team05.demo.animal.AnimalExternalServiceTest" time="1.491"/>
+  <system-out><![CDATA[[com.team05.demo.domain.animal.dto.external.AnimalItem@2d1df853, com.team05.demo.domain.animal.dto.external.AnimalItem@79052209, com.team05.demo.domain.animal.dto.external.AnimalItem@35d9d10b, com.team05.demo.domain.animal.dto.external.AnimalItem@7006b304, com.team05.demo.domain.animal.dto.external.AnimalItem@321b0237, com.team05.demo.domain.animal.dto.external.AnimalItem@62de6b17, com.team05.demo.domain.animal.dto.external.AnimalItem@19f4bfce, com.team05.demo.domain.animal.dto.external.AnimalItem@5c2fb167, com.team05.demo.domain.animal.dto.external.AnimalItem@364f0a6f, com.team05.demo.domain.animal.dto.external.AnimalItem@27585962]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
