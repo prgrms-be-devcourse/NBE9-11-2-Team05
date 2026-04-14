@@ -25,6 +25,7 @@ public class AnimalSyncService {
                 .getItem();
 
         List<Animal> animals = items.stream()
+                .filter(item -> item.getDesertionNo() != null && !item.getDesertionNo().isBlank())
                 .filter(item -> !animalRepository.existsByDesertionNo(item.getDesertionNo()))
                 .map(Animal::from)
                 .toList();
