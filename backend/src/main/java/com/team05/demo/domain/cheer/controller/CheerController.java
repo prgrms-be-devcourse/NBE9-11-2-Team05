@@ -38,7 +38,7 @@ public class CheerController {
             @PathVariable Long animalId,
             @AuthenticationPrincipal User user
     ) {
-        CheerRes cheerRes = cheerService.cheerAnimal(animalId, user.getId());
+        CheerRes cheerRes = cheerService.cheerAnimal(user.getId(), animalId);
 
         return ResponseEntity.ok(cheerRes);
     }
