@@ -4,10 +4,11 @@ import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -46,4 +47,13 @@ public class User extends BaseEntity {
         this.dailyHeartCount++;
     }
 
+    // 테스트용 생성자
+//    public User(String username, String password, String nickname, String role, int dailyHeartCount, LocalDate lastHeartResetDate) {
+//        this.username = username;
+//        this.password = password;
+//        this.nickname = nickname;
+//        this.role = role;
+//        this.dailyHeartCount = dailyHeartCount;
+//        this.lastHeartResetDate = lastHeartResetDate;
+//    }
 }
