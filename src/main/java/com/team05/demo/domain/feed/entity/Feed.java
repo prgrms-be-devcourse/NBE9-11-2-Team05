@@ -1,12 +1,10 @@
 package com.team05.demo.domain.feed.entity;
 
 import com.team05.demo.domain.animal.entity.Animal;
+import com.team05.demo.domain.comment.entity.FeedComment;
 import com.team05.demo.domain.feed.enums.FeedCategory;
-import com.team05.demo.domain.comment.entity.Comment;
-import com.team05.demo.domain.feed.errorCode.FeedErrorCode;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.global.entity.BaseEntity;
-import com.team05.demo.global.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,6 +51,14 @@ public class Feed extends BaseEntity {
         this.content = content;
         this.imageUrl = imageUrl;
     }
+
+    // 테스트용 (user 없이)
+    public Feed(FeedCategory category, String title, String content, String imageUrl) {
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
     public void checkModify(User user){
 //        JWT 구현 후 권한 검증 추가
     }
@@ -65,6 +71,6 @@ public class Feed extends BaseEntity {
     }
 
     @OneToMany (mappedBy = "feed", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    private List<FeedComment> comments = new ArrayList<>();
 
 }

@@ -4,7 +4,16 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
   jpa:
     hibernate:
       ddl-auto: create-drop
+
+jwt:
+  secret: test-secret-key-must-be-at-least-32-characters-long
+  expireMillis: 1800000
+
+animal:
+  api:
+    base-url: https://test.example.com
+    service-key: test-key
+    return-type: json

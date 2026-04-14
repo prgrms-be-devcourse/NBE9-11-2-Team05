@@ -1,7 +1,7 @@
 package com.team05.demo.domain.feed.controller;
 
 import com.team05.demo.domain.comment.dto.CommentReq;
-import com.team05.demo.domain.comment.dto.CommentRes;
+import com.team05.demo.domain.comment.dto.FeedCommentRes;
 import com.team05.demo.domain.comment.service.CommentService;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
@@ -24,11 +24,24 @@ public class FeedController {
 
     // 댓글 작성
     @PostMapping("/{feedId}/comments")
-    public ResponseEntity<CommentRes> createFeedComment(
+    public ResponseEntity<FeedCommentRes> createFeedComment(
             @PathVariable Long feedId,
             @Valid @RequestBody CommentReq commentReq){
-        CommentRes res = commentService.createFeedComment(feedId, commentReq);
+        FeedCommentRes res = commentService.createFeedComment(feedId, commentReq);
         return ResponseEntity.ok(res);
+    }
+
+    @PutMapping("/{feedId}/comments/{commentId}")
+    public ResponseEntity<FeedCommentRes> updateComment(@PathVariable Long commentId,
+                                                        @Valid @RequestBody CommentReq commentReq){
+        FeedCommentRes res = commentService.updateFeedComment(commentId, commentReq);
+        return ResponseEntity.ok(res);
+    }
+
+    @DeleteMapping("/{feedId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId){
+        commentService.deleteFeedComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 
 
