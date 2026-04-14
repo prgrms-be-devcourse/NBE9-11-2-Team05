@@ -1,11 +1,14 @@
 package com.team05.demo.domain.feed.service;
 
+import com.team05.demo.domain.feed.dto.FeedListRes;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
 import com.team05.demo.domain.feed.entity.Feed;
 import com.team05.demo.domain.feed.repository.FeedRepository;
 import com.team05.demo.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +43,17 @@ public class FeedService {
                 .orElseThrow(()->new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
         feed.checkDelete(user);
         feedRepository.delete(feed);
+    }
+
+    public FeedRes getFeed(Long feedId){
+        Feed feed = feedRepository.findById(feedId)
+                .orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
+        return new FeedRes(feed);
+    }
+
+    public Page<FeedListRes> getFeeds(Pageable pageable){
+        return feedRepository.findAll(pageable)
+                .map(FeedListRes::new);
     }
 
     public Feed findByFeedId(Long id) {

@@ -1,9 +1,11 @@
 package com.team05.demo.domain.feed.dto;
 
+import com.team05.demo.domain.comment.dto.FeedCommentRes;
 import com.team05.demo.domain.feed.entity.Feed;
 import com.team05.demo.domain.feed.enums.FeedCategory;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record FeedRes (
 
@@ -15,6 +17,7 @@ public record FeedRes (
         String imageUrl,
         int likeCount,
         int commentCount,
+        List<FeedCommentRes> comments,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 
@@ -29,6 +32,9 @@ public record FeedRes (
                feed.getImageUrl(),
                0,
                0,
+               feed.getComments().stream()
+                               .map(FeedCommentRes::from)
+                               .toList(),
                feed.getCreatedAt(),
                feed.getUpdatedAt()
        );
