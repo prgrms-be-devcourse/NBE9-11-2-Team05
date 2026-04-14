@@ -22,8 +22,23 @@ public class AnimalSyncService {
     }
 
     public void fetchAndSaveAnimals() {
-        AnimalApiResponse response = animalExternalService.fetchAnimals();
+        int pageSize = 500;
 
+        AnimalApiResponse firstResponse = animalExternalService.fetchAnimals(1, pageSize);
+
+        int totalCount = firstResponse.getResponse().getBody().getTotalCount();
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+        saveItems(firstResponse);
+
+        for (int page = 2; page <= totalPages; page++) {
+            AnimalApiResponse response = animalExternalService.fetchAnimals(page, pageSize);
+            saveItems(response);
+        }
+
+    }
+
+    private void saveItems(AnimalApiResponse response) {
         List<AnimalItem> items = response.getResponse()
                 .getBody()
                 .getItems()
