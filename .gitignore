@@ -67,3 +67,7 @@ coverage/
 # Misc
 ############################
 *.swp
+
+# Gradle cache
+.gradle/
+backend/.gradle/
