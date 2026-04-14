@@ -14,11 +14,11 @@ public class AnimalExternalService {
     private final AnimalApiClient animalApiClient;
 
     // 유기동물 목록을 API에서 조회하는 메서드
-    public AnimalApiResponse fetchAnimals() {
+    public AnimalApiResponse fetchAnimals(int pageNo, int numOfRows) {
         String url = animalApiClient.getAbandonmentUrl()
                 + "?serviceKey=" + animalApiClient.getServiceKey()
-                + "&pageNo=1"
-                + "&numOfRows=10"
+                + "&pageNo=" + pageNo
+                + "&numOfRows=" + numOfRows
                 + "&_type=" + animalApiClient.getReturnType();
 
         return RestClient.create()
