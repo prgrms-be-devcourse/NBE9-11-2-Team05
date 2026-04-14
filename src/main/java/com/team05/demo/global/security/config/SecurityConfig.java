@@ -71,6 +71,10 @@ public class SecurityConfig {
                                 "/api/v1/feeds/*"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/animals/sync"
+                        ).permitAll()
+
                         // 그 외 요청에 대해 인증된 접근만 허용
                         .anyRequest().authenticated());
 
