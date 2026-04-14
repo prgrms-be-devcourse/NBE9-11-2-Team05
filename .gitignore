@@ -1,54 +1,78 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+############################
+# OS
+############################
+.DS_Store
+Thumbs.db
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+############################
+# IDE / Editor
+############################
+.idea/
+.vscode/
 *.iml
 *.ipr
+*.iws
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+############################
+# Logs
+############################
+*.log
+logs/
 
-### VS Code ###
-.vscode/
-
-### custom ###
-db_dev.mv.db
-db_dev.trace.db
-
-### 민감 정보 ###
+############################
+# Environment / Secrets
+############################
 .env
-.properties
+.env.*
+!.env.example
 
-# + API key 등 위험 정보 추가 세팅
+############################
+# Backend (Spring Boot / Gradle)
+############################
+# Gradle cache
+.gradle/
+backend/.gradle/
 
-# 도커 데이터는 각자 로컬에만 저장하고 Git에는 올리지 않음
-db/mysql/data/
+# Build output
+backend/build/
+backend/target/
 
-# macOS
-.DS_Store
-env
+# Local DB
+backend/db_dev.mv.db
+backend/db_dev.trace.db
+
+# Sensitive config (중요: 전체 .properties 금지)
+backend/application-*.properties
+
+# Docker data
+backend/db/mysql/data/
+
+# Gradle wrapper (반드시 포함)
+!backend/gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.properties
+!backend/gradlew
+!backend/gradlew.bat
+
+############################
+# Frontend (React / Vite / Next)
+############################
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# frontend env
+frontend/.env.local
+frontend/.env.*.local
+
+############################
+# Coverage / Test
+############################
+coverage/
+
+############################
+# Misc
+############################
+*.swp
