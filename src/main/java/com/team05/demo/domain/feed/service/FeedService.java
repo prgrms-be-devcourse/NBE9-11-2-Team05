@@ -1,6 +1,7 @@
 package com.team05.demo.domain.feed.service;
 
 import com.team05.demo.domain.feed.dto.FeedRequest;
+import com.team05.demo.domain.feed.dto.FeedRes;
 import com.team05.demo.domain.feed.entity.Feed;
 import com.team05.demo.domain.feed.repository.FeedRepository;
 import com.team05.demo.domain.user.entity.User;
@@ -18,10 +19,20 @@ public class FeedService {
     private final FeedRepository feedRepository;
 
     @Transactional
-    public Feed write(FeedRequest request, User user){
+    public FeedRes write(FeedRequest request, User user){
         Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl());
-        return feedRepository.save(feed);
+        feedRepository.save(feed);
+        return new FeedRes(feed);
     }
+
+    @Transactional
+    public FeedRes modify(Long feedId, FeedRequest request){
+        Feed feed = feedRepository.findById(feedId)
+                        .orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
+        feed.update(request.category(),request.title(),request.content(),request.imageUrl());
+        return new FeedRes(feed);
+    }
+
     public Feed findByFeedId(Long id) {
         return feedRepository.findById(id).orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
     }
