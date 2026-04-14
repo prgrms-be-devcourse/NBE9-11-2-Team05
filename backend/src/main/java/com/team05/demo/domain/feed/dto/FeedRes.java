@@ -31,7 +31,7 @@ public record FeedRes (
                feed.getContent(),
                feed.getImageUrl(),
                0,
-               0,
+               feed.getComments().size(),
                feed.getComments().stream()
                                .map(FeedCommentRes::from)
                                .toList(),

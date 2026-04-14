@@ -6,7 +6,6 @@ import com.team05.demo.domain.comment.service.CommentService;
 import com.team05.demo.domain.feed.dto.FeedListRes;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
-import com.team05.demo.domain.feed.repository.FeedRepository;
 import com.team05.demo.domain.feed.service.FeedService;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.domain.user.repository.UserRepository;
@@ -25,7 +24,6 @@ public class FeedController {
     private final CommentService commentService;
     private final FeedService feedService;
     private final UserRepository userRepository;
-    private final FeedRepository feedRepository;
 
     // 댓글 작성
     @PostMapping("/{feedId}/comments")
