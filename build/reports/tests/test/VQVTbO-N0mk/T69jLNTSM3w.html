@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - savedAnimalFields()</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<div class="breadcrumbs">
+<a class="breadcrumb" href="../index.html">all</a> &gt; 
+<a class="breadcrumb" href="index.html">com.team05.demo.animal.AnimalSyncServiceTest</a> &gt; 
+<span class="breadcrumb">savedAnimalFields()</span>
+</div>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a class="successGroup" href="#">Gradle Test Run :test</a>
+</li>
+</ul>
+<div class="tab">
+<h2>Gradle Test Run :test</h2>
+<h1>저장된 Animal 데이터의 주요 필드를 검증한다</h1>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a class="" href="#">summary</a>
+</li>
+<li>
+<a class="" href="#">standard output</a>
+</li>
+<li>
+<a class="" href="#">error output</a>
+</li>
+</ul>
+<div class="tab">
+<h2>summary</h2>
+<div>
+<div class="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox">
+<div class="counter">1</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox">
+<div class="counter">0</div>
+<p>skipped</p>
+</div>
+</td>
+<td>
+<div class="infoBox duration">
+<div class="counter">1.737s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="tab">
+<h2>standard output</h2>
+<span class="code">
+<pre id="root-0-test-stdout-savedAnimalFields()">?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.850+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600347]
+?[2m2026-04-14T15:49:51.851+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.867+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600346]
+?[2m2026-04-14T15:49:51.867+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.868+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600345]
+?[2m2026-04-14T15:49:51.869+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.870+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600344]
+?[2m2026-04-14T15:49:51.870+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.870+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600343]
+?[2m2026-04-14T15:49:51.870+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.871+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600342]
+?[2m2026-04-14T15:49:51.871+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.872+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600341]
+?[2m2026-04-14T15:49:51.872+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.872+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600340]
+?[2m2026-04-14T15:49:51.872+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.873+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600339]
+?[2m2026-04-14T15:49:51.873+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34mSELECT?[0m
+        a.id 
+    ?[34mFROM?[0m
+        Animal a 
+    ?[34mWHERE?[0m
+        a.desertionNo = :desertionNo */ ?[34mselect?[0m
+            a1_0.id 
+        ?[34mfrom?[0m
+            animals a1_0 
+        ?[34mwhere?[0m
+            a1_0.desertion_no=? 
+        ?[34mfetch?[0m
+            ?[34mfirst?[0m ? ?[34mrows?[0m ?[34monly?[0m
+?[2m2026-04-14T15:49:51.874+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [448540202600338]
+?[2m2026-04-14T15:49:51.874+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:INTEGER) &lt;- [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.922+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.922+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.922+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.922+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;검정]
+?[2m2026-04-14T15:49:51.922+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.894129]
+?[2m2026-04-14T15:49:51.923+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600347]
+?[2m2026-04-14T15:49:51.923+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.923+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00113]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104394[1].jpg]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104434.jpg]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [M]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.894129]
+?[2m2026-04-14T15:49:51.924+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.7(Kg)]
+?[2m2026-04-14T15:49:51.930+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [1]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.933+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.933+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;검정&amp;흰색]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.933165]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600346]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00112]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104259.jpg]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104297.jpg]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.933165]
+?[2m2026-04-14T15:49:51.934+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.5(Kg)]
+?[2m2026-04-14T15:49:51.935+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [2]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(년생)]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;흰색]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.935625]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600345]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00111]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104214.jpg]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104298[2].jpg]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.935625]
+?[2m2026-04-14T15:49:51.936+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.8(Kg)]
+?[2m2026-04-14T15:49:51.937+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [3]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.937+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.937+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;검정&amp;흰색]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.937520]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600344]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00110]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104319.jpg]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104367[1].jpg]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [M]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.937520]
+?[2m2026-04-14T15:49:51.938+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.3(Kg)]
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [4]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;검정&amp;흰색]
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.939320]
+?[2m2026-04-14T15:49:51.939+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600343]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00109]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104380.jpg]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104425.jpg]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.939320]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.2(Kg)]
+?[2m2026-04-14T15:49:51.940+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [5]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2022(년생)]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [검정&amp;황갈색]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.941012]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600342]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 미니어쳐 핀셔]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00108]
+?[2m2026-04-14T15:49:51.941+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/20260414110433[1].jpg]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/20260414110476[1].jpg]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.941012]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [4.0(Kg)]
+?[2m2026-04-14T15:49:51.942+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [6]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.943+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2023(년생)]
+?[2m2026-04-14T15:49:51.943+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.943+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.943+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;흰색]
+?[2m2026-04-14T15:49:51.943+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.943026]
+?[2m2026-04-14T15:49:51.943+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600341]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00107]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104716[1].jpg]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104763[1].jpg]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.943026]
+?[2m2026-04-14T15:49:51.944+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [10.0(Kg)]
+?[2m2026-04-14T15:49:51.945+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [7]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [살구색]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.945430]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600340]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.946+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00106]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104680.jpg]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104741.jpg]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [M]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.945430]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.5(Kg)]
+?[2m2026-04-14T15:49:51.947+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [8]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.948+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.948+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.948+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.948+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [살구색]
+?[2m2026-04-14T15:49:51.948+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.948018]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600339]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00105]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104236[1].jpg]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104282[1].jpg]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.948018]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [2.3(Kg)]
+?[2m2026-04-14T15:49:51.949+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [9]
+?[35m[Hibernate]?[0m 
+    /* ?[34minsert?[0m 
+    ?[34mfor?[0m
+        com.team05.demo.domain.animal.entity.Animal
+        */?[34minsert?[0m 
+    ?[34minto?[0m
+        animals (age, care_nm, care_tel, color_cd, created_at, desertion_no, kind_full_name, notice_edt, notice_no, popfile1, popfile2, process_state, sex_cd, total_cheer_count, up_kind_nm, updated_at, weight, id) 
+    ?[34mvalues?[0m
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?[34mdefault?[0m)
+?[2m2026-04-14T15:49:51.950+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (1:VARCHAR) &lt;- [2025(년생)]
+?[2m2026-04-14T15:49:51.950+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (2:VARCHAR) &lt;- [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.950+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (3:VARCHAR) &lt;- [010-6248-2131]
+?[2m2026-04-14T15:49:51.950+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (4:VARCHAR) &lt;- [갈색&amp;검정]
+?[2m2026-04-14T15:49:51.950+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (5:TIMESTAMP) &lt;- [2026-04-14T15:49:51.950161]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (6:VARCHAR) &lt;- [448540202600338]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (7:VARCHAR) &lt;- [[개] 믹스견]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (8:DATE) &lt;- [2026-04-24]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (9:VARCHAR) &lt;- [경남-함안-2026-00104]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (10:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104875.jpg]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (11:VARCHAR) &lt;- [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104917.jpg]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (12:VARCHAR) &lt;- [보호중]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (13:VARCHAR) &lt;- [F]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (14:INTEGER) &lt;- [0]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (15:VARCHAR) &lt;- [개]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (16:TIMESTAMP) &lt;- [2026-04-14T15:49:51.950161]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.bind             ?[0;39m ?[2m:?[0;39m binding parameter (17:VARCHAR) &lt;- [7.0(Kg)]
+?[2m2026-04-14T15:49:51.951+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [10]
+?[35m[Hibernate]?[0m 
+    /* &lt;criteria&gt; */ ?[34mselect?[0m
+        a1_0.id,
+        a1_0.age,
+        a1_0.care_nm,
+        a1_0.care_tel,
+        a1_0.color_cd,
+        a1_0.created_at,
+        a1_0.desertion_no,
+        a1_0.kind_full_name,
+        a1_0.notice_edt,
+        a1_0.notice_no,
+        a1_0.popfile1,
+        a1_0.popfile2,
+        a1_0.process_state,
+        a1_0.sex_cd,
+        a1_0.total_cheer_count,
+        a1_0.up_kind_nm,
+        a1_0.updated_at,
+        a1_0.weight 
+    ?[34mfrom?[0m
+        animals a1_0
+?[2m2026-04-14T15:49:51.984+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [1]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;검정]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.894129]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600347]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.985+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00113]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104394[1].jpg]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104434.jpg]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [M]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.894129]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.7(Kg)]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [2]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.986+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;검정&amp;흰색]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.933165]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600346]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00112]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104259.jpg]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104297.jpg]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.933165]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.5(Kg)]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [3]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(년생)]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.987+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;흰색]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.935625]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600345]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00111]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104214.jpg]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104298[2].jpg]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.935625]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.8(Kg)]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [4]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;검정&amp;흰색]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.937520]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600344]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00110]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104319.jpg]
+?[2m2026-04-14T15:49:51.988+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104367[1].jpg]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [M]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.937520]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.3(Kg)]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [5]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;검정&amp;흰색]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.939320]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600343]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00109]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104380.jpg]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104425.jpg]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.939320]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.2(Kg)]
+?[2m2026-04-14T15:49:51.989+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [6]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2022(년생)]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [검정&amp;황갈색]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.941012]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600342]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 미니어쳐 핀셔]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00108]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/20260414110433[1].jpg]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/20260414110476[1].jpg]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.941012]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [4.0(Kg)]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [7]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2023(년생)]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.990+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;흰색]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.943026]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600341]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00107]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104716[1].jpg]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104763[1].jpg]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.943026]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [10.0(Kg)]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [8]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.991+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [살구색]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.945430]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600340]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00106]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104680.jpg]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104741.jpg]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [M]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.945430]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.5(Kg)]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [9]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2026(60일미만)(년생)]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [살구색]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.948018]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600339]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.992+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00105]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104236[1].jpg]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104282[1].jpg]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.948018]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [2.3(Kg)]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (1:BIGINT) -&gt; [10]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (2:VARCHAR) -&gt; [2025(년생)]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (3:VARCHAR) -&gt; [함안군동물보호센터]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (4:VARCHAR) -&gt; [010-6248-2131]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (5:VARCHAR) -&gt; [갈색&amp;검정]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (6:TIMESTAMP) -&gt; [2026-04-14T15:49:51.950161]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (7:VARCHAR) -&gt; [448540202600338]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (8:VARCHAR) -&gt; [[개] 믹스견]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (9:DATE) -&gt; [2026-04-24]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (10:VARCHAR) -&gt; [경남-함안-2026-00104]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (11:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104875.jpg]
+?[2m2026-04-14T15:49:51.993+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (12:VARCHAR) -&gt; [http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/04/202604141104917.jpg]
+?[2m2026-04-14T15:49:51.994+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (13:VARCHAR) -&gt; [보호중]
+?[2m2026-04-14T15:49:51.994+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (14:VARCHAR) -&gt; [F]
+?[2m2026-04-14T15:49:51.994+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (15:INTEGER) -&gt; [0]
+?[2m2026-04-14T15:49:51.994+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (16:VARCHAR) -&gt; [개]
+?[2m2026-04-14T15:49:51.994+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (17:TIMESTAMP) -&gt; [2026-04-14T15:49:51.950161]
+?[2m2026-04-14T15:49:51.994+09:00?[0;39m ?[32mTRACE?[0;39m ?[35m90770?[0;39m ?[2m--- [demo] [    Test worker] ?[0;39m?[36morg.hibernate.orm.jdbc.extract          ?[0;39m ?[2m:?[0;39m extracted value (18:VARCHAR) -&gt; [7.0(Kg)]
+</pre>
+<button class="clipboard-copy-btn" aria-label="Copy to clipboard" data-copy-element-id="root-0-test-stdout-savedAnimalFields()">Copy</button>
+</span>
+</div>
+<div class="tab">
+<h2>error output</h2>
+<span class="code">
+<pre id="root-0-test-stderr-savedAnimalFields()">Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/Users/mac/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.8/f09415827a71be7ed621c7bd02550678f28bc81c/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+</pre>
+<button class="clipboard-copy-btn" aria-label="Copy to clipboard" data-copy-element-id="root-0-test-stderr-savedAnimalFields()">Copy</button>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="https://www.gradle.org">Gradle 9.4.1</a> at 2026. 4. 14. 오후 3:49:56</p>
+</div>
+</div>
+</body>
+</html>
