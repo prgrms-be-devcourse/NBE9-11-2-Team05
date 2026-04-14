@@ -1,7 +1,7 @@
 package com.team05.demo.domain.animal.entity;
 
 import com.team05.demo.domain.animal.dto.external.AnimalItem;
-import com.team05.demo.domain.comment.entity.Comment;
+import com.team05.demo.domain.comment.entity.AnimalComment;
 import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -64,7 +64,7 @@ public class Animal extends BaseEntity {
     private Integer totalCheerCount; // 응원 수
 
     @OneToMany (mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    private List<AnimalComment> comments = new ArrayList<>();
 
     private Animal(
             String desertionNo,

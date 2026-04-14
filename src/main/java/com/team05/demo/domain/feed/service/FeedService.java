@@ -36,4 +36,8 @@ public class FeedService {
     public Feed findByFeedId(Long id) {
         return feedRepository.findById(id).orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
     }
+
+    public long count(){
+        return feedRepository.count();
+    }
 }

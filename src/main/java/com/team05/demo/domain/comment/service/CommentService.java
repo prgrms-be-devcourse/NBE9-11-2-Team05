@@ -2,11 +2,14 @@ package com.team05.demo.domain.comment.service;
 
 import com.team05.demo.domain.animal.entity.Animal;
 import com.team05.demo.domain.animal.service.AnimalService;
+import com.team05.demo.domain.comment.dto.AnimalCommentRes;
 import com.team05.demo.domain.comment.dto.CommentReq;
-import com.team05.demo.domain.comment.dto.CommentRes;
-import com.team05.demo.domain.comment.entity.Comment;
+import com.team05.demo.domain.comment.dto.FeedCommentRes;
+import com.team05.demo.domain.comment.entity.AnimalComment;
+import com.team05.demo.domain.comment.entity.FeedComment;
 import com.team05.demo.domain.comment.errorCode.CommentErrorCode;
-import com.team05.demo.domain.comment.repository.CommentRepository;
+import com.team05.demo.domain.comment.repository.AnimalCommentRepository;
+import com.team05.demo.domain.comment.repository.FeedCommentRepository;
 import com.team05.demo.domain.feed.entity.Feed;
 import com.team05.demo.domain.feed.service.FeedService;
 import com.team05.demo.global.exception.BusinessException;
@@ -19,36 +22,54 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService{
 
-    private final CommentRepository commentRepository;
+    private final FeedCommentRepository feedCommentRepository;
+    private final AnimalCommentRepository animalCommentRepository;
     private final AnimalService animalService;
     private final FeedService feedService;
 
     @Transactional
-    public CommentRes createAnimalComment(Long animalId, CommentReq commentReq){
+    public AnimalCommentRes createAnimalComment(Long animalId, CommentReq commentReq){
         Animal animal = animalService.findByAnimalId(animalId);
-        Comment comment = Comment.createAnimalComment(animal, commentReq.content());
-        Comment savedComment = commentRepository.save(comment);
-        return CommentRes.from(savedComment);
+        AnimalComment comment = AnimalComment.create(animal, commentReq.content());
+        AnimalComment savedComment = animalCommentRepository.save(comment);
+        return AnimalCommentRes.from(savedComment);
     }
 
     @Transactional
-    public CommentRes createFeedComment(Long feedId, CommentReq commentReq){
+    public FeedCommentRes createFeedComment(Long feedId, CommentReq commentReq){
         Feed feed = feedService.findByFeedId(feedId);
-        Comment comment = Comment.createFeedComment(feed, commentReq.content());
-        Comment savedComment = commentRepository.save(comment);
-        return CommentRes.from(savedComment);
+        FeedComment comment = FeedComment.create(feed, commentReq.content());
+        FeedComment savedComment = feedCommentRepository.save(comment);
+        return FeedCommentRes.from(savedComment);
     }
 
-    public CommentRes updateComment(Long commentId, @Valid CommentReq commentReq) {
-        Comment comment = commentRepository.findById(commentId)
+    @Transactional
+    public AnimalCommentRes updateAnimalComment(Long commentId, @Valid CommentReq commentReq) {
+        AnimalComment comment = animalCommentRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
         comment.updateContent(commentReq.content());
-        return CommentRes.from(commentRepository.save(comment));
+        return AnimalCommentRes.from(animalCommentRepository.save(comment));
     }
 
-    public void deleteComment(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
+    @Transactional
+    public FeedCommentRes updateFeedComment(Long commentId, @Valid CommentReq commentReq) {
+        FeedComment comment = feedCommentRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
-        commentRepository.delete(comment);
+        comment.updateContent(commentReq.content());
+        return FeedCommentRes.from(feedCommentRepository.save(comment));
+    }
+
+    @Transactional
+    public void deleteAnimalComment(Long commentId) {
+        AnimalComment comment = animalCommentRepository.findById(commentId)
+                .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
+        animalCommentRepository.delete(comment);
+    }
+
+    @Transactional
+    public void deleteFeedComment(Long commentId) {
+        FeedComment comment = feedCommentRepository.findById(commentId)
+                .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
+        feedCommentRepository.delete(comment);
     }
 }
