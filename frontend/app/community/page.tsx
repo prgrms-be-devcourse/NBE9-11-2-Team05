@@ -1,0 +1,478 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Heart, MessageCircle, User, Send, Plus, X, ImageIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Header } from "@/components/header"
+import { Pagination } from "@/components/pagination"
+import { useAuth } from "@/lib/auth-context"
+import { cn } from "@/lib/utils"
+
+interface CommunityComment {
+  id: number
+  author: string
+  authorId: number
+  text: string
+  createdAt: string
+}
+
+type PostCategory = "전체" | "입양후기" | "봉사활동" | "정보공유" | "일상"
+
+interface CommunityPost {
+  id: number
+  category: PostCategory
+  title: string
+  content: string
+  author: string
+  authorId: number
+  imageUrl?: string
+  likeCount: number
+  comments: CommunityComment[]
+  createdAt: string
+}
+
+const POST_CATEGORIES: PostCategory[] = ["전체", "입양후기", "봉사활동", "정보공유", "일상"]
+
+// Mock community data
+const mockCommunityPosts: CommunityPost[] = [
+  {
+    id: 1,
+    category: "입양후기",
+    title: "우리 집 막내 입양 1주년 기념!",
+    content: "작년 이맘때 유기동물 보호소에서 우리 막내를 만났어요. 처음엔 무서워서 숨기만 하더니, 이제는 저를 졸졸 따라다녀요. 입양을 고민하시는 분들께, 정말 후회 없는 선택이 될 거예요!",
+    author: "행복한멍집사",
+    authorId: 1,
+    imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop",
+    likeCount: 42,
+    comments: [
+      { id: 1, author: "동물사랑", authorId: 2, text: "정말 예쁘네요! 축하드려요", createdAt: "2024-08-10T10:30:00" },
+      { id: 2, author: "냥이맘", authorId: 3, text: "1주년 축하해요~ 행복하세요!", createdAt: "2024-08-10T11:00:00" },
+    ],
+    createdAt: "2024-08-10T09:00:00",
+  },
+  {
+    id: 2,
+    category: "봉사활동",
+    title: "유기견 봉사활동 후기",
+    content: "오늘 처음으로 유기동물 보호소에서 봉사활동을 했어요. 아이들이 정말 순하고 사랑스러웠어요. 많은 분들이 관심 가져주시면 좋겠습니다.",
+    author: "봉사천사",
+    authorId: 4,
+    likeCount: 28,
+    comments: [
+      { id: 3, author: "착한마음", authorId: 5, text: "대단하세요! 저도 봉사 신청해야겠어요", createdAt: "2024-08-09T15:00:00" },
+    ],
+    createdAt: "2024-08-09T14:00:00",
+  },
+  {
+    id: 3,
+    category: "정보공유",
+    title: "고양이 입양 준비물 공유합니다",
+    content: "고양이 입양을 준비하시는 분들을 위해 제가 준비했던 것들 공유할게요.\n\n1. 화장실 + 모래\n2. 사료와 물그릇\n3. 스크래쳐\n4. 캣타워\n5. 장난감\n6. 이동장\n\n처음엔 너무 많은 것 같았지만, 모두 필요했어요!",
+    author: "고양이초보",
+    authorId: 6,
+    imageUrl: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=600&fit=crop",
+    likeCount: 56,
+    comments: [
+      { id: 4, author: "예비집사", authorId: 7, text: "정보 감사합니다! 도움이 많이 됐어요", createdAt: "2024-08-08T20:00:00" },
+      { id: 5, author: "냥이천국", authorId: 8, text: "스크래쳐 꼭 필요해요! 가구 긁는 거 방지됩니다", createdAt: "2024-08-08T21:00:00" },
+      { id: 6, author: "캣맘", authorId: 9, text: "이동장은 처음부터 있어야 해요. 병원 갈 때 필수!", createdAt: "2024-08-09T09:00:00" },
+    ],
+    createdAt: "2024-08-08T18:00:00",
+  },
+  {
+    id: 4,
+    category: "정보공유",
+    title: "우리 동네 길고양이 TNR 했어요",
+    content: "드디어 우리 동네 길고양이들 TNR(중성화) 완료했습니다. 구청에서 지원받아서 무료로 진행할 수 있었어요. 관심 있으신 분들은 각 지역 구청에 문의해보세요!",
+    author: "캣맘연합",
+    authorId: 10,
+    likeCount: 34,
+    comments: [],
+    createdAt: "2024-08-07T16:00:00",
+  },
+  {
+    id: 5,
+    category: "일상",
+    title: "입양 후 첫 산책 성공!",
+    content: "2주 전에 입양한 우리 초코가 드디어 첫 산책을 성공했어요! 처음엔 무서워서 안 나가려고 했는데, 조금씩 적응시키니까 이제 산책을 너무 좋아해요. 인내심이 중요한 것 같아요.",
+    author: "초코아빠",
+    authorId: 11,
+    imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=600&fit=crop",
+    likeCount: 45,
+    comments: [
+      { id: 7, author: "산책러버", authorId: 12, text: "초코 너무 귀여워요! 첫 산책 축하해요", createdAt: "2024-08-06T12:00:00" },
+    ],
+    createdAt: "2024-08-06T10:00:00",
+  },
+]
+
+function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: (updatedPost: CommunityPost) => void }) {
+  const { user } = useAuth()
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(post.likeCount)
+  const [showComments, setShowComments] = useState(false)
+  const [newComment, setNewComment] = useState("")
+  const [comments, setComments] = useState(post.comments)
+
+  const handleLike = () => {
+    if (!user) {
+      alert("로그인이 필요합니다")
+      return
+    }
+    if (liked) {
+      setLiked(false)
+      setLikeCount(prev => prev - 1)
+    } else {
+      setLiked(true)
+      setLikeCount(prev => prev + 1)
+    }
+  }
+
+  const handleCommentSubmit = () => {
+    if (!user) {
+      alert("로그인이 필요합니다")
+      return
+    }
+    if (!newComment.trim()) return
+
+    const newCommentObj: CommunityComment = {
+      id: Date.now(),
+      author: user.name,
+      authorId: user.id,
+      text: newComment,
+      createdAt: new Date().toISOString(),
+    }
+    setComments(prev => [...prev, newCommentObj])
+    setNewComment("")
+  }
+
+  return (
+    <Card className="border-0 shadow-md bg-card">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+            <User className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">{post.author}</p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(post.createdAt).toLocaleDateString("ko-KR")}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pb-3 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
+            {post.category}
+          </span>
+        </div>
+        <h3 className="font-bold text-lg text-foreground">{post.title}</h3>
+        <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+          {post.content}
+        </p>
+        {post.imageUrl && (
+          <div className="relative aspect-video rounded-xl overflow-hidden">
+            <Image
+              src={post.imageUrl}
+              alt={post.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="flex-col items-stretch gap-3 pt-2">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-4 pb-2 border-b border-border">
+          <button
+            onClick={handleLike}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Heart className={cn("w-5 h-5", liked && "fill-primary text-primary")} />
+            <span className="text-sm font-medium">{likeCount}</span>
+          </button>
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="text-sm font-medium">{comments.length}</span>
+          </button>
+        </div>
+
+        {/* Comments Section */}
+        {showComments && (
+          <div className="space-y-3">
+            {comments.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                첫 번째 댓글을 남겨보세요!
+              </p>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-2">
+                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                      <User className="w-3 h-3 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm">
+                        <span className="font-semibold text-foreground">{comment.author}</span>{" "}
+                        <span className="text-muted-foreground">{comment.text}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Comment Input */}
+            <div className="flex gap-2">
+              <Input
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCommentSubmit()}
+                placeholder={user ? "댓글을 입력하세요..." : "로그인 후 댓글을 남길 수 있습니다"}
+                className="flex-1 rounded-xl bg-secondary/50 border-0 h-10"
+                disabled={!user}
+              />
+              <Button
+                onClick={handleCommentSubmit}
+                disabled={!user || !newComment.trim()}
+                size="icon"
+                className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardFooter>
+    </Card>
+  )
+}
+
+function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (post: Omit<CommunityPost, "id" | "createdAt">) => void }) {
+  const { user } = useAuth()
+  const [category, setCategory] = useState<PostCategory>("일상")
+  const [title, setTitle] = useState("")
+  const [content, setContent] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+
+  const handleSubmit = () => {
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 내용을 입력해주세요")
+      return
+    }
+
+    onSubmit({
+      category,
+      title,
+      content,
+      author: user?.name || "익명",
+      authorId: user?.id || 0,
+      imageUrl: imageUrl || undefined,
+      likeCount: 0,
+      comments: [],
+    })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-lg border-0 shadow-2xl">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <h2 className="text-lg font-bold text-foreground">새 글 작성</h2>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-5 h-5" />
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">카테고리</label>
+            <div className="flex gap-2 flex-wrap">
+              {POST_CATEGORIES.filter(c => c !== "전체").map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                    category === cat
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">제목</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목을 입력하세요"
+              className="rounded-xl bg-secondary/50 border-0"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">내용</label>
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="내용을 입력하세요"
+              className="rounded-xl bg-secondary/50 border-0 min-h-32 resize-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">이미지 URL (선택)</label>
+            <div className="flex gap-2">
+              <Input
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://..."
+                className="rounded-xl bg-secondary/50 border-0"
+              />
+              <Button variant="outline" size="icon" className="shrink-0 rounded-xl">
+                <ImageIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="gap-2">
+          <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose}>
+            취소
+          </Button>
+          <Button className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSubmit}>
+            작성하기
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  )
+}
+
+export default function CommunityPage() {
+  const { user } = useAuth()
+  const [posts, setPosts] = useState<CommunityPost[]>(mockCommunityPosts)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [selectedCategory, setSelectedCategory] = useState<PostCategory>("전체")
+  const postsPerPage = 5
+
+  const filteredPosts = selectedCategory === "전체" 
+    ? posts 
+    : posts.filter(post => post.category === selectedCategory)
+  
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
+
+  const currentPosts = filteredPosts.slice(
+    (currentPage - 1) * postsPerPage,
+    currentPage * postsPerPage
+  )
+
+  const handleCategoryChange = (category: PostCategory) => {
+    setSelectedCategory(category)
+    setCurrentPage(1)
+  }
+
+  const handleCreatePost = (newPost: Omit<CommunityPost, "id" | "createdAt">) => {
+    const post: CommunityPost = {
+      ...newPost,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+    }
+    setPosts(prev => [post, ...prev])
+  }
+
+  const handleUpdatePost = (updatedPost: CommunityPost) => {
+    setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p))
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">커뮤니티</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              반려동물 이야기를 나눠보세요
+            </p>
+          </div>
+          <Button
+            onClick={() => {
+              if (!user) {
+                alert("로그인이 필요합니다")
+                return
+              }
+              setShowCreateModal(true)
+            }}
+            className="gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="w-4 h-4" />
+            글쓰기
+          </Button>
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+          {POST_CATEGORIES.map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryChange(category)}
+              className={cn(
+                "px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all",
+                selectedCategory === category
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+              )}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Posts List */}
+        <div className="space-y-6">
+          {currentPosts.map((post) => (
+            <CommunityPostCard 
+              key={post.id} 
+              post={post} 
+              onUpdate={handleUpdatePost}
+            />
+          ))}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </main>
+
+      {/* Create Post Modal */}
+      {showCreateModal && (
+        <CreatePostModal
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreatePost}
+        />
+      )}
+    </div>
+  )
+}
