@@ -1,14 +1,14 @@
 package com.team05.demo.domain.user.entity;
 
+import com.team05.demo.domain.user.role.Role;
 import com.team05.demo.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -24,6 +24,12 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String nickname;
+
+    @Column(nullable = false)
+    private String realname;
+
+    @Column(nullable = false)
+    private String profileImageUrl;
 
     @Column(nullable = false)
     private String role;
@@ -47,13 +53,22 @@ public class User extends BaseEntity {
         this.dailyHeartCount++;
     }
 
-    // 테스트용 생성자
-//    public User(String username, String password, String nickname, String role, int dailyHeartCount, LocalDate lastHeartResetDate) {
-//        this.username = username;
-//        this.password = password;
-//        this.nickname = nickname;
-//        this.role = role;
-//        this.dailyHeartCount = dailyHeartCount;
-//        this.lastHeartResetDate = lastHeartResetDate;
-//    }
+    public static User create(
+            String username,
+            String password,
+            String nickname,
+            String realname
+    ) {
+        User user = new User();
+        user.username = username;
+        user.password = password;
+        user.nickname = nickname;
+        user.profileImageUrl = "";
+        user.realname = realname;
+        user.role = Role.USER.name();
+        user.dailyHeartCount = 0;
+        user.lastHeartResetDate = LocalDate.now();
+        return user;
+    }
+
 }

@@ -37,19 +37,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = resolveToken(request);
 
             // 토큰 형식 검증 실패 or 이미 인증 등록 시 무시
-            if (token != null
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // 토큰 유효성 검증
-                Claims claims = jwtUtil.parseToken(token);
-
-                // 사용자 정보를 보관하는 Authentication 생성
-                Authentication auth =
-                        jwtUtil.getAuthentication(claims);
-
-                // SecurityContextHolder에 사용자 인증 정보 보관
-                SecurityContextHolder.getContext()
-                        .setAuthentication(auth);
+            if (token == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            // 토큰 유효성 검증
+            Claims claims = jwtUtil.parseToken(token);
+
+            // 사용자 정보를 보관하는 Authentication 생성
+            Authentication auth =
+                    jwtUtil.getAuthentication(claims);
+
+            // SecurityContextHolder에 사용자 인증 정보 보관
+            SecurityContextHolder.getContext()
+                    .setAuthentication(auth);
 
         } catch (ExpiredJwtException ex) { // 토큰 만료
             entryPoint.commence(
