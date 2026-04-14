@@ -35,6 +35,7 @@ logs/
 backend/.gradle/
 
 # Build output
+/build
 backend/build/
 backend/target/
 
@@ -47,6 +48,7 @@ backend/application-*.properties
 
 # Docker data
 backend/db/mysql/data/
+/db/mysql/data/
 
 # Gradle wrapper (반드시 포함)
 !backend/gradle/wrapper/gradle-wrapper.jar
