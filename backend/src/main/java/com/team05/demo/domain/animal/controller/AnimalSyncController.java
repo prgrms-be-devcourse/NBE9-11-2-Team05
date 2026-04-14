@@ -28,7 +28,8 @@ public class AnimalSyncController {
     public ResponseEntity<String> syncAllAnimals(
             @RequestParam(defaultValue = "10") int numOfRows
     ) {
+        System.out.println("sync/all controller entered");
         animalSyncService.fetchAndSaveAllAnimals(numOfRows);
-        return ResponseEntity.ok("전체 유기동물 데이터 동기화 완료");
+        return ResponseEntity.ok("SYNC_ALL_OK");
     } // 전체 데이터를 페이지 단위로 반복해서 동기화하는 엔드포인트
 }

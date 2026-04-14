@@ -51,7 +51,7 @@ public class Animal extends BaseEntity {
     @Column(name = "popfile1", nullable = false, length = 500)
     private String popfile1; // 사진 URL
 
-    @Column(name = "popfile2", nullable = false, length = 500)
+    @Column(name = "popfile2", nullable = true, length = 500)
     private String popfile2; // 사진 URL
 
     @Column(name = "care_nm")
