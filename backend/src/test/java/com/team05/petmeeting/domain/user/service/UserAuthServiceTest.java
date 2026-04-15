@@ -8,8 +8,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.login.LoginResult;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
@@ -107,10 +107,10 @@ class UserAuthServiceTest {
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
         // when
-        LoginResult result = userAuthService.login(request);
+        LoginAndRefreshResult result = userAuthService.login(request);
 
         // then
-        assertThat(result.loginResponse().accessToken()).isEqualTo("accessToken");
+        assertThat(result.loginAndRefreshResponse().accessToken()).isEqualTo("accessToken");
         assertThat(result.refreshToken()).isNotNull();
 
         verify(refreshTokenRepository).save(any());

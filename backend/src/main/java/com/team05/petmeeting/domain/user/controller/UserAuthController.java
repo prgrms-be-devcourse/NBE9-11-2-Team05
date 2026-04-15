@@ -1,8 +1,8 @@
 package com.team05.petmeeting.domain.user.controller;
 
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResponse;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.login.LoginResponse;
-import com.team05.petmeeting.domain.user.dto.login.LoginResult;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
@@ -41,16 +41,16 @@ public class UserAuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<LoginAndRefreshResponse> login(
             @Valid @RequestBody LoginReq loginReq,
             HttpServletResponse response
     ) {
-        LoginResult loginResult = userAuthService.login(loginReq);
+        LoginAndRefreshResult loginAndRefreshResult = userAuthService.login(loginReq);
 
         // 리프레시토큰 설정
-        refreshTokenUtil.add(response, loginResult.refreshToken());
+        refreshTokenUtil.add(response, loginAndRefreshResult.refreshToken());
 
-        return ResponseEntity.ok(loginResult.loginResponse());
+        return ResponseEntity.ok(loginAndRefreshResult.loginAndRefreshResponse());
     }
 
     // 로그아웃
@@ -66,6 +66,18 @@ public class UserAuthController {
     }
 
     // 리프레시 토큰 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginAndRefreshResponse> refresh(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        LoginAndRefreshResult result = userAuthService.refresh(request);
+
+        // refresh token 재설정 (rotate)
+        refreshTokenUtil.add(response, result.refreshToken());
+
+        return ResponseEntity.ok(result.loginAndRefreshResponse());
+    }
 
     // 탈퇴
 

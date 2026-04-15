@@ -1,8 +1,10 @@
 package com.team05.petmeeting.domain.user.service;
 
+import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
+
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResponse;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.login.LoginResponse;
-import com.team05.petmeeting.domain.user.dto.login.LoginResult;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.entity.User;
@@ -11,20 +13,19 @@ import com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken;
 import com.team05.petmeeting.domain.user.refreshtoken.repository.RefreshTokenRepository;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.exception.BusinessException;
+import com.team05.petmeeting.global.security.errorCode.SecurityErrorCode;
 import com.team05.petmeeting.global.security.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -64,7 +65,7 @@ public class UserAuthService {
         );
     }
 
-    public LoginResult login(LoginReq loginReq) {
+    public LoginAndRefreshResult login(LoginReq loginReq) {
 
         // 사용자 조회
         User user = userRepository.findByUsername(loginReq.username())
@@ -86,9 +87,9 @@ public class UserAuthService {
         refreshTokenRepository.save(saved);
 
         // dto 반환
-        return new LoginResult(
+        return new LoginAndRefreshResult(
                 uuid.toString(),
-                new LoginResponse("Bearer", accessToken)
+                new LoginAndRefreshResponse("Bearer", accessToken)
         );
     }
 
@@ -99,6 +100,41 @@ public class UserAuthService {
                     UUID uuid = UUID.fromString(token);
                     refreshTokenRepository.deleteByToken(uuid); // db에서 리프레시 토큰 삭제
                 });
+    }
+
+    public LoginAndRefreshResult refresh(HttpServletRequest request) {
+
+        // 1. 쿠키에서 refreshToken 추출
+        String refreshToken = extractRefreshToken(request)
+                .orElseThrow(() -> new BusinessException(SecurityErrorCode.INVALID_TOKEN)
+                );
+
+        // 2. DB 조회
+        RefreshToken savedToken = refreshTokenRepository.findByToken(UUID.fromString(refreshToken))
+                .orElseThrow(() -> new BusinessException(SecurityErrorCode.INVALID_TOKEN));
+
+        // 리프레시 토큰의 유효 기간이 지났을 경우 예외 throw
+        if (savedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            refreshTokenRepository.delete(savedToken); // cleanup
+            throw new BusinessException(SecurityErrorCode.INVALID_TOKEN);
+        }
+
+        User user = savedToken.getUser();
+
+        // 3. access token 재발급
+        String newAccessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole()));
+
+        // 4. refresh token rotate
+        refreshTokenRepository.delete(savedToken);
+
+        UUID uuid = UUID.randomUUID();
+        RefreshToken saved = RefreshToken.create(user, uuid);
+        refreshTokenRepository.save(saved);
+
+        return new LoginAndRefreshResult(
+                uuid.toString(),
+                new LoginAndRefreshResponse("Bearer", newAccessToken)
+        );
     }
 
     private Optional<String> extractRefreshToken(HttpServletRequest request) {

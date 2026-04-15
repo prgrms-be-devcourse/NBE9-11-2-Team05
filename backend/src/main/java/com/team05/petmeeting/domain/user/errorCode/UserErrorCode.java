@@ -16,8 +16,7 @@ public enum UserErrorCode implements ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U-004", "존재하지 않는 사용자입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "U-005", "비밀번호가 일치하지 않습니다."),
     SAME_AS_OLD_PASSWORD(HttpStatus.BAD_REQUEST, "U-006", "예전 비밀번호와 같습니다."),
-    DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "U-007", "이미 사용 중인 닉네임입니다."),
-    ;
+    DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "U-007", "이미 사용 중인 닉네임입니다.");
 
 
     private final HttpStatus status;
