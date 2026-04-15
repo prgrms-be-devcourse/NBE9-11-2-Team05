@@ -11,17 +11,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "feed_likes")
-public class FeedLike extends BaseEntity{
+public class FeedLike extends BaseEntity {
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private User user;    // FK
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = true) //임시!
+    private User user;    // FK
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Feed feed; // FK
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Feed feed; // FK
 
-        public FeedLike(User user, Feed feed){
-                this.user = user;
-                this.feed = feed;
-        }
+    public FeedLike(User user, Feed feed) {
+        this.user = user;
+        this.feed = feed;
+    }
 
 }

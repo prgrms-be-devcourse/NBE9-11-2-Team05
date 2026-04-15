@@ -1,6 +1,6 @@
 spring:
   application:
-    name: demo
+    name: pet-meeting
 
   profiles:
     active: dev
