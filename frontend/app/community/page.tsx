@@ -12,7 +12,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -130,18 +130,26 @@ function CommunityPostCard({
   const [newComment, setNewComment] = useState("")
   const [comments, setComments] = useState(post.comments)
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!user) {
       alert("로그인이 필요합니다")
       return
     }
-    if (liked) {
-      setLiked(false)
-      setLikeCount(prev => prev - 1)
-    } else {
-      setLiked(true)
-      setLikeCount(prev => prev + 1)
+  
+    const { data, error } = await toggleFeedLike(post.id)
+  
+    if (error) {
+      alert("좋아요 실패: " + error)
+      return
     }
+  
+    if (!data) {
+      alert("좋아요 응답이 올바르지 않습니다.")
+      return
+    }
+
+    setLikeCount(data.likeCount)
+    setLiked(data.isLiked)
   }
 
   const handleCommentSubmit = () => {

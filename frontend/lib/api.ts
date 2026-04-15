@@ -231,3 +231,10 @@ export const deleteFeed = async (feedId: number) => {
   })
   ;
 };
+// 피드 좋아요 토글
+export const toggleFeedLike = async (feedId: number) => {
+  return await apiRequest<{ likeCount: number; isLiked: boolean }>(
+    `${API_ENDPOINTS.feedDetail(feedId)}/likes`,
+    { method: "POST" }
+  );
+};
