@@ -54,6 +54,9 @@ public class Animal extends BaseEntity {
     @Column(name = "popfile2", nullable = true, length = 500)
     private String popfile2; // 사진 URL
 
+    @Column(name = "special_mark", nullable = true, length = 500)
+    private String specialMark; // 사진 URL
+
     @Column(name = "care_nm")
     private String careNm; // 보호소 이름
 
@@ -79,6 +82,7 @@ public class Animal extends BaseEntity {
             String sexCd,
             String popfile1,
             String popfile2,
+            String specialMark,
             String careNm,
             String careTel,
             Integer totalCheerCount
@@ -95,6 +99,7 @@ public class Animal extends BaseEntity {
         this.sexCd = sexCd;
         this.popfile1 = popfile1;
         this.popfile2 = popfile2;
+        this.specialMark = specialMark;
         this.careNm = careNm;
         this.careTel = careTel;
         this.totalCheerCount = totalCheerCount;
@@ -114,6 +119,7 @@ public class Animal extends BaseEntity {
                 item.getSexCd(),
                 item.getPopfile1(),
                 item.getPopfile2(),
+                item.getSpecialMark(),
                 item.getCareNm(),
                 item.getCareTel(),
                 0

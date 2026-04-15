@@ -21,6 +21,7 @@ public class AnimalItem {
     private String popfile1;
     private String popfile2;
 
+    private String specialMark;
     private String careNm;
     private String careTel;
 }
