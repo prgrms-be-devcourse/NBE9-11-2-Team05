@@ -100,7 +100,7 @@ public class Animal extends BaseEntity {
         );
     }
 
-    public Animal(
+    private Animal(
             String desertionNo,
             String processState,
             String noticeNo,

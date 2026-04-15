@@ -18,7 +18,7 @@ spring:
 
     # db 스키마 자동 생성, 수정 비활성화
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
 
     show-sql: true
 
