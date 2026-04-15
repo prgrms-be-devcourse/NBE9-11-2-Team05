@@ -5,7 +5,7 @@ import com.team05.petmeeting.domain.comment.dto.FeedCommentRes;
 import com.team05.petmeeting.domain.comment.service.CommentService;
 import com.team05.petmeeting.domain.feed.dto.FeedLikeRes;
 import com.team05.petmeeting.domain.feed.dto.FeedListRes;
-import com.team05.petmeeting.domain.feed.dto.FeedRequest;
+import com.team05.petmeeting.domain.feed.dto.FeedReq;
 import com.team05.petmeeting.domain.feed.dto.FeedRes;
 import com.team05.petmeeting.domain.feed.service.FeedLikeService;
 import com.team05.petmeeting.domain.feed.service.FeedService;
@@ -59,7 +59,7 @@ public class FeedController {
     @Operation(summary = "피드 글 작성")
     @PostMapping
     public ResponseEntity<FeedRes> write(
-            @RequestBody FeedRequest request,
+            @RequestBody FeedReq request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         User user = userRepository.findById(userDetails.getUserId()).orElseThrow();
@@ -71,7 +71,7 @@ public class FeedController {
     @PutMapping("/{feedId}")
     public ResponseEntity<FeedRes> modify(
             @PathVariable Long feedId,
-            @RequestBody FeedRequest request,
+            @RequestBody FeedReq request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         User user = userRepository.findById(userDetails.getUserId()).orElseThrow();

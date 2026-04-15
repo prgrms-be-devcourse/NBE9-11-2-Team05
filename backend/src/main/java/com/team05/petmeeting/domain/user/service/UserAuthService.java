@@ -1,12 +1,10 @@
 package com.team05.petmeeting.domain.user.service;
 
-import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
-
-import com.team05.petmeeting.domain.user.dto.login.LoginRequest;
+import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.login.LoginResponse;
 import com.team05.petmeeting.domain.user.dto.login.LoginResult;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRequest;
-import com.team05.petmeeting.domain.user.dto.signup.SignupResponse;
+import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
+import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken;
@@ -16,14 +14,17 @@ import com.team05.petmeeting.global.exception.BusinessException;
 import com.team05.petmeeting.global.security.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
 
 @Service
 @Transactional
@@ -35,7 +36,7 @@ public class UserAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public SignupResponse signup(SignupRequest request) {
+    public SignupRes signup(SignupReq request) {
         // username 중복 체크
         if (userRepository.existsByUsername(request.username())) {
             throw new BusinessException(UserErrorCode.DUPLICATE_USERNAME);
@@ -56,23 +57,23 @@ public class UserAuthService {
         User savedUser = userRepository.save(user);
 
         // 응답 생성
-        return new SignupResponse(
+        return new SignupRes(
                 savedUser.getId(),
                 savedUser.getUsername(),
                 savedUser.getNickname()
         );
     }
 
-    public LoginResult login(LoginRequest loginRequest) {
+    public LoginResult login(LoginReq loginReq) {
 
         // 사용자 조회
-        User user = userRepository.findByUsername(loginRequest.username())
+        User user = userRepository.findByUsername(loginReq.username())
                 .orElseThrow(
                         () -> new BusinessException(UserErrorCode.LOGIN_FAILED)
                 );
 
         // 비밀번호 검증
-        if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
+        if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
             throw new BusinessException(UserErrorCode.LOGIN_FAILED);
         }
 

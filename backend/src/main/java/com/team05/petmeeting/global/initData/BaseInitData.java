@@ -2,7 +2,7 @@ package com.team05.petmeeting.global.initData;
 
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
 import com.team05.petmeeting.domain.feed.service.FeedService;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRequest;
+import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +38,6 @@ public class BaseInitData {
         if (userRepository.count() > 0) {
             return;
         }
-        userAuthService.signup(new SignupRequest("admin", "12345678Aa!", "admin_nickname", "홍길동"));
+        userAuthService.signup(new SignupReq("admin", "12345678Aa!", "admin_nickname", "홍길동"));
     }
 }

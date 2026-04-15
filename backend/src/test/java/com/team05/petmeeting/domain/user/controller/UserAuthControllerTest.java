@@ -5,8 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.user.dto.login.LoginRequest;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRequest;
+import com.team05.petmeeting.domain.user.dto.login.LoginReq;
+import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class UserAuthControllerTest {
     @DisplayName("회원가입 성공")
     void signup() throws Exception {
         // 회원가입
-        SignupRequest signup = new SignupRequest("testusername", "TestPassword12!", "닉네임", "홍길동");
+        SignupReq signup = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
 
         mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -48,7 +48,7 @@ public class UserAuthControllerTest {
     @DisplayName("회원가입 실패 - 이미 가입한 사용자")
     void signup_fail1() throws Exception {
         // given
-        SignupRequest signup = new SignupRequest("duplicateUser", "TestPassword12!", "닉네임", "홍길동");
+        SignupReq signup = new SignupReq("duplicateUser", "TestPassword12!", "닉네임", "홍길동");
 
         // 1. 먼저 회원가입 수행 (DB에 저장됨)
         mockMvc.perform(post("/api/v1/auth/signup")
@@ -70,7 +70,7 @@ public class UserAuthControllerTest {
     @DisplayName("회원가입 실패 - 입력값 검증 실패")
     void signup_fail2() throws Exception {
         // given
-        SignupRequest signup = new SignupRequest("id", "wrongpassword", "", "");
+        SignupReq signup = new SignupReq("id", "wrongpassword", "", "");
 
         // when & then
         mockMvc.perform(post("/api/v1/auth/signup")
@@ -85,7 +85,7 @@ public class UserAuthControllerTest {
     @DisplayName("로그인 성공")
     void login() throws Exception {
 
-        SignupRequest signup = new SignupRequest("testusername", "TestPassword12!", "닉네임", "홍길동");
+        SignupReq signup = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
 
         mockMvc.perform(post("/api/v1/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ public class UserAuthControllerTest {
     @DisplayName("로그인 실패 - 존재하지않는 id")
     void login_fail1() throws Exception {
 
-        SignupRequest login = new SignupRequest("testusername", "TestPassword12!", "닉네임", "홍길동");
+        SignupReq login = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
 
         // 로그인
         mockMvc.perform(post("/api/v1/auth/login")
@@ -120,14 +120,14 @@ public class UserAuthControllerTest {
     @DisplayName("로그인 실패 - 잘못된 pw")
     void login_fail2() throws Exception {
 
-        SignupRequest signup = new SignupRequest("testusername", "TestPassword12!", "닉네임", "홍길동");
+        SignupReq signup = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
 
         mockMvc.perform(post("/api/v1/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signup))
         );
 
-        LoginRequest login = new LoginRequest("testusername", "WrongPassword!!12");
+        LoginReq login = new LoginReq("testusername", "WrongPassword!!12");
 
         // 로그인
         mockMvc.perform(post("/api/v1/auth/login")
