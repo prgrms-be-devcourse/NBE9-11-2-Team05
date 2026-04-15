@@ -26,7 +26,7 @@ public record FeedListRes(
                 feed.getContent(),
                 feed.getImageUrl(),
                 0,
-                0,
+                feed.getComments().size(),
                 feed.getCreatedAt(),
                 feed.getUpdatedAt()
         );
