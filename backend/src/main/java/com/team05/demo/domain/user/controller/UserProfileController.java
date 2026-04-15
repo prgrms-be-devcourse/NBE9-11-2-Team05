@@ -19,7 +19,6 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
 
     // username 변경
-    // todo: 회원가입 기준과 맞추기
     @PatchMapping("/username")
     public ResponseEntity<UserProfileRes> username(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -53,7 +52,6 @@ public class UserProfileController {
     }
 
     // 비밀번호 변경
-    // todo: 회원가입 기준과 맞추기
     @PatchMapping("/password")
     public ResponseEntity<Void> password(
             @AuthenticationPrincipal CustomUserDetails userDetails,
