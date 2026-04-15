@@ -70,7 +70,14 @@ public class SecurityConfig {
                                 "/api/v1/feeds",
                                 "/api/v1/feeds/*"
                         ).permitAll()
-//                        .requestMatchers("/api/v1/me/**").permitAll()
+
+                        // 외부 API 적재용 엔드포인트 임시 공개
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/animals/sync",
+                                "/api/v1/animals/sync/all"
+                        ).permitAll()
+
+                        .requestMatchers("/api/v1/me/**").permitAll()
 
                         // 그 외 요청에 대해 인증된 접근만 허용
                         .anyRequest().authenticated());
