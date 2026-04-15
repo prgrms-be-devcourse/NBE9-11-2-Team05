@@ -6,6 +6,7 @@ import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
+import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import com.team05.petmeeting.global.security.util.RefreshTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,6 +83,18 @@ public class UserAuthController {
     }
 
     // 탈퇴
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletResponse response
+    ) {
+        userAuthService.withdraw(userDetails.getUserId());
+
+        // refresh token 쿠키 제거
+        refreshTokenUtil.delete(response);
+
+        return ResponseEntity.noContent().build();
+    }
 
 
 }

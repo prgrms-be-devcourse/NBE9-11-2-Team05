@@ -137,6 +137,20 @@ public class UserAuthService {
         );
     }
 
+    public void withdraw(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+
+        // 1. refresh token 전체 삭제
+        refreshTokenRepository.deleteAllByUser(user);
+
+        // 2. 유저 삭제
+        userRepository.delete(user);
+
+        // soft delete 추후 고려
+    }
+
     private Optional<String> extractRefreshToken(HttpServletRequest request) {
 
         if (request.getCookies() == null) {
