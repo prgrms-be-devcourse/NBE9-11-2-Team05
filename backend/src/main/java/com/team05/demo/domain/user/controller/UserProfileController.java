@@ -65,7 +65,7 @@ public class UserProfileController {
     }
 
     // 그동안 응원 누른 응원 수 , 동물 수
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<MyProfileDetailRes> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
