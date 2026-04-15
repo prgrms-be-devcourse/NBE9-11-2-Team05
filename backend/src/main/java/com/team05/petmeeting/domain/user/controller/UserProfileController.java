@@ -98,4 +98,14 @@ public class UserProfileController {
         UserProfileRes res = userProfileService.getUserProfile(userId);
         return ResponseEntity.ok(res);
     }
+
+    @GetMapping("/summary")
+    public ResponseEntity<UserSummaryRes> getSummary(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    )
+    {
+        Long userId = userDetails.getUserId();
+        UserSummaryRes res = userProfileService.getUserSummary(userId);
+        return ResponseEntity.ok(res);
+    }
 }
