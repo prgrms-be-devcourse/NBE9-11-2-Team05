@@ -1,11 +1,18 @@
 package com.team05.demo.domain.animal.service;
 
+import com.team05.demo.domain.animal.dto.AnimalRes;
 import com.team05.demo.domain.animal.entity.Animal;
 import com.team05.demo.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.demo.domain.animal.repository.AnimalRepository;
 import com.team05.demo.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,24 +23,42 @@ public class AnimalService {
     public Animal findByAnimalId(Long animalId){
         return animalRepository.findById(animalId).orElseThrow(() -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND));
     }
-/**
-    public Page<AnimalResponse> getAnimals(String region, String kind, String processState) {
-        List<Animal> allAnimals = animalRepository.findAll();
+
+    public Page<AnimalRes> getAnimals(String region, String kind, String processState, Pageable pageable) {
+        // 예외처리 (페이지 번호 음수)
+        if (pageable.getPageNumber() < 0) {
+            throw new BusinessException(AnimalErrorCode.INVALID_PAGE_NUMBER);
+        }
+
+        List<Animal> sortedAnimals = animalRepository.findAll(pageable.getSort()); // 정렬된 동물 리스트
 
         // 필터링 로직
-        allAnimals.stream()
+        List<AnimalRes> filterdList = sortedAnimals.stream()
                 .filter(animal -> filterByRegion(animal, region))
                 .filter(animal -> filterByKind(animal, kind))
                 .filter(animal -> filterByProcessState(animal, processState))
-                // 이후 entity->DTO 변환,
+                .map(AnimalRes::new)
+                .toList();
 
-        // todo: 페이징처리
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filterdList.size());
+
+        // 데이터가 아예 없을 때
+        if (filterdList.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+        // 페이지 범위를 벗어났을 때
+        if (start >= filterdList.size()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, filterdList.size());
+        }
+
+        return new PageImpl<>(
+                filterdList.subList(start, end), // 현재 페이지 조각
+                pageable,                        // 요청 정보
+                filterdList.size()               // 전체 개수
+        );
 
     }
-*/
-
-
-
 
     // [지역필터] 강원-원주-2026-00156 에선 "강원"으로 필터링
     private boolean filterByRegion(Animal animal, String region) {

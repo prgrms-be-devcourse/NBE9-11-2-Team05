@@ -11,7 +11,7 @@ public enum AnimalErrorCode implements ErrorCode {
 
     // HttpStatus 객체 사용 및 코드에 식별자(A-) 부여
     ANIMAL_NOT_FOUND(HttpStatus.NOT_FOUND, "A-001", "존재하지 않는 유기동물입니다."),
-    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "A-002", "잘못된 페이지 번호입니다"),
+    INVALID_PAGE_NUMBER(HttpStatus.BAD_REQUEST, "A-002", "잘못된 페이지 번호입니다"),
 
     ;
 
