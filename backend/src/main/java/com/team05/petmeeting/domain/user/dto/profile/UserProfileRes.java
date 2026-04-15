@@ -8,9 +8,10 @@ public record UserProfileRes(
         String username,
         String profileImageUrl,
         String nickname,
+        String name,
         LocalDateTime createdAt
 ) {
     public static UserProfileRes from(User user) {
-        return new UserProfileRes(user.getUsername(), user.getProfileImageUrl(), user.getNickname(), user.getCreatedAt());
+        return new UserProfileRes(user.getUsername(), user.getProfileImageUrl(), user.getNickname(), user.getRealname(), user.getCreatedAt());
     }
 }
