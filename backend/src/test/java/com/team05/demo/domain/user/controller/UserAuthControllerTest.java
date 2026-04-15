@@ -40,8 +40,8 @@ public class UserAuthControllerTest {
                         .content(objectMapper.writeValueAsString(signup))
                 )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.username").value("testusername"))
-                .andExpect(jsonPath("$.data.nickname").value("닉네임"));
+                .andExpect(jsonPath("$.username").value("testusername"))
+                .andExpect(jsonPath("$.nickname").value("닉네임"));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class UserAuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signup))
                 )
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("U-003"));
     }
 
@@ -98,7 +98,7 @@ public class UserAuthControllerTest {
                         .content(objectMapper.writeValueAsString(signup))
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.accessToken").exists());
+                .andExpect(jsonPath("$.accessToken").exists());
     }
 
     @Test
