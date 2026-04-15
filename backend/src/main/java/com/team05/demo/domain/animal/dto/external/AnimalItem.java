@@ -21,6 +21,8 @@ public class AnimalItem {
     private String popfile1;
     private String popfile2;
 
+    private String specialMark;
     private String careNm;
     private String careTel;
+    private String updTm; // API에서 제공하는 데이터의 최종 업데이트 시각
 }

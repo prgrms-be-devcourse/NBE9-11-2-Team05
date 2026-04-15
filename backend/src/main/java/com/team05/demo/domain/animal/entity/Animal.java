@@ -8,9 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -48,11 +50,14 @@ public class Animal extends BaseEntity {
     @Column(name = "sex_cd", nullable = false, length = 10)
     private String sexCd; // 성별
 
-    @Column(name = "popfile1", nullable = false, length = 500)
+    @Column(name = "popfile1", nullable = true, length = 500)
     private String popfile1; // 사진 URL
 
     @Column(name = "popfile2", nullable = true, length = 500)
     private String popfile2; // 사진 URL
+
+    @Column(name = "special_mark", nullable = true, length = 500)
+    private String specialMark; // 사진 URL
 
     @Column(name = "care_nm")
     private String careNm; // 보호소 이름
@@ -63,8 +68,37 @@ public class Animal extends BaseEntity {
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
 
+    @Column(name = "api_updated_at")
+    private LocalDateTime apiUpdatedAt;
+
     @OneToMany (mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
+
+    public void updateProcessState(AnimalItem item) {
+        this.processState = item.getProcessState();
+        this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
+    }
+
+    public boolean needsProcessStateUpdate(AnimalItem item) {
+        LocalDateTime incomingUpdatedAt = parseUpdTm(item.getUpdTm());
+
+        if (this.apiUpdatedAt != null && incomingUpdatedAt != null) {
+            return incomingUpdatedAt.isAfter(this.apiUpdatedAt);
+        }
+
+        return !Objects.equals(this.processState, item.getProcessState());
+    }
+
+    private static LocalDateTime parseUpdTm(String updTm) {
+        if (updTm == null || updTm.isBlank()) {
+            return null;
+        }
+
+        return LocalDateTime.parse(
+                updTm,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
+        );
+    }
 
     private Animal(
             String desertionNo,
@@ -79,6 +113,7 @@ public class Animal extends BaseEntity {
             String sexCd,
             String popfile1,
             String popfile2,
+            String specialMark,
             String careNm,
             String careTel,
             Integer totalCheerCount
@@ -95,13 +130,16 @@ public class Animal extends BaseEntity {
         this.sexCd = sexCd;
         this.popfile1 = popfile1;
         this.popfile2 = popfile2;
+        this.specialMark = specialMark;
         this.careNm = careNm;
         this.careTel = careTel;
         this.totalCheerCount = totalCheerCount;
     }
 
+
+
     public static Animal from(AnimalItem item) {
-        return new Animal(
+        Animal animal = new Animal(
                 item.getDesertionNo(),
                 item.getProcessState(),
                 item.getNoticeNo(),
@@ -114,10 +152,14 @@ public class Animal extends BaseEntity {
                 item.getSexCd(),
                 item.getPopfile1(),
                 item.getPopfile2(),
+                item.getSpecialMark(),
                 item.getCareNm(),
                 item.getCareTel(),
                 0
         );
+
+        animal.apiUpdatedAt = parseUpdTm(item.getUpdTm());
+        return animal;
     }
 
     private static LocalDate parseNoticeEdt(String noticeEdt) {
