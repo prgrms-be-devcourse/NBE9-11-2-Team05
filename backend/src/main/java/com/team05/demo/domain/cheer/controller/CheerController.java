@@ -1,10 +1,9 @@
 package com.team05.demo.domain.cheer.controller;
 
-import com.team05.demo.domain.animal.repository.AnimalRepository;
 import com.team05.demo.domain.cheer.dto.CheerRes;
 import com.team05.demo.domain.cheer.dto.CheerStatusDto;
 import com.team05.demo.domain.cheer.service.CheerService;
-import com.team05.demo.domain.user.entity.User;
+import com.team05.demo.global.security.userdetails.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +17,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CheerController {
 
-    private final AnimalRepository animalRepository; // todo: AnimalService 정의 후 교체 예정(예외처리도 서비스에서 진행될 예정)
     private final CheerService cheerService;
-
 
     @GetMapping("/cheers/today")
     @Operation(summary = "잔여 응원 횟수 조회")
     public ResponseEntity<CheerStatusDto> getTodaysCheers(
-            @AuthenticationPrincipal User user // todo: 검증된 user 가져오기
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // Service 호출
-        CheerStatusDto status = cheerService.getTodaysStatus(user.getId());
+        CheerStatusDto status = cheerService.getTodaysStatus(userDetails.getUserId());
         return ResponseEntity.ok(status);
     }
 
@@ -36,9 +33,9 @@ public class CheerController {
     @Operation(summary = "응원 부여")
     public ResponseEntity<CheerRes> cheerAnimal(
             @PathVariable Long animalId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        CheerRes cheerRes = cheerService.cheerAnimal(user.getId(), animalId);
+        CheerRes cheerRes = cheerService.cheerAnimal(userDetails.getUserId(), animalId);
 
         return ResponseEntity.ok(cheerRes);
     }
