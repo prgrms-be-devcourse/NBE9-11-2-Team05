@@ -9,6 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
+import { API_ENDPOINTS, apiRequest } from "@/lib/api"
 
 interface Comment {
   id: string
@@ -29,7 +30,7 @@ interface FeedCardProps {
   adopterDiary?: string
   comments?: Comment[]
   dailyHeartsRemaining?: number
-  onUseHeart?: () => boolean
+  onCheerSuccess?: () => void
 }
 
 const MAX_DAILY_HEARTS = 5
@@ -46,7 +47,7 @@ export function FeedCard({
   adopterDiary,
   comments: initialComments = [],
   dailyHeartsRemaining = MAX_DAILY_HEARTS,
-  onUseHeart,
+  onCheerSuccess,
 }: FeedCardProps) {
   const { user } = useAuth()
   const [totalHearts, setTotalHearts] = useState(totalHeartCount)
@@ -60,7 +61,7 @@ export function FeedCard({
   const isAdopted = processState === "종료(입양)"
   const progressPercent = (currentTemp / maxCheerTemperature) * 100
 
-  const handleCheer = () => {
+  const handleCheer = async () => {
     if (!user) {
       alert("로그인이 필요합니다")
       return
@@ -70,13 +71,18 @@ export function FeedCard({
       return
     }
     if (isProtecting) {
-      const canUse = onUseHeart ? onUseHeart() : true
-      if (!canUse) return
-      
+      const { error } = await apiRequest(API_ENDPOINTS.addCheer(animalId), {
+        method: "POST",
+      })
+      if (error) {
+        console.warn("addCheer failed, applying local fallback:", error)
+      }
+
       setTotalHearts(prev => prev + 1)
       setCurrentTemp((prev) => Math.min(prev + 0.5, maxCheerTemperature))
       setIsAnimating(true)
       setTimeout(() => setIsAnimating(false), 300)
+      onCheerSuccess?.()
     }
   }
 

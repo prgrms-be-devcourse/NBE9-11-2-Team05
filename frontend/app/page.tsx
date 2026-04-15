@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FeedCard } from "@/components/feed-card"
 import { Header } from "@/components/header"
 import { RankingBanner } from "@/components/ranking-banner"
@@ -8,6 +8,7 @@ import { Pagination } from "@/components/pagination"
 import { Filter, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
+import { API_ENDPOINTS, apiRequest } from "@/lib/api"
 
 const MAX_DAILY_HEARTS = 5
 
@@ -189,15 +190,66 @@ export default function SocialFeedPage() {
   const [dailyHeartsRemaining, setDailyHeartsRemaining] = useState(MAX_DAILY_HEARTS)
   const currentFeedData = generatePageData(currentPage, ITEMS_PER_PAGE)
 
+  const extractRemainingToday = (
+    payload: { [key: string]: any } | string | number | null
+  ): number | null => {
+    if (typeof payload === "number") return payload
+    if (typeof payload === "string") {
+      const parsed = Number(payload)
+      return Number.isFinite(parsed) ? parsed : null
+    }
+    if (!payload || typeof payload !== "object") return null
+    if (typeof payload.remainingToday === "number") return payload.remainingToday
+    if (typeof payload.remainingToday === "string") {
+      const parsed = Number(payload.remainingToday)
+      if (Number.isFinite(parsed)) return parsed
+    }
+    if (typeof payload.remaining === "number") return payload.remaining
+    if (typeof payload.remaining === "string") {
+      const parsed = Number(payload.remaining)
+      if (Number.isFinite(parsed)) return parsed
+    }
+    if (typeof payload.remainingCheers === "number") return payload.remainingCheers
+    if (typeof payload.remainingCheers === "string") {
+      const parsed = Number(payload.remainingCheers)
+      if (Number.isFinite(parsed)) return parsed
+    }
+    if (payload.data && typeof payload.data === "object") {
+      return extractRemainingToday(payload.data as { [key: string]: any })
+    }
+    if (payload.result && typeof payload.result === "object") {
+      return extractRemainingToday(payload.result as { [key: string]: any })
+    }
+    return null
+  }
+
+  const fetchDailyHeartsRemaining = async () => {
+    if (!user) {
+      setDailyHeartsRemaining(MAX_DAILY_HEARTS)
+      return
+    }
+
+    const { data } = await apiRequest<{ [key: string]: any }>(API_ENDPOINTS.cheersToday)
+    const remainingToday = extractRemainingToday(data)
+    if (remainingToday === null) {
+      return
+    }
+
+    setDailyHeartsRemaining(Math.max(0, Math.min(MAX_DAILY_HEARTS, remainingToday)))
+  }
+
+  const handleCheerSuccess = () => {
+    setDailyHeartsRemaining(prev => Math.max(0, prev - 1))
+    fetchDailyHeartsRemaining()
+  }
+
+  useEffect(() => {
+    fetchDailyHeartsRemaining()
+  }, [user])
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 600, behavior: "smooth" })
-  }
-
-  const handleUseHeart = () => {
-    if (dailyHeartsRemaining <= 0) return false
-    setDailyHeartsRemaining(prev => prev - 1)
-    return true
   }
 
   return (
@@ -248,7 +300,7 @@ export default function SocialFeedPage() {
               adopterDiary={item.adopterDiary}
               comments={item.comments}
               dailyHeartsRemaining={dailyHeartsRemaining}
-              onUseHeart={handleUseHeart}
+              onCheerSuccess={handleCheerSuccess}
             />
           ))}
         </div>
