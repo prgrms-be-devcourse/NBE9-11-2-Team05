@@ -4,6 +4,7 @@ import com.team05.demo.domain.feed.dto.FeedListRes;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
 import com.team05.demo.domain.feed.entity.Feed;
+import com.team05.demo.domain.feed.repository.FeedLikeRepository;
 import com.team05.demo.domain.feed.repository.FeedRepository;
 import com.team05.demo.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +21,13 @@ import com.team05.demo.global.exception.BusinessException;
 public class FeedService {
 
     private final FeedRepository feedRepository;
+    private final FeedLikeRepository feedLikeRepository;
 
     @Transactional
     public FeedRes write(FeedRequest request, User user){
         Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl());
         feedRepository.save(feed);
-        return new FeedRes(feed);
+        return new FeedRes(feed, 0);
     }
 
     @Transactional
@@ -34,7 +36,8 @@ public class FeedService {
                         .orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
         feed.checkModify(user);
         feed.update(request.category(),request.title(),request.content(),request.imageUrl());
-        return new FeedRes(feed);
+        int likeCount = (int) feedLikeRepository.countByFeed(feed);
+        return new FeedRes(feed, likeCount);
     }
 
    @Transactional
@@ -48,12 +51,13 @@ public class FeedService {
     public FeedRes getFeed(Long feedId){
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(()-> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
-        return new FeedRes(feed);
+        int likeCount = (int) feedLikeRepository.countByFeed(feed);
+        return new FeedRes(feed, likeCount);
     }
 
     public Page<FeedListRes> getFeeds(Pageable pageable){
         return feedRepository.findAll(pageable)
-                .map(FeedListRes::new);
+                .map(feed -> new FeedListRes(feed, (int) feedLikeRepository.countByFeed(feed)));
     }
 
     public Feed findByFeedId(Long id) {

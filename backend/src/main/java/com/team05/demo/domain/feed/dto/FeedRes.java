@@ -22,7 +22,7 @@ public record FeedRes (
         LocalDateTime updatedAt
 
 ){
-    public FeedRes(Feed feed){
+    public FeedRes(Feed feed, int likeCount){
        this(
                feed.getId(),
                feed.getUser() != null ? feed.getUser().getId() : null, // null 체크
@@ -30,7 +30,7 @@ public record FeedRes (
                feed.getTitle(),
                feed.getContent(),
                feed.getImageUrl(),
-               0,
+               likeCount,
                feed.getComments().size(),
                feed.getComments().stream()
                                .map(FeedCommentRes::from)

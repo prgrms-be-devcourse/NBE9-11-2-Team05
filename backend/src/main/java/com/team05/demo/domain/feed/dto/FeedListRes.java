@@ -17,7 +17,7 @@ public record FeedListRes(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public FeedListRes(Feed feed) {
+    public FeedListRes(Feed feed, int likeCount) {
         this(
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null,
@@ -25,7 +25,7 @@ public record FeedListRes(
                 feed.getTitle(),
                 feed.getContent(),
                 feed.getImageUrl(),
-                0,
+                likeCount,
                 feed.getComments().size(),
                 feed.getCreatedAt(),
                 feed.getUpdatedAt()
