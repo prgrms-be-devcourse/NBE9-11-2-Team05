@@ -2,10 +2,7 @@ package com.team05.petmeeting.domain.user.service;
 
 import com.team05.petmeeting.domain.cheer.repository.CheerRepository;
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
-import com.team05.petmeeting.domain.user.dto.profile.MyProfileDetailRes;
-import com.team05.petmeeting.domain.user.dto.profile.UserCheerAnimalRes;
-import com.team05.petmeeting.domain.user.dto.profile.UserFeedRes;
-import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes;
+import com.team05.petmeeting.domain.user.dto.profile.*;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
@@ -85,5 +82,10 @@ public class UserProfileService {
     public UserProfileRes getUserProfile(Long userId) {
         User user = getUserById(userId);
         return UserProfileRes.from(user);
+    }
+
+    public UserSummaryRes getUserSummary(Long userId) {
+        User user = getUserById(userId);
+        return UserSummaryRes.from(user);
     }
 }
