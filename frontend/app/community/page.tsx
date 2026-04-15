@@ -12,7 +12,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -112,7 +112,15 @@ const mockCommunityPosts: CommunityPost[] = [
   },
 ]
 
-function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: (updatedPost: CommunityPost) => void }) {
+function CommunityPostCard({ 
+  post, 
+  onUpdate, 
+  onDelete
+}: { 
+  post: CommunityPost; 
+  onUpdate: (updatedPost: CommunityPost) => void 
+  onDelete: (feedId: number) => void
+}) {
   const { user } = useAuth()
   const canEdit = post.authorId === user?.id
   const [showUpdateModal, setShowUpdateModal] = useState(false)
@@ -154,6 +162,20 @@ function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: 
     setNewComment("")
   }
 
+  const handleDelete = async () => {
+    if (!confirm("정말 삭제하시겠어요?")) return
+
+    const { error } = await deleteFeed(post.id)
+
+    if (error) {
+      alert("삭제 실패: " + error)
+      return
+    }
+
+    alert("삭제되었습니다.")
+    onDelete(post.id)
+  }
+
   return (
     <Card className="border-0 shadow-md bg-card">
       <CardHeader className="pb-3">
@@ -170,7 +192,10 @@ function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: 
             </div>
           </div>
           {canEdit && (
+            <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => setShowUpdateModal(true)}>수정</Button>
+            <Button variant="ghost" size="sm" onClick={handleDelete}>삭제</Button>
+          </div>
           )}
         </div>
       </CardHeader>
@@ -552,6 +577,10 @@ export default function CommunityPage() {
     setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p))
   }
 
+  const handleDeletePost = (postId: number) => {
+  setPosts(prev => prev.filter(p => p.id !== postId))
+}
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -605,6 +634,7 @@ export default function CommunityPage() {
               key={post.id}
               post={post}
               onUpdate={handleUpdatePost}
+              onDelete={handleDeletePost}
             />
           ))}
         </div>

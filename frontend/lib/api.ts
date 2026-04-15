@@ -81,6 +81,12 @@ export async function apiRequest<T>(
       }
     }
 
+  // 204(No Content)는 body가 없으므로 json() 파싱 방지
+  // DELETE 요청(피드 삭제)
+  if (response.status === 204) {
+    return { data: null, error: null }
+  }
+
     const data = await response.json()
     return { data, error: null }
   } catch (error) {
@@ -217,4 +223,11 @@ export const updateFeed = async (feedId: number, payload: FeedPayload) => {
     method: "PUT",
     body: JSON.stringify(payload)
   });
+};
+// 피드 삭제
+export const deleteFeed = async (feedId: number) => {
+  return await apiRequest<void>(API_ENDPOINTS.feedDetail(feedId), {
+    method: "DELETE",
+  })
+  ;
 };
