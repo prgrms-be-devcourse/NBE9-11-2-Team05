@@ -3,9 +3,11 @@ package com.team05.demo.domain.feed.controller;
 import com.team05.demo.domain.comment.dto.CommentReq;
 import com.team05.demo.domain.comment.dto.FeedCommentRes;
 import com.team05.demo.domain.comment.service.CommentService;
+import com.team05.demo.domain.feed.dto.FeedLikeRes;
 import com.team05.demo.domain.feed.dto.FeedListRes;
 import com.team05.demo.domain.feed.dto.FeedRequest;
 import com.team05.demo.domain.feed.dto.FeedRes;
+import com.team05.demo.domain.feed.service.FeedLikeService;
 import com.team05.demo.domain.feed.service.FeedService;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.domain.user.repository.UserRepository;
@@ -25,6 +27,7 @@ public class FeedController {
     private final CommentService commentService;
     private final FeedService feedService;
     private final UserRepository userRepository;
+    private final FeedLikeService feedLikeService;
 
     // 댓글 작성
     @Operation(summary = "피드 댓글 작성")
@@ -105,4 +108,17 @@ public class FeedController {
         Page<FeedListRes> feeds = feedService.getFeeds(pageable);
         return ResponseEntity.ok(feeds);
     }
+
+    @Operation(summary = "피드 좋아요 토글")
+    @PostMapping("/{feedId}/likes")
+    public ResponseEntity<FeedLikeRes> toggleLike(
+           @PathVariable Long feedId
+    ) {
+        // JWT 구현 후 실제 user로 교체
+        User user = userRepository.findById(1L).orElseThrow();
+
+        FeedLikeRes res = feedLikeService.toggleLike(feedId, user);
+        return ResponseEntity.ok(res);
+    }
+
 }
