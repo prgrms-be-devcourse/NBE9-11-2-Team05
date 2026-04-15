@@ -8,6 +8,7 @@ import com.team05.demo.domain.user.dto.signup.SignupResponse;
 import com.team05.demo.domain.user.service.UserAuthService;
 import com.team05.demo.global.rsData.RsData;
 import com.team05.demo.global.security.util.RefreshTokenUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -64,9 +65,22 @@ public class UserAuthController {
     }
 
     // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<RsData<Void>> logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        userAuthService.logout(request);
+        refreshTokenUtil.delete(response);
+
+        return ResponseEntity.ok(
+                new RsData<>("로그아웃 성공", "SUCCESS")
+        );
+    }
 
     // 리프레시 토큰 재발급
 
     // 탈퇴
+
 
 }

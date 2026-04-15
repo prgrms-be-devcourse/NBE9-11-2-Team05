@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RefreshTokenUtil {
 
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+    public static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
     private static final int REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60; // 7일
 
     /**
