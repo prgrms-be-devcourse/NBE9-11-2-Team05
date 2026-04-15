@@ -27,8 +27,14 @@ export const API_ENDPOINTS = {
   communityPostComments: (postId: number) => `${API_BASE_URL}/community/${postId}/comments`,
 
   // User Profile
-  myHearts: `${API_BASE_URL}/users/me/hearts`,
-  myFeeds: `${API_BASE_URL}/users/me/feeds`,
+  myProfile: `${API_BASE_URL}/me/profile`,
+  myProfileStats: `${API_BASE_URL}/me`,
+  myFeeds: `${API_BASE_URL}/me/feeds`,
+  myCheerAnimals: `${API_BASE_URL}/me/cheer-animals`,
+  updateUsername: `${API_BASE_URL}/me/username`,
+  updateProfileImg: `${API_BASE_URL}/me/profileImg`,
+  updatePassword: `${API_BASE_URL}/me/password`,
+  updateNickname: `${API_BASE_URL}/me/nickname`,
 
   // Cheers
   addCheer: (animalId: number) => `${API_BASE_URL}/animals/${animalId}/cheers`,
@@ -48,7 +54,7 @@ export const API_ENDPOINTS = {
 export async function apiRequest<T>(
   url: string,
   options: RequestInit = {}
-): Promise<{ data: T | null; error: string | null }> {
+): Promise<{ data: T | null; error: string | null; errorCode?: string }> {
   try {
     const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
 
@@ -68,7 +74,11 @@ export async function apiRequest<T>(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      return { data: null, error: errorData.message || `Error: ${response.status}` }
+      return { 
+        data: null, 
+        error: errorData.message || `Error: ${response.status}`,
+        errorCode: errorData.code || errorData.errorCode || errorData.status
+      }
     }
 
     const data = await response.json()
@@ -84,6 +94,8 @@ export interface User {
   username: string
   name: string
   role?: string
+  nickname?: string
+  createdAt?: string
 }
 
 export interface JwtPayload {
@@ -95,7 +107,8 @@ export interface JwtPayload {
   [key: string]: any
 }
 
-export function decodeJWT(token: string): JwtPayload | null {
+export function decodeJWT(token?: string): JwtPayload | null {
+  if (!token) return null;
   try {
     const base64Url = token.split('.')[1]
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
