@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (username: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
+  updateUser: (updates: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -20,9 +21,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check for existing session on mount
     const storedUser = localStorage.getItem("user")
-    if (storedUser) {
+    const storedToken = localStorage.getItem("auth_token")
+
+    if (storedUser && storedToken) {
       try {
-        setUser(JSON.parse(storedUser))
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+
+        // Background sync with API to refresh name/nickname instantly on reload
+        apiRequest<any>(API_ENDPOINTS.myProfile).then((res) => {
+          if (res.data) {
+            const syncedUser = { ...parsedUser, ...res.data }
+            setUser(syncedUser)
+            localStorage.setItem("user", JSON.stringify(syncedUser))
+          }
+        })
       } catch {
         localStorage.removeItem("user")
         localStorage.removeItem("auth_token")
@@ -33,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const { data, error } = await apiRequest<{ user?: User; token: string }>(
+      const { data, error } = await apiRequest<{ user?: User; accessToken: string; tokenType: string }>(
         API_ENDPOINTS.login,
         {
           method: "POST",
@@ -46,9 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // JWT 디코딩하여 userId, role 추출
-      const payload = decodeJWT(data.token)
+      const payload = decodeJWT(data.accessToken)
       
-      const loggedInUser: User = data.user || {
+      let loggedInUser: User = data.user || {
         id: payload?.userId || 1, // 백엔드에서 user 객체를 주지 않더라도 토큰에서 추출
         username,
         name: username,
@@ -60,9 +73,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loggedInUser.role = payload.role;
       }
 
+      // 토큰 세팅
+      localStorage.setItem("auth_token", data.accessToken)
+
+      // 진짜 유저 정보(name, nickname 등) 즉시 동기화
+      const profileInfo = await apiRequest<any>(API_ENDPOINTS.myProfile)
+      if (profileInfo.data) {
+        loggedInUser = { ...loggedInUser, ...profileInfo.data }
+      }
+
       setUser(loggedInUser)
       localStorage.setItem("user", JSON.stringify(loggedInUser))
-      localStorage.setItem("auth_token", data.token)
       return { success: true }
     } catch {
       // Fallback to mock login on any error
@@ -113,8 +134,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("auth_token")
   }
 
+  const updateUser = (updates: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...updates }
+      setUser(updatedUser)
+      localStorage.setItem("user", JSON.stringify(updatedUser))
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

@@ -89,7 +89,7 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <div className="px-2 py-1.5">
-                      <p className="text-sm font-medium text-foreground">{user.name}</p>
+                      <p className="text-sm font-medium text-foreground">{user.nickname || user.name}</p>
                       <p className="text-xs text-muted-foreground">@{user.username}</p>
                     </div>
                     <DropdownMenuSeparator />
