@@ -1,22 +1,95 @@
 package com.team05.demo.domain.user.controller;
 
+import com.team05.demo.domain.user.dto.profile.*;
+import com.team05.demo.domain.user.service.UserProfileService;
+import com.team05.demo.global.security.userdetails.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/me")
 @RequiredArgsConstructor
 @Validated
 public class UserProfileController {
 
+    private final UserProfileService userProfileService;
+
+    // username 변경
+    // todo: 회원가입 기준과 맞추기
+    @PatchMapping("/username")
+    public ResponseEntity<UserProfileRes> username(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UsernameReq req
+    ){
+        Long userId = userDetails.getUserId();
+        UserProfileRes res = userProfileService.modifyUsername(userId, req.newUsername());
+        return ResponseEntity.ok(res);
+    }
+
+    // 닉네임 변경
+    @PatchMapping("/nickname")
+    public ResponseEntity<UserProfileRes> nickname(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody NicknameReq req
+    ){
+        Long userId = userDetails.getUserId();
+        UserProfileRes res = userProfileService.modifyNickname(userId, req.nickname());
+        return ResponseEntity.ok(res);
+    }
+
     // 프로필 사진 등록 & 변경
+    @PatchMapping("/profileImg")
+    public ResponseEntity<UserProfileRes> profileImg(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody ProfileImgReq req
+            ){
+        Long userId = userDetails.getUserId();
+        UserProfileRes res = userProfileService.modifyProfileImageUrl(userId, req.profileImageUrl());
+        return ResponseEntity.ok(res);
+    }
 
-    // 닉네임 & 비밀번호 변경
-
-    // 작성 글 목록 & 갯수 전달
+    // 비밀번호 변경
+    // todo: 회원가입 기준과 맞추기
+    @PatchMapping("/password")
+    public ResponseEntity<Void> password(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody PasswordReq req
+    ){
+        Long userId = userDetails.getUserId();
+        userProfileService.modifyPassword(userId, req.currentPassword(), req.newPassword());
+        return ResponseEntity.noContent().build();
+    }
 
     // 그동안 응원 누른 응원 수 , 동물 수
-    
+    @GetMapping("/")
+    public ResponseEntity<MyProfileDetailRes> getMyProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        MyProfileDetailRes res = userProfileService.getMyProfileDetails(userDetails.getUserId());
+        return ResponseEntity.ok(res);
+    }
+
+    // 작성 글 목록 & 갯수 전달
+    @GetMapping("/feeds")
+    public ResponseEntity<UserFeedRes> feeds(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long userId = userDetails.getUserId();
+        UserFeedRes res = userProfileService.getMyFeeds(userId);
+        return ResponseEntity.ok(res);
+    }
+
+    // 응원 동물 목록 & 갯수 전달
+    @GetMapping("/cheer-animals")
+    public ResponseEntity<UserCheerAnimalRes> animals(@AuthenticationPrincipal CustomUserDetails userDetails){
+        Long userId = userDetails.getUserId();
+        UserCheerAnimalRes res = userProfileService.getMyCheerAnimals(userId);
+        return ResponseEntity.ok(res);
+    }
+
+
 }

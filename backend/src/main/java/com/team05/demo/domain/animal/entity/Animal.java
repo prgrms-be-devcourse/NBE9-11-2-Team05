@@ -166,5 +166,9 @@ public class Animal extends BaseEntity {
         return LocalDate.parse(noticeEdt, DateTimeFormatter.BASIC_ISO_DATE);
     }
 
-
+    public double getTemperature() {
+        double cheerGoal = 50.0; // todo 통합 후 수정
+        if (this.totalCheerCount == null) return 0;
+        return this.totalCheerCount / cheerGoal * 100;
+    }
 }
