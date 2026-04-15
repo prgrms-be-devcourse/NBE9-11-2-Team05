@@ -6,7 +6,6 @@ import com.team05.demo.domain.user.dto.login.LoginResult;
 import com.team05.demo.domain.user.dto.signup.SignupRequest;
 import com.team05.demo.domain.user.dto.signup.SignupResponse;
 import com.team05.demo.domain.user.service.UserAuthService;
-import com.team05.demo.global.rsData.RsData;
 import com.team05.demo.global.security.util.RefreshTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,22 +30,18 @@ public class UserAuthController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<RsData<SignupResponse>> signup(
+    public ResponseEntity<SignupResponse> signup(
             @Valid @RequestBody SignupRequest signupRequest
     ) {
         SignupResponse response = userAuthService.signup(signupRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new RsData<>(
-                        "회원가입 성공",
-                        "SUCCESS",
-                        response
-                ));
+                .body(response);
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<RsData<LoginResponse>> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest loginRequest,
             HttpServletResponse response
     ) {
@@ -55,27 +50,19 @@ public class UserAuthController {
         // 리프레시토큰 설정
         refreshTokenUtil.add(response, loginResult.refreshToken());
 
-        return ResponseEntity.ok(
-                new RsData<>(
-                        "로그인 성공",
-                        "SUCCESS",
-                        loginResult.loginResponse()
-                )
-        );
+        return ResponseEntity.ok(loginResult.loginResponse());
     }
 
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<RsData<Void>> logout(
+    public ResponseEntity<Void> logout(
             HttpServletRequest request,
             HttpServletResponse response
     ) {
         userAuthService.logout(request);
         refreshTokenUtil.delete(response);
 
-        return ResponseEntity.ok(
-                new RsData<>("로그아웃 성공", "SUCCESS")
-        );
+        return ResponseEntity.noContent().build();
     }
 
     // 리프레시 토큰 재발급
