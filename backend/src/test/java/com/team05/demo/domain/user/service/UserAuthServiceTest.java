@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +17,10 @@ import com.team05.demo.domain.user.refreshtoken.repository.RefreshTokenRepositor
 import com.team05.demo.domain.user.repository.UserRepository;
 import com.team05.demo.global.exception.BusinessException;
 import com.team05.demo.global.security.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -143,5 +147,23 @@ class UserAuthServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(UserErrorCode.LOGIN_FAILED);
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공 - refreshToken 존재")
+    void logout_success() {
+        // given
+        UUID token = UUID.randomUUID();
+
+        Cookie cookie = new Cookie("refreshToken", token.toString());
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getCookies()).thenReturn(new Cookie[]{cookie});
+
+        // when
+        userAuthService.logout(request);
+
+        // then
+        verify(refreshTokenRepository).deleteByToken(token);
     }
 }

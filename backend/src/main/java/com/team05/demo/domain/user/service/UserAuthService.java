@@ -1,5 +1,7 @@
 package com.team05.demo.domain.user.service;
 
+import static com.team05.demo.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
+
 import com.team05.demo.domain.user.dto.login.LoginRequest;
 import com.team05.demo.domain.user.dto.login.LoginResponse;
 import com.team05.demo.domain.user.dto.login.LoginResult;
@@ -12,7 +14,11 @@ import com.team05.demo.domain.user.refreshtoken.repository.RefreshTokenRepositor
 import com.team05.demo.domain.user.repository.UserRepository;
 import com.team05.demo.global.exception.BusinessException;
 import com.team05.demo.global.security.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -83,5 +89,26 @@ public class UserAuthService {
                 uuid.toString(),
                 new LoginResponse("Bearer", accessToken)
         );
+    }
+
+    public void logout(HttpServletRequest request) {
+
+        extractRefreshToken(request) // Cookie로부터 refreshToken 추출
+                .ifPresent(token -> {
+                    UUID uuid = UUID.fromString(token);
+                    refreshTokenRepository.deleteByToken(uuid); // db에서 리프레시 토큰 삭제
+                });
+    }
+
+    private Optional<String> extractRefreshToken(HttpServletRequest request) {
+
+        if (request.getCookies() == null) {
+            return Optional.empty();
+        }
+
+        return Arrays.stream(request.getCookies())
+                .filter(c -> c.getName().equals(REFRESH_TOKEN_COOKIE_NAME))
+                .map(Cookie::getValue)
+                .findFirst();
     }
 }
