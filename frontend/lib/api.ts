@@ -1,6 +1,6 @@
 // API Configuration for Spring Boot Backend
 // Update this BASE_URL to point to your Spring Boot server
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -8,27 +8,40 @@ export const API_ENDPOINTS = {
   login: `${API_BASE_URL}/auth/login`,
   register: `${API_BASE_URL}/auth/register`,
   logout: `${API_BASE_URL}/auth/logout`,
-  
+
   // Animals
   animals: `${API_BASE_URL}/animals`,
   animalDetail: (id: number) => `${API_BASE_URL}/animals/${id}`,
   animalRanking: `${API_BASE_URL}/animals/ranking`,
-  
+
   // Hearts/Cheer
   addHeart: (animalId: number) => `${API_BASE_URL}/animals/${animalId}/hearts`,
-  
+
   // Comments
   comments: (animalId: number) => `${API_BASE_URL}/animals/${animalId}/comments`,
   deleteComment: (animalId: number, commentId: number) => `${API_BASE_URL}/animals/${animalId}/comments/${commentId}`,
-  
+
   // Community
   communityPosts: `${API_BASE_URL}/community`,
   communityPostDetail: (id: number) => `${API_BASE_URL}/community/${id}`,
   communityPostComments: (postId: number) => `${API_BASE_URL}/community/${postId}/comments`,
-  
+
   // User Profile
-  myHearts: `${API_BASE_URL}/v1/users/me/hearts`,
-  myFeeds: `${API_BASE_URL}/v1/users/me/feeds`,
+  myHearts: `${API_BASE_URL}/users/me/hearts`,
+  myFeeds: `${API_BASE_URL}/users/me/feeds`,
+
+  // Cheers
+  addCheer: (animalId: number) => `${API_BASE_URL}/animals/${animalId}/cheers`,
+  cheersToday: `${API_BASE_URL}/cheers/today`,
+
+  // Feeds
+  feeds: `${API_BASE_URL}/feeds`,
+  feedDetail: (feedId: number) => `${API_BASE_URL}/feeds/${feedId}`,
+  feedComments: (feedId: number) => `${API_BASE_URL}/feeds/${feedId}/comments`,
+  feedCommentDetail: (feedId: number, commentId: number) => `${API_BASE_URL}/feeds/${feedId}/comments/${commentId}`,
+
+  // Animal Sync
+  animalSync: `${API_BASE_URL}/animals/sync`,
 }
 
 // API Helper Functions
@@ -38,26 +51,26 @@ export async function apiRequest<T>(
 ): Promise<{ data: T | null; error: string | null }> {
   try {
     const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
-    
-    const headers: HeadersInit = {
+
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     }
-    
+
     if (token) {
       headers["Authorization"] = `Bearer ${token}`
     }
-    
+
     const response = await fetch(url, {
       ...options,
       headers,
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       return { data: null, error: errorData.message || `Error: ${response.status}` }
     }
-    
+
     const data = await response.json()
     return { data, error: null }
   } catch (error) {
@@ -70,6 +83,40 @@ export interface User {
   id: number
   username: string
   name: string
+  role?: string
+}
+
+export interface JwtPayload {
+  userId: number
+  role?: string
+  sub?: string
+  exp?: number
+  iat?: number
+  [key: string]: any
+}
+
+export function decodeJWT(token: string): JwtPayload | null {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+
+    // Fallback for node environment (like SSR)
+    if (typeof window === 'undefined') {
+      return JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'))
+    }
+
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('Failed to decode JWT', error)
+    return null
+  }
 }
 
 export interface Animal {
@@ -123,3 +170,38 @@ export interface PaginatedResponse<T> {
   currentPage: number
   size: number
 }
+
+// Feeds
+export interface FeedPayload {
+  category: "ADOPTION_REVIEW" | "VOLUNTEER" | "FREE" | String;
+  title: string;
+  content: string;
+  imageUrl?: string;
+}
+
+export interface Feed {
+  feedId: number;
+  userId: number;
+  category: string;
+  title: string;
+  content: string;
+  imageUrl?: string;
+  likeCount: number;
+  commentCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const createFeed = async (payload: FeedPayload) => {
+  return await apiRequest<Feed>(API_ENDPOINTS.feeds, { // POST /api/v1/feeds
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+};
+
+export const updateFeed = async (feedId: number, payload: FeedPayload) => {
+  return await apiRequest<Feed>(API_ENDPOINTS.feedDetail(feedId), { // PUT /api/v1/feeds/{feedId}
+    method: "PUT",
+    body: JSON.stringify(payload)
+  });
+};

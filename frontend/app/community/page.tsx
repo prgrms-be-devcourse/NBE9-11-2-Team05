@@ -12,6 +12,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
+import { createFeed, updateFeed, FeedPayload } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -21,7 +22,7 @@ interface CommunityComment {
   createdAt: string
 }
 
-type PostCategory = "전체" | "입양후기" | "봉사활동" | "정보공유" | "일상"
+type PostCategory = "전체" | "입양후기" | "봉사활동" | "자유게시판"
 
 interface CommunityPost {
   id: number
@@ -36,7 +37,7 @@ interface CommunityPost {
   createdAt: string
 }
 
-const POST_CATEGORIES: PostCategory[] = ["전체", "입양후기", "봉사활동", "정보공유", "일상"]
+const POST_CATEGORIES: PostCategory[] = ["전체", "입양후기", "봉사활동", "자유게시판"]
 
 // Mock community data
 const mockCommunityPosts: CommunityPost[] = [
@@ -70,7 +71,7 @@ const mockCommunityPosts: CommunityPost[] = [
   },
   {
     id: 3,
-    category: "정보공유",
+    category: "자유게시판",
     title: "고양이 입양 준비물 공유합니다",
     content: "고양이 입양을 준비하시는 분들을 위해 제가 준비했던 것들 공유할게요.\n\n1. 화장실 + 모래\n2. 사료와 물그릇\n3. 스크래쳐\n4. 캣타워\n5. 장난감\n6. 이동장\n\n처음엔 너무 많은 것 같았지만, 모두 필요했어요!",
     author: "고양이초보",
@@ -86,7 +87,7 @@ const mockCommunityPosts: CommunityPost[] = [
   },
   {
     id: 4,
-    category: "정보공유",
+    category: "자유게시판",
     title: "우리 동네 길고양이 TNR 했어요",
     content: "드디어 우리 동네 길고양이들 TNR(중성화) 완료했습니다. 구청에서 지원받아서 무료로 진행할 수 있었어요. 관심 있으신 분들은 각 지역 구청에 문의해보세요!",
     author: "캣맘연합",
@@ -97,7 +98,7 @@ const mockCommunityPosts: CommunityPost[] = [
   },
   {
     id: 5,
-    category: "일상",
+    category: "자유게시판",
     title: "입양 후 첫 산책 성공!",
     content: "2주 전에 입양한 우리 초코가 드디어 첫 산책을 성공했어요! 처음엔 무서워서 안 나가려고 했는데, 조금씩 적응시키니까 이제 산책을 너무 좋아해요. 인내심이 중요한 것 같아요.",
     author: "초코아빠",
@@ -113,6 +114,8 @@ const mockCommunityPosts: CommunityPost[] = [
 
 function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: (updatedPost: CommunityPost) => void }) {
   const { user } = useAuth()
+  const canEdit = post.authorId === user?.id
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [showComments, setShowComments] = useState(false)
@@ -154,16 +157,21 @@ function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: 
   return (
     <Card className="border-0 shadow-md bg-card">
       <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-            <User className="w-5 h-5 text-muted-foreground" />
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+              <User className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">{post.author}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(post.createdAt).toLocaleDateString("ko-KR")}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-foreground">{post.author}</p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(post.createdAt).toLocaleDateString("ko-KR")}
-            </p>
-          </div>
+          {canEdit && (
+            <Button variant="ghost" size="sm" onClick={() => setShowUpdateModal(true)}>수정</Button>
+          )}
         </div>
       </CardHeader>
 
@@ -255,13 +263,49 @@ function CommunityPostCard({ post, onUpdate }: { post: CommunityPost; onUpdate: 
           </div>
         )}
       </CardFooter>
+
+      {showUpdateModal && (
+        <UpdatePostModal
+          post={post}
+          onClose={() => setShowUpdateModal(false)}
+          onSubmit={async (updatedData) => {
+            let apiCategory = "FREE";
+            if (updatedData.category === "입양후기") apiCategory = "ADOPTION_REVIEW";
+            if (updatedData.category === "봉사활동") apiCategory = "VOLUNTEER";
+
+            const payload: FeedPayload = {
+              category: apiCategory,
+              title: updatedData.title,
+              content: updatedData.content,
+              imageUrl: updatedData.imageUrl,
+            };
+
+            const { data, error } = await updateFeed(post.id, payload);
+
+            if (error) {
+              alert("피드 수정에 실패했습니다: " + error);
+              return;
+            }
+
+            onUpdate({
+              ...post,
+              category: updatedData.category,
+              title: updatedData.title,
+              content: updatedData.content,
+              imageUrl: updatedData.imageUrl,
+            });
+            setShowUpdateModal(false);
+            alert("게시글이 수정되었습니다.");
+          }}
+        />
+      )}
     </Card>
   )
 }
 
 function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (post: Omit<CommunityPost, "id" | "createdAt">) => void }) {
   const { user } = useAuth()
-  const [category, setCategory] = useState<PostCategory>("일상")
+  const [category, setCategory] = useState<PostCategory>("자유게시판")
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [imageUrl, setImageUrl] = useState("")
@@ -360,6 +404,96 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
   )
 }
 
+function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onClose: () => void; onSubmit: (data: { category: PostCategory, title: string, content: string, imageUrl?: string }) => void }) {
+  const [category, setCategory] = useState<PostCategory>(post.category)
+  const [title, setTitle] = useState(post.title)
+  const [content, setContent] = useState(post.content)
+  const [imageUrl, setImageUrl] = useState(post.imageUrl || "")
+
+  const handleSubmit = () => {
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 내용을 입력해주세요")
+      return
+    }
+
+    onSubmit({ category, title, content, imageUrl: imageUrl || undefined })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-lg border-0 shadow-2xl">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <h2 className="text-lg font-bold text-foreground">게시글 수정</h2>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-5 h-5" />
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">카테고리</label>
+            <div className="flex gap-2 flex-wrap">
+              {POST_CATEGORIES.filter(c => c !== "전체").map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                    category === cat
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">제목</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목을 입력하세요"
+              className="rounded-xl bg-secondary/50 border-0"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">내용</label>
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="내용을 입력하세요"
+              className="rounded-xl bg-secondary/50 border-0 min-h-32 resize-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">이미지 URL (선택)</label>
+            <div className="flex gap-2">
+              <Input
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://..."
+                className="rounded-xl bg-secondary/50 border-0"
+              />
+              <Button variant="outline" size="icon" className="shrink-0 rounded-xl">
+                <ImageIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="gap-2">
+          <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose}>
+            취소
+          </Button>
+          <Button className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSubmit}>
+            수정하기
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  )
+}
+
 export default function CommunityPage() {
   const { user } = useAuth()
   const [posts, setPosts] = useState<CommunityPost[]>(mockCommunityPosts)
@@ -368,10 +502,10 @@ export default function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState<PostCategory>("전체")
   const postsPerPage = 5
 
-  const filteredPosts = selectedCategory === "전체" 
-    ? posts 
+  const filteredPosts = selectedCategory === "전체"
+    ? posts
     : posts.filter(post => post.category === selectedCategory)
-  
+
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
 
   const currentPosts = filteredPosts.slice(
@@ -384,11 +518,32 @@ export default function CommunityPage() {
     setCurrentPage(1)
   }
 
-  const handleCreatePost = (newPost: Omit<CommunityPost, "id" | "createdAt">) => {
+  const handleCreatePost = async (newPost: Omit<CommunityPost, "id" | "createdAt">) => {
+    // API에 맞게 카테고리 매핑
+    let apiCategory = "FREE";
+    if (newPost.category === "입양후기") apiCategory = "ADOPTION_REVIEW";
+    if (newPost.category === "봉사활동") apiCategory = "VOLUNTEER";
+
+    const payload: FeedPayload = {
+      category: apiCategory,
+      title: newPost.title,
+      content: newPost.content,
+      imageUrl: newPost.imageUrl,
+    };
+
+    // 서버로 피드 생성 API 호출
+    const { data, error } = await createFeed(payload);
+
+    if (error) {
+      alert("피드 생성에 실패했습니다: " + error);
+      return;
+    }
+
+    // 작성 성공 후 UI 업데이트
     const post: CommunityPost = {
       ...newPost,
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
+      id: data?.feedId || Date.now(),
+      createdAt: data?.createdAt || new Date().toISOString(),
     }
     setPosts(prev => [post, ...prev])
   }
@@ -446,9 +601,9 @@ export default function CommunityPage() {
         {/* Posts List */}
         <div className="space-y-6">
           {currentPosts.map((post) => (
-            <CommunityPostCard 
-              key={post.id} 
-              post={post} 
+            <CommunityPostCard
+              key={post.id}
+              post={post}
               onUpdate={handleUpdatePost}
             />
           ))}
