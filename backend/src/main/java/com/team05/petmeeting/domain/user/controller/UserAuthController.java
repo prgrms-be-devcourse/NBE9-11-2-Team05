@@ -1,11 +1,12 @@
 package com.team05.petmeeting.domain.user.controller;
 
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResponse;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.login.LoginResponse;
-import com.team05.petmeeting.domain.user.dto.login.LoginResult;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
+import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import com.team05.petmeeting.global.security.util.RefreshTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,16 +44,16 @@ public class UserAuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<LoginAndRefreshResponse> login(
             @Valid @RequestBody LoginReq loginReq,
             HttpServletResponse response
     ) {
-        LoginResult loginResult = userAuthService.login(loginReq);
+        LoginAndRefreshResult loginAndRefreshResult = userAuthService.login(loginReq);
 
         // 리프레시토큰 설정
-        refreshTokenUtil.add(response, loginResult.refreshToken());
+        refreshTokenUtil.add(response, loginAndRefreshResult.refreshToken());
 
-        return ResponseEntity.ok(loginResult.loginResponse());
+        return ResponseEntity.ok(loginAndRefreshResult.loginAndRefreshResponse());
     }
 
     // 로그아웃
@@ -66,8 +69,32 @@ public class UserAuthController {
     }
 
     // 리프레시 토큰 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginAndRefreshResponse> refresh(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        LoginAndRefreshResult result = userAuthService.refresh(request);
+
+        // refresh token 재설정 (rotate)
+        refreshTokenUtil.add(response, result.refreshToken());
+
+        return ResponseEntity.ok(result.loginAndRefreshResponse());
+    }
 
     // 탈퇴
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletResponse response
+    ) {
+        userAuthService.withdraw(userDetails.getUserId());
+
+        // refresh token 쿠키 제거
+        refreshTokenUtil.delete(response);
+
+        return ResponseEntity.noContent().build();
+    }
 
 
 }
