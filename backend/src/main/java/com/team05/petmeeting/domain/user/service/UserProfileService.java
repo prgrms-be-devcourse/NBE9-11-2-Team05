@@ -81,4 +81,9 @@ public class UserProfileService {
         List<Object[]> animalCountMap = cheerRepository.findCheerCountsByUser(user);
         return UserCheerAnimalRes.from(animalCountMap);
     }
+
+    public UserProfileRes getUserProfile(Long userId) {
+        User user = getUserById(userId);
+        return UserProfileRes.from(user);
+    }
 }

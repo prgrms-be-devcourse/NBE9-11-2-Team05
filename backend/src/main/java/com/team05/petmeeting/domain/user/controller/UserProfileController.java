@@ -89,5 +89,13 @@ public class UserProfileController {
         return ResponseEntity.ok(res);
     }
 
-
+    // 기본 프로필 정보 조회
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileRes> getProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        UserProfileRes res = userProfileService.getUserProfile(userId);
+        return ResponseEntity.ok(res);
+    }
 }
