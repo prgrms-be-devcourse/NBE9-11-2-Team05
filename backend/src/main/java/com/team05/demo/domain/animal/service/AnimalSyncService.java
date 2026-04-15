@@ -6,6 +6,7 @@ import com.team05.demo.domain.animal.entity.Animal;
 import com.team05.demo.domain.animal.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,9 @@ public class AnimalSyncService {
     private final AnimalExternalService animalExternalService;
     private final AnimalRepository animalRepository;
 
+
+    // 특정 페이지 번호와 페이지당 항목 수를 기준으로 유기동물 데이터를 조회하고 DB에 저장하는 메서드
+    @Transactional
     public int fetchAndSaveAnimals(int pageNo, int numOfRows) {
         AnimalApiResponse response = animalExternalService.fetchAnimals(pageNo, numOfRows);
 
@@ -26,18 +30,25 @@ public class AnimalSyncService {
 
         if (items == null || items.isEmpty()) {
             return 0;
-        } // API에서 받은 데이터 중에서 desertionNo가 존재하고, DB에 해당 desertionNo가 없는 경우에만 저장한다.
+        }
+        // 조회된 각 유기동물 데이터를 DB에 저장하거나 업데이트하는 로직
+        for (AnimalItem item : items) {
+            if (item.getDesertionNo() == null || item.getDesertionNo().isBlank()) {
+                continue;
+            }
 
+            animalRepository.findByDesertionNo(item.getDesertionNo())
+                    .ifPresentOrElse(
+                            animal -> {
+                                if (animal.needsProcessStateUpdate(item)) {
+                                    animal.updateProcessState(item);
+                                }
+                            },
+                            () -> animalRepository.save(Animal.from(item))
+                    );
+        }
 
-        List<Animal> animals = items.stream()
-                .filter(item -> item.getDesertionNo() != null && !item.getDesertionNo().isBlank())
-                .filter(item -> !animalRepository.existsByDesertionNo(item.getDesertionNo()))
-                .map(Animal::from)
-                .toList();
-
-        animalRepository.saveAll(animals);
-
-        return items.size(); // 저장된 데이터 수를 반환한다.
+        return items.size();
     }
 
     // 전체 데이터를 페이지 단위로 반복해서 조회하고 저장하는 메서드
@@ -49,11 +60,10 @@ public class AnimalSyncService {
 
             if (fetchedCount == 0) {
                 break;
-            } //저장할 데이터가 없으면 루프를 종료
+            }
 
-            pageNo++; // 다음 페이지로 이동한다.
+            pageNo++;
         }
     }
-
 }
 
