@@ -1,10 +1,10 @@
 package com.team05.petmeeting.domain.user.controller;
 
-import com.team05.petmeeting.domain.user.dto.login.LoginRequest;
+import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.login.LoginResponse;
 import com.team05.petmeeting.domain.user.dto.login.LoginResult;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRequest;
-import com.team05.petmeeting.domain.user.dto.signup.SignupResponse;
+import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
+import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.util.RefreshTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,10 +30,10 @@ public class UserAuthController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(
-            @Valid @RequestBody SignupRequest signupRequest
+    public ResponseEntity<SignupRes> signup(
+            @Valid @RequestBody SignupReq signupReq
     ) {
-        SignupResponse response = userAuthService.signup(signupRequest);
+        SignupRes response = userAuthService.signup(signupReq);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
@@ -42,10 +42,10 @@ public class UserAuthController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest loginRequest,
+            @Valid @RequestBody LoginReq loginReq,
             HttpServletResponse response
     ) {
-        LoginResult loginResult = userAuthService.login(loginRequest);
+        LoginResult loginResult = userAuthService.login(loginReq);
 
         // 리프레시토큰 설정
         refreshTokenUtil.add(response, loginResult.refreshToken());

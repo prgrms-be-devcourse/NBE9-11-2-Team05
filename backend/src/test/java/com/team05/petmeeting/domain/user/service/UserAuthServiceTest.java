@@ -8,9 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.team05.petmeeting.domain.user.dto.login.LoginRequest;
+import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.login.LoginResult;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRequest;
+import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.domain.user.refreshtoken.repository.RefreshTokenRepository;
@@ -59,7 +59,7 @@ class UserAuthServiceTest {
     @DisplayName("회원가입 성공")
     void signup_success() {
         // given
-        SignupRequest request = new SignupRequest("testId", "password", "닉네임", "홍길동");
+        SignupReq request = new SignupReq("testId", "password", "닉네임", "홍길동");
 
         when(userRepository.existsByUsername("testId")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encodedPw");
@@ -79,7 +79,7 @@ class UserAuthServiceTest {
     @DisplayName("회원가입 실패 - username 중복")
     void signup_fail_duplicate_username() {
         // given
-        SignupRequest request = new SignupRequest("testId", "pw", "닉네임", "홍길동");
+        SignupReq request = new SignupReq("testId", "pw", "닉네임", "홍길동");
 
         when(userRepository.existsByUsername("testId")).thenReturn(true);
 
@@ -98,7 +98,7 @@ class UserAuthServiceTest {
     @DisplayName("로그인 성공")
     void login_success() {
         // given
-        LoginRequest request = new LoginRequest("testId", "password");
+        LoginReq request = new LoginReq("testId", "password");
 
         User user = User.create("testId", "encodedPw", "닉네임", "홍길동");
 
@@ -120,7 +120,7 @@ class UserAuthServiceTest {
     @DisplayName("로그인 실패 - 사용자 없음")
     void login_fail_user_not_found() {
         // given
-        LoginRequest request = new LoginRequest("testId", "password");
+        LoginReq request = new LoginReq("testId", "password");
 
         when(userRepository.findByUsername("testId")).thenReturn(Optional.empty());
 
@@ -135,7 +135,7 @@ class UserAuthServiceTest {
     @DisplayName("로그인 실패 - 비밀번호 불일치")
     void login_fail_wrong_password() {
         // given
-        LoginRequest request = new LoginRequest("testId", "password");
+        LoginReq request = new LoginReq("testId", "password");
 
         User user = User.create("testId", "encodedPw", "닉네임", "홍길동");
 

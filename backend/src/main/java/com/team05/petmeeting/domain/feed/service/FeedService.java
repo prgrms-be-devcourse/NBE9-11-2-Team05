@@ -1,7 +1,7 @@
 package com.team05.petmeeting.domain.feed.service;
 
 import com.team05.petmeeting.domain.feed.dto.FeedListRes;
-import com.team05.petmeeting.domain.feed.dto.FeedRequest;
+import com.team05.petmeeting.domain.feed.dto.FeedReq;
 import com.team05.petmeeting.domain.feed.dto.FeedRes;
 import com.team05.petmeeting.domain.feed.entity.Feed;
 import com.team05.petmeeting.domain.feed.repository.FeedLikeRepository;
@@ -24,14 +24,14 @@ public class FeedService {
     private final FeedLikeRepository feedLikeRepository;
 
     @Transactional
-    public FeedRes write(FeedRequest request, User user) {
+    public FeedRes write(FeedReq request, User user) {
         Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl());
         feedRepository.save(feed);
         return new FeedRes(feed, 0);
     }
 
     @Transactional
-    public FeedRes modify(Long feedId, FeedRequest request, User user) {
+    public FeedRes modify(Long feedId, FeedReq request, User user) {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new BusinessException(FeedErrorCode.FEED_NOT_FOUND));
         feed.checkModify(user);
