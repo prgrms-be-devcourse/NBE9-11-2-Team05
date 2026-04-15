@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class FeedLike extends BaseEntity{
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(nullable = true) //임시!
         private User user;    // FK
 
         @ManyToOne(fetch = FetchType.LAZY)

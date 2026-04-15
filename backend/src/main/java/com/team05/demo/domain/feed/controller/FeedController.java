@@ -11,12 +11,14 @@ import com.team05.demo.domain.feed.service.FeedLikeService;
 import com.team05.demo.domain.feed.service.FeedService;
 import com.team05.demo.domain.user.entity.User;
 import com.team05.demo.domain.user.repository.UserRepository;
+import com.team05.demo.global.security.userdetails.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -57,10 +59,10 @@ public class FeedController {
     @Operation(summary = "피드 글 작성")
     @PostMapping
     public ResponseEntity<FeedRes> write(
-            @RequestBody FeedRequest request) {
-        // JWT 구현 후 실제 user로 교체
-        User user = userRepository.findById(1L).orElseThrow();
-
+            @RequestBody FeedRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow();
         FeedRes res = feedService.write(request, user);
         return ResponseEntity.status(201).body(res);
     }
@@ -69,11 +71,10 @@ public class FeedController {
     @PutMapping("/{feedId}")
     public ResponseEntity<FeedRes> modify(
             @PathVariable Long feedId,
-            @RequestBody FeedRequest request){
-
-        // JWT 구현 후 실제 user로 교체
-        User user = userRepository.findById(1L).orElseThrow();
-
+            @RequestBody FeedRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow();
         FeedRes res = feedService.modify(feedId, request, user);
         return ResponseEntity.ok(res);
     }
@@ -81,12 +82,11 @@ public class FeedController {
     @Operation(summary = "피드 글 삭제")
     @DeleteMapping("/{feedId}")
     public ResponseEntity<Void> delete (
-            @PathVariable Long feedId
+            @PathVariable Long feedId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
 
-        // JWT 구현 후 실제 user로 교체
-        User user = userRepository.findById(1L).orElseThrow();
-
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow();
         feedService.delete(feedId, user);
         return ResponseEntity.noContent().build();
     }
@@ -112,11 +112,10 @@ public class FeedController {
     @Operation(summary = "피드 좋아요 토글")
     @PostMapping("/{feedId}/likes")
     public ResponseEntity<FeedLikeRes> toggleLike(
-           @PathVariable Long feedId
-    ) {
-        // JWT 구현 후 실제 user로 교체
-        User user = userRepository.findById(1L).orElseThrow();
-
+           @PathVariable Long feedId,
+           @AuthenticationPrincipal CustomUserDetails userDetails
+           ) {
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow();
         FeedLikeRes res = feedLikeService.toggleLike(feedId, user);
         return ResponseEntity.ok(res);
     }
