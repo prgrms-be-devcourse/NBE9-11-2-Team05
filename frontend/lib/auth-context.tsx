@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { API_ENDPOINTS, apiRequest, User } from "./api"
+import { API_ENDPOINTS, apiRequest, User, decodeJWT } from "./api"
 
 interface AuthContextType {
   user: User | null
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const { data, error } = await apiRequest<{ user: User; token: string }>(
+      const { data, error } = await apiRequest<{ user?: User; token: string }>(
         API_ENDPOINTS.login,
         {
           method: "POST",
@@ -42,22 +42,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       )
 
       if (error || !data) {
-        // For demo purposes, allow mock login when backend is not available
-        // Accept any network-related error for demo mode
-        const mockUser: User = { id: 1, username, name: username }
-        setUser(mockUser)
-        localStorage.setItem("user", JSON.stringify(mockUser))
-        localStorage.setItem("auth_token", "mock_token")
-        return { success: true }
+        throw new Error("Login failed")
       }
 
-      setUser(data.user)
-      localStorage.setItem("user", JSON.stringify(data.user))
+      // JWT 디코딩하여 userId, role 추출
+      const payload = decodeJWT(data.token)
+      
+      const loggedInUser: User = data.user || {
+        id: payload?.userId || 1, // 백엔드에서 user 객체를 주지 않더라도 토큰에서 추출
+        username,
+        name: username,
+        role: payload?.role
+      }
+
+      // 혹시라도 토큰에서 꺼낸 권한 등을 user 객체에 병합하고 싶다면:
+      if (payload?.role) {
+        loggedInUser.role = payload.role;
+      }
+
+      setUser(loggedInUser)
+      localStorage.setItem("user", JSON.stringify(loggedInUser))
       localStorage.setItem("auth_token", data.token)
       return { success: true }
     } catch {
       // Fallback to mock login on any error
-      const mockUser: User = { id: 1, username, name: username }
+      const mockUser: User = { id: 1, username, name: username, role: "USER" }
       setUser(mockUser)
       localStorage.setItem("user", JSON.stringify(mockUser))
       localStorage.setItem("auth_token", "mock_token")
