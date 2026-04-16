@@ -13,7 +13,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn, formatDate } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed,FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -641,8 +641,9 @@ export default function CommunityPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState<PostCategory>("전체")
-  const postsPerPage = 5
+  const postsPerPage = 10
 
   useEffect(() => {
     const mapCategory = (category?: string): PostCategory => {
@@ -652,7 +653,17 @@ export default function CommunityPage() {
     }
 
     const fetchPosts = async () => {
-      const { data, error } = await getFeeds(0, 20)
+      setIsLoading(true)
+
+      const mapRequestCategory = (category: PostCategory): FeedCategoryFilter | null => {
+        if (category === "입양후기") return "ADOPTION_REVIEW"
+        if (category === "봉사활동") return "VOLUNTEER"
+        if (category === "자유게시판") return "FREE"
+        return null;
+      }
+
+      const categoryParam = mapRequestCategory(selectedCategory)
+      const { data, error } = await getFeeds(currentPage - 1, postsPerPage, categoryParam ?? undefined)
 
       if (error || !data) {
         console.error("피드 목록 조회 실패, mock 데이터 사용", error)
@@ -670,28 +681,19 @@ export default function CommunityPage() {
         userId: post.userId,
         imageUrl: post.imageUrl,
         likeCount: post.likeCount,
+        isLiked: (post as any).isLiked ?? false,   // ✅ 이거 추가
         commentCount: post.commentCount || 0,
         comments: [],
         createdAt: post.createdAt,
       }))
 
       setPosts(mappedPosts)
+      setTotalPages(Math.max(data.totalPages || 1, 1))
       setIsLoading(false)
     }
 
     fetchPosts()
-  }, [])
-
-  const filteredPosts = selectedCategory === "전체"
-    ? posts
-    : posts.filter(post => post.category === selectedCategory)
-
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
-
-  const currentPosts = filteredPosts.slice(
-    (currentPage - 1) * postsPerPage,
-    currentPage * postsPerPage
-  )
+  }, [currentPage, selectedCategory])
 
   const handleCategoryChange = (category: PostCategory) => {
     setSelectedCategory(category)
@@ -787,7 +789,7 @@ export default function CommunityPage() {
           {isLoading && (
             <p className="text-sm text-muted-foreground text-center py-8">게시글을 불러오는 중...</p>
           )}
-          {currentPosts.map((post) => (
+          {posts.map((post) => (
             <CommunityPostCard
               key={post.feedId}
               post={post}

@@ -2,7 +2,6 @@ package com.team05.petmeeting.domain.feed.dto;
 
 import com.team05.petmeeting.domain.feed.entity.Feed;
 import com.team05.petmeeting.domain.feed.enums.FeedCategory;
-
 import java.time.LocalDateTime;
 
 public record FeedListRes(
@@ -19,7 +18,7 @@ public record FeedListRes(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public FeedListRes(Feed feed, int likeCount, boolean isLiked) {
+    public FeedListRes(Feed feed, Long likeCount, boolean isLiked) {
         this(
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null,
@@ -28,7 +27,7 @@ public record FeedListRes(
                 feed.getTitle(),
                 feed.getContent(),
                 feed.getImageUrl(),
-                likeCount,
+                likeCount.intValue(),
                 isLiked,
                 feed.getComments().size(),
                 feed.getCreatedAt(),

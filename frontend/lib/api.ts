@@ -295,11 +295,19 @@ export interface Feed {
   updatedAt: string;
 }
 
-export const getFeeds = async (page = 0, size = 20) => {
-  const query = new URLSearchParams({
+export type FeedCategoryFilter = "ADOPTION_REVIEW" | "VOLUNTEER" | "FREE"
+
+export const getFeeds = async (page = 0, size = 20, category?: FeedCategoryFilter) => {
+  const queryParams: Record<string, string> = {
     page: String(page),
     size: String(size),
-  }).toString();
+  }
+
+  if (category) {
+    queryParams.category = category;
+  }
+
+  const query = new URLSearchParams(queryParams).toString();
   return await apiRequest<PaginatedResponse<Feed>>(`${API_ENDPOINTS.feeds}?${query}`);
 };
 
