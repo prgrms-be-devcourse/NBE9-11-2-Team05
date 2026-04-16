@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record FeedRes(
-
+        String nickname,
         Long feedId,
         Long userId,
         FeedCategory category,
@@ -24,6 +24,7 @@ public record FeedRes(
 ) {
     public FeedRes(Feed feed, int likeCount) {
         this(
+                feed.getUser().getNickname(),
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null, // null 체크
                 feed.getCategory(),
