@@ -60,6 +60,30 @@ export default function ProfilePage() {
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [showUsernameModal, setShowUsernameModal] = useState(false)
+  const [isWithdrawing, setIsWithdrawing] = useState(false)
+
+  const handleWithdraw = async () => {
+    if (isWithdrawing) return
+
+    const confirmed = window.confirm("정말 회원 탈퇴하시겠습니까?")
+    if (!confirmed) return
+
+    setIsWithdrawing(true)
+    const { error, status } = await apiRequest<void>(API_ENDPOINTS.withdraw, {
+      method: "DELETE",
+    })
+    setIsWithdrawing(false)
+
+    if (error || status !== 204) {
+      alert(error || "회원 탈퇴에 실패했습니다.")
+      return
+    }
+
+    localStorage.removeItem("auth_token")
+    localStorage.removeItem("user")
+    alert("회원 탈퇴가 완료되었습니다.")
+    window.location.href = "/"
+  }
 
   useEffect(() => {
     if (authLoading) return;
@@ -234,6 +258,15 @@ export default function ProfilePage() {
                   </Button>
                   <Button variant="outline" className="rounded-xl" onClick={() => setShowNicknameModal(true)}>
                     이름(닉네임) 변경
+                  </Button>
+                </div>
+                <div className="flex justify-end pt-3">
+                  <Button
+                    className="rounded-xl bg-destructive text-white hover:bg-destructive/90"
+                    onClick={handleWithdraw}
+                    disabled={isWithdrawing}
+                  >
+                    {isWithdrawing ? "탈퇴 처리 중..." : "회원 탈퇴"}
                   </Button>
                 </div>
               </CardContent>
