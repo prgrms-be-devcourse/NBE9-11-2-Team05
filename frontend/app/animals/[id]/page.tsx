@@ -423,8 +423,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                   <Info className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{animal.shelterName}</p>
-                  <p className="text-xs text-muted-foreground">담당: {animal.chargeNm}</p>
+                  <p className="text-sm font-medium text-foreground">담당: {animal.shelterName}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
