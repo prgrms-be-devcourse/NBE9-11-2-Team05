@@ -21,6 +21,10 @@ interface HeaderProps {
 export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderProps) {
   const { user, logout } = useAuth()
 
+  const handleLogout = async () => {
+    await logout()
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border">
       <div className="max-w-6xl mx-auto px-6 py-4">
@@ -102,7 +106,7 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       className="text-destructive cursor-pointer"
-                      onClick={logout}
+                      onClick={handleLogout}
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       로그아웃

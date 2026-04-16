@@ -8,7 +8,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (username: string, password: string, nickname: string, realname: string) => Promise<{ success: boolean; error?: string }>
-  logout: () => void
+  logout: () => Promise<{ success: boolean; error?: string }>
   updateUser: (updates: Partial<User>) => void
 }
 
@@ -113,10 +113,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-    localStorage.removeItem("auth_token")
+  const logout = async () => {
+    try {
+      const { error, status } = await apiRequest<void>(API_ENDPOINTS.logout, {
+        method: "POST",
+      })
+
+      if (error || status !== 204) {
+        return { success: false, error: error || "로그아웃에 실패했습니다." }
+      }
+
+      setUser(null)
+      localStorage.removeItem("user")
+      localStorage.removeItem("auth_token")
+      alert("로그아웃되었습니다.")
+      window.location.href = "/"
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "로그아웃에 실패했습니다." }
+    }
   }
 
   const updateUser = (updates: Partial<User>) => {
