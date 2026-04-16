@@ -84,9 +84,15 @@ public class CommentService {
         feedCommentRepository.delete(comment);
     }
 
+    public List<AnimalCommentRes> getAnimalComments(Long animalId) {
+        return animalCommentRepository.findByAnimal_Id(animalId)
+                .stream()
+                .map(AnimalCommentRes::from)
+                .toList();
+    }
+
     public List<FeedCommentRes> getFeedComments(Long feedId) {
-        Feed feed = feedService.findByFeedId(feedId);
-        return feedCommentRepository.findByFeed(feed)
+        return feedCommentRepository.findByFeed_Id(feedId)
                 .stream()
                 .map(FeedCommentRes::from)
                 .toList();
