@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
   // Comments
   comments: (animalId: number) => `${API_BASE_URL}/animals/${animalId}/comments`,
   deleteComment: (animalId: number, commentId: number) => `${API_BASE_URL}/animals/${animalId}/comments/${commentId}`,
+  updateComment: (animalId: number, commentId: number) => `${API_BASE_URL}/animals/${animalId}/comments/${commentId}`,
 
   // Community
   communityPosts: `${API_BASE_URL}/community`,
@@ -138,6 +139,7 @@ export async function apiRequest<T>(
     const initialResponse = await executeRequest<T>(url, options)
     const shouldTryRefresh =
       initialResponse.status === 401 &&
+      initialResponse.errorCode == "INVALID_TOKEN" &&
       url !== API_ENDPOINTS.login &&
       url !== API_ENDPOINTS.register &&
       url !== API_ENDPOINTS.refresh
@@ -299,7 +301,7 @@ export const deleteFeed = async (feedId: number) => {
   return await apiRequest<void>(API_ENDPOINTS.feedDetail(feedId), {
     method: "DELETE",
   })
-  ;
+    ;
 };
 // 피드 좋아요 토글
 export const toggleFeedLike = async (feedId: number) => {

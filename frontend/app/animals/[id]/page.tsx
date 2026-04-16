@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User, Send, MessageCircle } from "lucide-react"
+import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User, Send, MessageCircle, MoreVertical, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -47,8 +47,10 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   const resolvedParams = use(params)
   const { user } = useAuth()
   const [animal, setAnimal] = useState<Animal | null>(null)
-  const [comments, setComments] = useState<Comment[]>([])
+  const [comments, setComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState("")
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
+  const [editContent, setEditContent] = useState("")
   const [totalHearts, setTotalHearts] = useState(0)
   const [currentTemp, setCurrentTemp] = useState(0)
   const [remainingToday, setRemainingToday] = useState<number | null>(null)
@@ -109,10 +111,11 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     //   const { data } = await apiRequest<Animal>(API_ENDPOINTS.animalDetail(Number(resolvedParams.id)))
     //   if (data) setAnimal(data)
     // }
-    
+
     // Mock data for demo
     setAnimal(mockAnimalData)
-    setComments(mockComments)
+    // Fetch real comments
+    fetchComments()
     setTotalHearts(mockAnimalData.heartCount)
     setCurrentTemp(mockAnimalData.temperature)
     fetchRemainingToday()
@@ -146,24 +149,61 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     fetchRemainingToday()
   }
 
-  const handleCommentSubmit = () => {
+  const fetchComments = async () => {
+    const { data } = await apiRequest<{ comments: any[] }>(API_ENDPOINTS.comments(Number(resolvedParams.id)))
+    if (data?.comments) {
+      // Sort older comments first or newer first based on preference. Default to newest at bottom.
+      setComments(data.comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()))
+    } else {
+      setComments([])
+    }
+  }
+
+  const handleCommentSubmit = async () => {
     if (!user) {
       alert("로그인이 필요합니다")
       return
     }
     if (!newComment.trim()) return
 
-    const newCommentObj: Comment = {
-      id: Date.now(),
-      author: user.name,
-      authorId: user.id,
-      text: newComment,
-      createdAt: new Date().toISOString(),
+    const { error } = await apiRequest(API_ENDPOINTS.comments(Number(resolvedParams.id)), {
+      method: "POST",
+      body: JSON.stringify({ content: newComment })
+    })
+
+    if (error) {
+      alert("댓글 작성에 실패했습니다.")
+      return
     }
-    setComments(prev => [...prev, newCommentObj])
+
     setNewComment("")
-    // In production, call API:
-    // await apiRequest(API_ENDPOINTS.comments(animal.animalId), { method: "POST", body: JSON.stringify({ text: newComment }) })
+    fetchComments()
+  }
+
+  const handleCommentDelete = async (commentId: number) => {
+    if (!confirm("댓글을 정말 삭제하시겠습니까?")) return
+    const { error } = await apiRequest(API_ENDPOINTS.deleteComment(Number(resolvedParams.id), commentId), {
+      method: "DELETE"
+    })
+    if (error) {
+      alert("댓글 삭제에 실패했습니다.")
+    } else {
+      fetchComments()
+    }
+  }
+
+  const handleCommentEditSubmit = async (commentId: number) => {
+    if (!editContent.trim()) return
+    const { error } = await apiRequest(API_ENDPOINTS.updateComment(Number(resolvedParams.id), commentId), {
+      method: "PATCH",
+      body: JSON.stringify({ content: editContent })
+    })
+    if (error) {
+      alert("댓글 수정에 실패했습니다.")
+    } else {
+      setEditingCommentId(null)
+      fetchComments()
+    }
   }
 
   if (isLoading || !animal) {
@@ -184,7 +224,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   return (
     <div className="min-h-screen bg-background">
       <Header dailyHeartsRemaining={remainingToday ?? 5} maxDailyHearts={5} />
-      
+
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Back Button */}
         <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6">
@@ -375,18 +415,54 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                 </p>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
+                  <div key={comment.commentId} className="flex gap-3 group">
                     <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
                       <User className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground">{comment.author}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
-                        </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-foreground">{comment.nickname || "익명"}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
+                          </span>
+                        </div>
+                        {user?.id === comment.userId && (
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => {
+                                setEditingCommentId(comment.commentId)
+                                setEditContent(comment.content)
+                              }}
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleCommentDelete(comment.commentId)}
+                              className="text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{comment.text}</p>
+
+                      {editingCommentId === comment.commentId ? (
+                        <div className="flex gap-2 mt-2">
+                          <Input
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleCommentEditSubmit(comment.commentId)}
+                            autoFocus
+                            className="h-8 text-sm"
+                          />
+                          <Button size="sm" onClick={() => handleCommentEditSubmit(comment.commentId)}>수정</Button>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingCommentId(null)}>취소</Button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{comment.content}</p>
+                      )}
                     </div>
                   </div>
                 ))

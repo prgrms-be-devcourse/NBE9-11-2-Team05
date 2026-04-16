@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, MessageCircle, User, Send, Plus, X, ImageIcon } from "lucide-react"
+import { Heart, MessageCircle, User, Send, Plus, X, ImageIcon, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike, getFeeds } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -34,6 +34,7 @@ interface CommunityPost {
   imageUrl?: string
   likeCount: number
   isLiked?: boolean
+  commentCount: number
   comments: CommunityComment[]
   createdAt: string
 }
@@ -51,6 +52,7 @@ const mockCommunityPosts: CommunityPost[] = [
     userId: 1,
     imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop",
     likeCount: 42,
+    commentCount: 2,
     comments: [
       { id: 1, author: "동물사랑", authorId: 2, text: "정말 예쁘네요! 축하드려요", createdAt: "2024-08-10T10:30:00" },
       { id: 2, author: "냥이맘", authorId: 3, text: "1주년 축하해요~ 행복하세요!", createdAt: "2024-08-10T11:00:00" },
@@ -65,6 +67,7 @@ const mockCommunityPosts: CommunityPost[] = [
     nickname: "봉사천사",
     userId: 4,
     likeCount: 28,
+    commentCount: 1,
     comments: [
       { id: 3, author: "착한마음", authorId: 5, text: "대단하세요! 저도 봉사 신청해야겠어요", createdAt: "2024-08-09T15:00:00" },
     ],
@@ -79,6 +82,7 @@ const mockCommunityPosts: CommunityPost[] = [
     userId: 6,
     imageUrl: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=600&fit=crop",
     likeCount: 56,
+    commentCount: 3,
     comments: [
       { id: 4, author: "예비집사", authorId: 7, text: "정보 감사합니다! 도움이 많이 됐어요", createdAt: "2024-08-08T20:00:00" },
       { id: 5, author: "냥이천국", authorId: 8, text: "스크래쳐 꼭 필요해요! 가구 긁는 거 방지됩니다", createdAt: "2024-08-08T21:00:00" },
@@ -94,6 +98,7 @@ const mockCommunityPosts: CommunityPost[] = [
     nickname: "캣맘연합",
     userId: 10,
     likeCount: 34,
+    commentCount: 0,
     comments: [],
     createdAt: "2024-08-07T16:00:00",
   },
@@ -106,6 +111,7 @@ const mockCommunityPosts: CommunityPost[] = [
     userId: 11,
     imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=600&fit=crop",
     likeCount: 45,
+    commentCount: 1,
     comments: [
       { id: 7, author: "산책러버", authorId: 12, text: "초코 너무 귀여워요! 첫 산책 축하해요", createdAt: "2024-08-06T12:00:00" },
     ],
@@ -129,7 +135,30 @@ function CommunityPostCard({
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
-  const [comments, setComments] = useState(post.comments)
+  const [comments, setComments] = useState<any[]>([])
+  const [commentCount, setCommentCount] = useState(post.commentCount ?? 0)
+  const [hasFetchedComments, setHasFetchedComments] = useState(false)
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
+  const [editContent, setEditContent] = useState("")
+
+  const fetchComments = async () => {
+    const { data } = await apiRequest<{ comments: any[] }>(API_ENDPOINTS.feedComments(post.feedId))
+    if (data?.comments) {
+      const sorted = data.comments.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      setComments(sorted)
+      setCommentCount(sorted.length)
+    } else {
+      setComments([])
+      setCommentCount(0)
+    }
+    setHasFetchedComments(true)
+  }
+
+  useEffect(() => {
+    if (showComments && !hasFetchedComments) {
+      fetchComments()
+    }
+  }, [showComments, hasFetchedComments])
 
   const handleLike = async () => {
     if (!user) {
@@ -153,22 +182,51 @@ function CommunityPostCard({
     setLiked(data.isLiked)
   }
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!user) {
       alert("로그인이 필요합니다")
       return
     }
     if (!newComment.trim()) return
 
-    const newCommentObj: CommunityComment = {
-      id: Date.now(),
-      author: user.name,
-      authorId: user.id,
-      text: newComment,
-      createdAt: new Date().toISOString(),
+    const { error } = await apiRequest(API_ENDPOINTS.feedComments(post.feedId), {
+      method: "POST",
+      body: JSON.stringify({ content: newComment })
+    })
+
+    if (error) {
+      alert("댓글 작성에 실패했습니다.")
+      return
     }
-    setComments(prev => [...prev, newCommentObj])
+
     setNewComment("")
+    fetchComments()
+  }
+
+  const handleCommentDelete = async (commentId: number) => {
+    if (!confirm("댓글을 정말 삭제하시겠습니까?")) return
+    const { error } = await apiRequest(API_ENDPOINTS.feedCommentDetail(post.feedId, commentId), {
+      method: "DELETE"
+    })
+    if (error) {
+      alert("댓글 삭제에 실패했습니다.")
+    } else {
+      fetchComments()
+    }
+  }
+
+  const handleCommentEditSubmit = async (commentId: number) => {
+    if (!editContent.trim()) return
+    const { error } = await apiRequest(API_ENDPOINTS.feedCommentDetail(post.feedId, commentId), {
+      method: "PATCH",
+      body: JSON.stringify({ content: editContent })
+    })
+    if (error) {
+      alert("댓글 수정에 실패했습니다.")
+    } else {
+      setEditingCommentId(null)
+      fetchComments()
+    }
   }
 
   const handleDelete = async () => {
@@ -246,7 +304,7 @@ function CommunityPostCard({
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
-            <span className="text-sm font-medium">{comments.length}</span>
+            <span className="text-sm font-medium">{commentCount}</span>
           </button>
         </div>
 
@@ -260,15 +318,56 @@ function CommunityPostCard({
             ) : (
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-2">
-                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                      <User className="w-3 h-3 text-muted-foreground" />
+                  <div key={comment.commentId || comment.id} className="flex gap-3 group">
+                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                      <User className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-sm">
-                        <span className="font-semibold text-foreground">{comment.author}</span>{" "}
-                        <span className="text-muted-foreground">{comment.text}</span>
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-foreground text-sm">{comment.nickname || comment.author || "익명"}</span>
+                          {comment.createdAt && (
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
+                            </span>
+                          )}
+                        </div>
+                        {user?.id === (comment.userId || comment.authorId) && (
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => {
+                                setEditingCommentId(comment.commentId)
+                                setEditContent(comment.content || comment.text || "")
+                              }}
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleCommentDelete(comment.commentId)}
+                              className="text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {editingCommentId === comment.commentId ? (
+                        <div className="flex gap-2 mt-2">
+                          <Input
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleCommentEditSubmit(comment.commentId)}
+                            autoFocus
+                            className="h-8 text-sm"
+                          />
+                          <Button size="sm" onClick={() => handleCommentEditSubmit(comment.commentId)}>수정</Button>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingCommentId(null)}>취소</Button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{comment.content || comment.text}</p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -358,6 +457,7 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
       userId: user?.id || 0,
       imageUrl: imageUrl || undefined,
       likeCount: 0,
+      commentCount: 0,
       comments: [],
     })
     onClose()
@@ -563,6 +663,7 @@ export default function CommunityPage() {
         userId: post.userId,
         imageUrl: post.imageUrl,
         likeCount: post.likeCount,
+        commentCount: post.commentCount || 0,
         comments: [],
         createdAt: post.createdAt,
       }))
