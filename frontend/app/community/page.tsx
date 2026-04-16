@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Heart, MessageCircle, User, Send, Plus, X, ImageIcon, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS } from "@/lib/api"
 
 interface CommunityComment {
@@ -129,6 +130,7 @@ function CommunityPostCard({
   onDelete: (feedId: number) => void
 }) {
   const { user } = useAuth()
+  const router = useRouter()
   const canEdit = post.userId === user?.id
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [liked, setLiked] = useState(post.isLiked ?? false)
@@ -244,8 +246,8 @@ function CommunityPostCard({
   }
 
   return (
-    <Card className="border-0 shadow-md bg-card">
-      <CardHeader className="pb-3">
+    <Card className="border-0 shadow-md bg-card hover:shadow-lg transition-shadow overflow-hidden relative group">
+      <CardHeader className="pb-3 relative">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
@@ -254,20 +256,20 @@ function CommunityPostCard({
             <div>
               <p className="font-semibold text-foreground">{post.nickname}</p>
               <p className="text-xs text-muted-foreground">
-                {new Date(post.createdAt).toLocaleDateString("ko-KR")}
+                {formatDate(post.createdAt)}
               </p>
             </div>
           </div>
           {canEdit && (
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setShowUpdateModal(true)}>수정</Button>
-              <Button variant="ghost" size="sm" onClick={handleDelete}>삭제</Button>
+            <div className="flex gap-2 relative z-20">
+              <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowUpdateModal(true) }}>수정</Button>
+              <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete() }}>삭제</Button>
             </div>
           )}
         </div>
       </CardHeader>
 
-      <CardContent className="pb-3 space-y-3">
+      <CardContent className="pb-3 space-y-3 relative z-0">
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
             {post.category}
@@ -289,19 +291,19 @@ function CommunityPostCard({
         )}
       </CardContent>
 
-      <CardFooter className="flex-col items-stretch gap-3 pt-2">
+      <CardFooter className="flex-col items-stretch gap-3 pt-2 relative">
         {/* Action Buttons */}
         <div className="flex items-center gap-4 pb-2 border-b border-border">
           <button
-            onClick={handleLike}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLike() }}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors relative z-20"
           >
             <Heart className={cn("w-5 h-5", liked && "fill-primary text-primary")} />
             <span className="text-sm font-medium">{likeCount}</span>
           </button>
           <button
-            onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowComments(!showComments) }}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors relative z-20"
           >
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">{commentCount}</span>
@@ -310,7 +312,7 @@ function CommunityPostCard({
 
         {/* Comments Section */}
         {showComments && (
-          <div className="space-y-3">
+          <div className="space-y-3 relative z-20">
             {comments.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 첫 번째 댓글을 남겨보세요!
@@ -375,7 +377,7 @@ function CommunityPostCard({
             )}
 
             {/* Comment Input */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 relative z-20">
               <Input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
@@ -432,6 +434,11 @@ function CommunityPostCard({
           }}
         />
       )}
+      <Link 
+        href={`/community/${post.feedId}`} 
+        className="absolute inset-0 z-10"
+        aria-label={`View post: ${post.title}`}
+      />
     </Card>
   )
 }
