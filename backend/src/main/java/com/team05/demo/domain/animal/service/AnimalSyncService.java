@@ -39,11 +39,7 @@ public class AnimalSyncService {
 
             animalRepository.findByDesertionNo(item.getDesertionNo())
                     .ifPresentOrElse(
-                            animal -> {
-                                if (animal.needsProcessStateUpdate(item)) {
-                                    animal.updateProcessState(item);
-                                }
-                            },
+                            animal -> animal.updateProcessState(item),
                             () -> animalRepository.save(Animal.from(item))
                     );
         }
@@ -66,4 +62,3 @@ public class AnimalSyncService {
         }
     }
 }
-
