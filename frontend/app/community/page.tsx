@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, MessageCircle, User, Send, Plus, X, ImageIcon } from "lucide-react"
@@ -12,7 +12,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed, toggleFeedLike, getFeeds } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -25,14 +25,15 @@ interface CommunityComment {
 type PostCategory = "전체" | "입양후기" | "봉사활동" | "자유게시판"
 
 interface CommunityPost {
-  id: number
+  feedId: number
   category: PostCategory
   title: string
   content: string
-  author: string
-  authorId: number
+  nickname: string
+  userId: number
   imageUrl?: string
   likeCount: number
+  isLiked?: boolean
   comments: CommunityComment[]
   createdAt: string
 }
@@ -42,12 +43,12 @@ const POST_CATEGORIES: PostCategory[] = ["전체", "입양후기", "봉사활동
 // Mock community data
 const mockCommunityPosts: CommunityPost[] = [
   {
-    id: 1,
+    feedId: 1,
     category: "입양후기",
     title: "우리 집 막내 입양 1주년 기념!",
     content: "작년 이맘때 유기동물 보호소에서 우리 막내를 만났어요. 처음엔 무서워서 숨기만 하더니, 이제는 저를 졸졸 따라다녀요. 입양을 고민하시는 분들께, 정말 후회 없는 선택이 될 거예요!",
-    author: "행복한멍집사",
-    authorId: 1,
+    nickname: "행복한멍집사",
+    userId: 1,
     imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop",
     likeCount: 42,
     comments: [
@@ -57,12 +58,12 @@ const mockCommunityPosts: CommunityPost[] = [
     createdAt: "2024-08-10T09:00:00",
   },
   {
-    id: 2,
+    feedId: 2,
     category: "봉사활동",
     title: "유기견 봉사활동 후기",
     content: "오늘 처음으로 유기동물 보호소에서 봉사활동을 했어요. 아이들이 정말 순하고 사랑스러웠어요. 많은 분들이 관심 가져주시면 좋겠습니다.",
-    author: "봉사천사",
-    authorId: 4,
+    nickname: "봉사천사",
+    userId: 4,
     likeCount: 28,
     comments: [
       { id: 3, author: "착한마음", authorId: 5, text: "대단하세요! 저도 봉사 신청해야겠어요", createdAt: "2024-08-09T15:00:00" },
@@ -70,12 +71,12 @@ const mockCommunityPosts: CommunityPost[] = [
     createdAt: "2024-08-09T14:00:00",
   },
   {
-    id: 3,
+    feedId: 3,
     category: "자유게시판",
     title: "고양이 입양 준비물 공유합니다",
     content: "고양이 입양을 준비하시는 분들을 위해 제가 준비했던 것들 공유할게요.\n\n1. 화장실 + 모래\n2. 사료와 물그릇\n3. 스크래쳐\n4. 캣타워\n5. 장난감\n6. 이동장\n\n처음엔 너무 많은 것 같았지만, 모두 필요했어요!",
-    author: "고양이초보",
-    authorId: 6,
+    nickname: "고양이초보",
+    userId: 6,
     imageUrl: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=600&fit=crop",
     likeCount: 56,
     comments: [
@@ -86,23 +87,23 @@ const mockCommunityPosts: CommunityPost[] = [
     createdAt: "2024-08-08T18:00:00",
   },
   {
-    id: 4,
+    feedId: 4,
     category: "자유게시판",
     title: "우리 동네 길고양이 TNR 했어요",
     content: "드디어 우리 동네 길고양이들 TNR(중성화) 완료했습니다. 구청에서 지원받아서 무료로 진행할 수 있었어요. 관심 있으신 분들은 각 지역 구청에 문의해보세요!",
-    author: "캣맘연합",
-    authorId: 10,
+    nickname: "캣맘연합",
+    userId: 10,
     likeCount: 34,
     comments: [],
     createdAt: "2024-08-07T16:00:00",
   },
   {
-    id: 5,
+    feedId: 5,
     category: "자유게시판",
     title: "입양 후 첫 산책 성공!",
     content: "2주 전에 입양한 우리 초코가 드디어 첫 산책을 성공했어요! 처음엔 무서워서 안 나가려고 했는데, 조금씩 적응시키니까 이제 산책을 너무 좋아해요. 인내심이 중요한 것 같아요.",
-    author: "초코아빠",
-    authorId: 11,
+    nickname: "초코아빠",
+    userId: 11,
     imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=600&fit=crop",
     likeCount: 45,
     comments: [
@@ -122,9 +123,9 @@ function CommunityPostCard({
   onDelete: (feedId: number) => void
 }) {
   const { user } = useAuth()
-  const canEdit = post.authorId === user?.id
+  const canEdit = post.userId === user?.id
   const [showUpdateModal, setShowUpdateModal] = useState(false)
-  const [liked, setLiked] = useState(false)
+  const [liked, setLiked] = useState(post.isLiked ?? false)
   const [likeCount, setLikeCount] = useState(post.likeCount)
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
@@ -136,7 +137,7 @@ function CommunityPostCard({
       return
     }
   
-    const { data, error } = await toggleFeedLike(post.id)
+    const { data, error } = await toggleFeedLike(post.feedId)
   
     if (error) {
       alert("좋아요 실패: " + error)
@@ -173,7 +174,7 @@ function CommunityPostCard({
   const handleDelete = async () => {
     if (!confirm("정말 삭제하시겠어요?")) return
 
-    const { error } = await deleteFeed(post.id)
+    const { error } = await deleteFeed(post.feedId)
 
     if (error) {
       alert("삭제 실패: " + error)
@@ -181,7 +182,7 @@ function CommunityPostCard({
     }
 
     alert("삭제되었습니다.")
-    onDelete(post.id)
+    onDelete(post.feedId)
   }
 
   return (
@@ -193,7 +194,7 @@ function CommunityPostCard({
               <User className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">{post.author}</p>
+              <p className="font-semibold text-foreground">{post.nickname}</p>
               <p className="text-xs text-muted-foreground">
                 {new Date(post.createdAt).toLocaleDateString("ko-KR")}
               </p>
@@ -313,7 +314,7 @@ function CommunityPostCard({
               imageUrl: updatedData.imageUrl,
             };
 
-            const { data, error } = await updateFeed(post.id, payload);
+            const { data, error } = await updateFeed(post.feedId, payload);
 
             if (error) {
               alert("피드 수정에 실패했습니다: " + error);
@@ -336,7 +337,7 @@ function CommunityPostCard({
   )
 }
 
-function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (post: Omit<CommunityPost, "id" | "createdAt">) => void }) {
+function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (post: Omit<CommunityPost, "feedId" | "createdAt">) => void }) {
   const { user } = useAuth()
   const [category, setCategory] = useState<PostCategory>("자유게시판")
   const [title, setTitle] = useState("")
@@ -353,8 +354,8 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
       category,
       title,
       content,
-      author: user?.name || "익명",
-      authorId: user?.id || 0,
+      nickname: user?.name || "익명",
+      userId: user?.id || 0,
       imageUrl: imageUrl || undefined,
       likeCount: 0,
       comments: [],
@@ -529,11 +530,49 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
 
 export default function CommunityPage() {
   const { user } = useAuth()
-  const [posts, setPosts] = useState<CommunityPost[]>(mockCommunityPosts)
+  const [posts, setPosts] = useState<CommunityPost[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState<PostCategory>("전체")
   const postsPerPage = 5
+
+  useEffect(() => {
+    const mapCategory = (category?: string): PostCategory => {
+      if (category === "ADOPTION_REVIEW" || category === "입양후기") return "입양후기"
+      if (category === "VOLUNTEER" || category === "봉사활동") return "봉사활동"
+      return "자유게시판"
+    }
+
+    const fetchPosts = async () => {
+      const { data, error } = await getFeeds(0, 20)
+
+      if (error || !data) {
+        console.error("피드 목록 조회 실패, mock 데이터 사용", error)
+        setPosts(mockCommunityPosts)
+        setIsLoading(false)
+        return
+      }
+
+      const mappedPosts: CommunityPost[] = (data.content || []).map((post) => ({
+        feedId: post.feedId,
+        category: mapCategory((post as { category?: string }).category),
+        title: post.title,
+        content: post.content,
+        nickname: post.nickname || "익명",
+        userId: post.userId,
+        imageUrl: post.imageUrl,
+        likeCount: post.likeCount,
+        comments: [],
+        createdAt: post.createdAt,
+      }))
+
+      setPosts(mappedPosts)
+      setIsLoading(false)
+    }
+
+    fetchPosts()
+  }, [])
 
   const filteredPosts = selectedCategory === "전체"
     ? posts
@@ -551,7 +590,7 @@ export default function CommunityPage() {
     setCurrentPage(1)
   }
 
-  const handleCreatePost = async (newPost: Omit<CommunityPost, "id" | "createdAt">) => {
+  const handleCreatePost = async (newPost: Omit<CommunityPost, "feedId" | "createdAt">) => {
     // API에 맞게 카테고리 매핑
     let apiCategory = "FREE";
     if (newPost.category === "입양후기") apiCategory = "ADOPTION_REVIEW";
@@ -575,18 +614,18 @@ export default function CommunityPage() {
     // 작성 성공 후 UI 업데이트
     const post: CommunityPost = {
       ...newPost,
-      id: data?.feedId || Date.now(),
+      feedId: data?.feedId || Date.now(),
       createdAt: data?.createdAt || new Date().toISOString(),
     }
     setPosts(prev => [post, ...prev])
   }
 
   const handleUpdatePost = (updatedPost: CommunityPost) => {
-    setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p))
+    setPosts(prev => prev.map(p => p.feedId === updatedPost.feedId ? updatedPost : p))
   }
 
   const handleDeletePost = (postId: number) => {
-  setPosts(prev => prev.filter(p => p.id !== postId))
+  setPosts(prev => prev.filter(p => p.feedId !== postId))
 }
 
   return (
@@ -637,9 +676,12 @@ export default function CommunityPage() {
 
         {/* Posts List */}
         <div className="space-y-6">
+          {isLoading && (
+            <p className="text-sm text-muted-foreground text-center py-8">게시글을 불러오는 중...</p>
+          )}
           {currentPosts.map((post) => (
             <CommunityPostCard
-              key={post.id}
+              key={post.feedId}
               post={post}
               onUpdate={handleUpdatePost}
               onDelete={handleDeletePost}
