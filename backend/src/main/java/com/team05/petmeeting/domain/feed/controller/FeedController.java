@@ -122,9 +122,11 @@ public class FeedController {
     @Operation(summary = "피드 목록 조회")
     @GetMapping
     public ResponseEntity<Page<FeedListRes>> getFeeds(
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal CustomUserDetails userDetails  // nullable
     ) {
-        Page<FeedListRes> feeds = feedService.getFeeds(pageable);
+        Long userId = userDetails != null ? userDetails.getUserId() : null;
+        Page<FeedListRes> feeds = feedService.getFeeds(pageable, userId);
         return ResponseEntity.ok(feeds);
     }
 
