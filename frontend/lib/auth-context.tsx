@@ -63,9 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // JWT 디코딩하여 userId, role 추출
       const payload = decodeJWT(data.accessToken)
-      
+      const extractedId = Number(payload?.sub) || Number(payload?.userId)
+
+      if (!extractedId) {
+        console.error("JWT 페이로드에서 사용자 ID를 찾을 수 없습니다:", payload)
+        return { success: false, error: "사용자 정보를 파악할 수 없는 토큰입니다." }
+      }
+
       let loggedInUser: User = {
-        id: payload?.userId || 1, // 백엔드에서 user 객체를 주지 않더라도 토큰에서 추출
+        id: extractedId,
         username,
         name: username,
         role: payload?.role
