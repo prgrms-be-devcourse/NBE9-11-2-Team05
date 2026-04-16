@@ -9,6 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { useAuth } from "@/lib/auth-context"
 
+type LoginFieldErrors = {
+  username: string
+  password: string
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
@@ -16,18 +21,39 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({
+    username: "",
+    password: "",
+  })
   const [isLoading, setIsLoading] = useState(false)
+
+  const validateUsername = (value: string) => {
+    if (!value.trim()) return "id는 필수 입력값입니다."
+    return ""
+  }
+
+  const validatePassword = (value: string) => {
+    if (!value.trim()) return "password는 필수 입력값입니다."
+    return ""
+  }
+
+  const validateForm = () => {
+    const nextErrors: LoginFieldErrors = {
+      username: validateUsername(username),
+      password: validatePassword(password),
+    }
+    setFieldErrors(nextErrors)
+    return Object.values(nextErrors).every((fieldError) => !fieldError)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    setIsLoading(true)
-
-    if (!username || !password) {
-      setError("아이디와 비밀번호를 입력해주세요")
-      setIsLoading(false)
+    if (!validateForm()) {
+      setError("입력값 제한 조건을 확인해주세요.")
       return
     }
+    setIsLoading(true)
 
     const result = await login(username, password)
     
@@ -64,11 +90,16 @@ export default function LoginPage() {
                 id="username"
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setUsername(value)
+                  setFieldErrors((prev) => ({ ...prev, username: validateUsername(value) }))
+                }}
                 placeholder="아이디를 입력하세요"
                 className="h-12 rounded-xl bg-secondary/50 border-0"
                 disabled={isLoading}
               />
+              {fieldErrors.username && <p className="text-sm text-destructive">{fieldErrors.username}</p>}
             </div>
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium text-foreground">
@@ -79,7 +110,11 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setPassword(value)
+                    setFieldErrors((prev) => ({ ...prev, password: validatePassword(value) }))
+                  }}
                   placeholder="비밀번호를 입력하세요"
                   className="h-12 rounded-xl bg-secondary/50 border-0 pr-12"
                   disabled={isLoading}
@@ -92,6 +127,7 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {fieldErrors.password && <p className="text-sm text-destructive">{fieldErrors.password}</p>}
             </div>
 
             {error && (

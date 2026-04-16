@@ -54,7 +54,7 @@ export const API_ENDPOINTS = {
 export async function apiRequest<T>(
   url: string,
   options: RequestInit = {}
-): Promise<{ data: T | null; error: string | null; errorCode?: string }> {
+): Promise<{ data: T | null; error: string | null; errorCode?: string; status?: number }> {
   try {
     const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
 
@@ -70,6 +70,7 @@ export async function apiRequest<T>(
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: options.credentials ?? "include",
     })
 
     if (!response.ok) {
@@ -85,22 +86,23 @@ export async function apiRequest<T>(
       return { 
         data: null, 
         error: errorData.message || `Error: ${response.status}`,
-        errorCode: errorData.code || errorData.errorCode || errorData.status
+        errorCode: errorData.code || errorData.errorCode || errorData.status,
+        status: response.status,
       }
     }
 
     // Some endpoints can return 200/204 with empty body.
     const responseText = await response.text()
     if (!responseText) {
-      return { data: null, error: null }
+      return { data: null, error: null, status: response.status }
     }
 
     try {
       const data = JSON.parse(responseText) as T
-      return { data, error: null }
+      return { data, error: null, status: response.status }
     } catch {
       // Some APIs respond with plain text/number instead of JSON.
-      return { data: responseText as T, error: null }
+      return { data: responseText as T, error: null, status: response.status }
     }
 
   } catch (error) {

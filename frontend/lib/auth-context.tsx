@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const { data, error } = await apiRequest<{ user?: User; accessToken: string; tokenType: string }>(
+      const { data, error, status } = await apiRequest<{ tokenType: string; accessToken: string }>(
         API_ENDPOINTS.login,
         {
           method: "POST",
@@ -55,13 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       )
 
       if (error || !data) {
-        throw new Error("Login failed")
+        if (status === 401) {
+          return { success: false, error: "id 또는 비밀번호가 잘못되었습니다." }
+        }
+        return { success: false, error: error || "로그인에 실패했습니다." }
       }
 
       // JWT 디코딩하여 userId, role 추출
       const payload = decodeJWT(data.accessToken)
       
-      let loggedInUser: User = data.user || {
+      let loggedInUser: User = {
         id: payload?.userId || 1, // 백엔드에서 user 객체를 주지 않더라도 토큰에서 추출
         username,
         name: username,
@@ -85,13 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(loggedInUser)
       localStorage.setItem("user", JSON.stringify(loggedInUser))
       return { success: true }
-    } catch {
-      // Fallback to mock login on any error
-      const mockUser: User = { id: 1, username, name: username, role: "USER" }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
-      localStorage.setItem("auth_token", "mock_token")
-      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "로그인에 실패했습니다." }
     }
   }
 
