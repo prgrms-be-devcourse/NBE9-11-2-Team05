@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,11 +67,40 @@ public class Animal extends BaseEntity {
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
 
+    @Column(name = "api_updated_at")
+    private LocalDateTime apiUpdatedAt;
+
     @OneToMany (mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
 
     public void updateProcessState(AnimalItem item) {
         this.processState = item.getProcessState();
+        this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
+    }
+
+    public boolean needsApiUpdate(AnimalItem item) {
+        LocalDateTime incomingUpdatedAt = parseUpdTm(item.getUpdTm());
+
+        if (incomingUpdatedAt == null) {
+            return false;
+        }
+
+        if (this.apiUpdatedAt == null) {
+            return true;
+        }
+
+        return incomingUpdatedAt.isAfter(this.apiUpdatedAt);
+    }
+
+    private static LocalDateTime parseUpdTm(String updTm) {
+        if (updTm == null || updTm.isBlank()) {
+            return null;
+        }
+
+        return LocalDateTime.parse(
+                updTm,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
+        );
     }
 
     private Animal(
@@ -131,6 +161,7 @@ public class Animal extends BaseEntity {
                 0
         );
 
+        animal.apiUpdatedAt = parseUpdTm(item.getUpdTm());
         return animal;
     }
 

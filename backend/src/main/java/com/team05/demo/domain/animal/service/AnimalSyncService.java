@@ -39,7 +39,11 @@ public class AnimalSyncService {
 
             animalRepository.findByDesertionNo(item.getDesertionNo())
                     .ifPresentOrElse(
-                            animal -> animal.updateProcessState(item),
+                            animal -> {
+                                if (animal.needsApiUpdate(item)) {
+                                    animal.updateProcessState(item);
+                                }
+                            },
                             () -> animalRepository.save(Animal.from(item))
                     );
         }

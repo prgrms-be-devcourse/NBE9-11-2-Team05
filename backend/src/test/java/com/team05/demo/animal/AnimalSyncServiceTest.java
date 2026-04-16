@@ -42,11 +42,11 @@ class AnimalSyncServiceTest {
     }
 
     @Test
-    @DisplayName("같은 desertionNo가 있으면 processState만 갱신한다")
-    void fetchAndSaveAnimals_updatesProcessState_whenAnimalExists() {
+    @DisplayName("같은 desertionNo가 있고 API 업데이트 시간이 더 최신이면 processState를 갱신한다")
+    void fetchAndSaveAnimals_updatesProcessState_whenIncomingItemIsNewer() {
         // given
-        AnimalItem existingItem = createItem("D123", "종결");
-        Animal existingAnimal = Animal.from(createItem("D123", "보호중"));
+        AnimalItem existingItem = createItem("D123", "종결", "2024-08-11 10:00:00.0");
+        Animal existingAnimal = Animal.from(createItem("D123", "보호중", "2024-08-10 10:00:00.0"));
 
         when(animalExternalService.fetchAnimals(1, 10)).thenReturn(createResponse(existingItem));
         when(animalRepository.findByDesertionNo("D123")).thenReturn(Optional.of(existingAnimal));
@@ -61,10 +61,29 @@ class AnimalSyncServiceTest {
     }
 
     @Test
+    @DisplayName("같은 desertionNo가 있어도 API 업데이트 시간이 더 오래되면 processState를 유지한다")
+    void fetchAndSaveAnimals_keepsProcessState_whenIncomingItemIsOlder() {
+        // given
+        AnimalItem olderItem = createItem("D123", "종결", "2024-08-09 10:00:00.0");
+        Animal existingAnimal = Animal.from(createItem("D123", "보호중", "2024-08-10 10:00:00.0"));
+
+        when(animalExternalService.fetchAnimals(1, 10)).thenReturn(createResponse(olderItem));
+        when(animalRepository.findByDesertionNo("D123")).thenReturn(Optional.of(existingAnimal));
+
+        // when
+        int fetchedCount = animalSyncService.fetchAndSaveAnimals(1, 10);
+
+        // then
+        assertThat(fetchedCount).isEqualTo(1);
+        assertThat(existingAnimal.getProcessState()).isEqualTo("보호중");
+        verify(animalRepository, never()).save(any(Animal.class));
+    }
+
+    @Test
     @DisplayName("같은 desertionNo가 없으면 새 동물을 저장한다")
     void fetchAndSaveAnimals_savesAnimal_whenAnimalDoesNotExist() {
         // given
-        AnimalItem newItem = createItem("D999", "보호중");
+        AnimalItem newItem = createItem("D999", "보호중", "2024-08-10 10:00:00.0");
 
         when(animalExternalService.fetchAnimals(1, 10)).thenReturn(createResponse(newItem));
         when(animalRepository.findByDesertionNo("D999")).thenReturn(Optional.empty());
@@ -93,7 +112,7 @@ class AnimalSyncServiceTest {
         return apiResponse;
     }
 
-    private AnimalItem createItem(String desertionNo, String processState) {
+    private AnimalItem createItem(String desertionNo, String processState, String updTm) {
         AnimalItem item = new AnimalItem();
         ReflectionTestUtils.setField(item, "desertionNo", desertionNo);
         ReflectionTestUtils.setField(item, "processState", processState);
@@ -110,6 +129,7 @@ class AnimalSyncServiceTest {
         ReflectionTestUtils.setField(item, "specialMark", "활발함");
         ReflectionTestUtils.setField(item, "careNm", "테스트 보호소");
         ReflectionTestUtils.setField(item, "careTel", "010-1234-5678");
+        ReflectionTestUtils.setField(item, "updTm", updTm);
         return item;
     }
 }
