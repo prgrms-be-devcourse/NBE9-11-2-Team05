@@ -65,6 +65,9 @@ public class Animal extends BaseEntity {
     @Column(name = "care_tel")
     private String careTel; // 보호소 전화번호
 
+    @Column(name = "care_addr")
+    private String careAddr; // 보호소 주소
+
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
 
@@ -116,6 +119,7 @@ public class Animal extends BaseEntity {
             String specialMark,
             String careNm,
             String careTel,
+            String careAddr,
             Integer totalCheerCount
     ) {
         this.desertionNo = desertionNo;
@@ -133,6 +137,7 @@ public class Animal extends BaseEntity {
         this.specialMark = specialMark;
         this.careNm = careNm;
         this.careTel = careTel;
+        this.careAddr = careAddr;
         this.totalCheerCount = totalCheerCount;
     }
 
@@ -154,6 +159,7 @@ public class Animal extends BaseEntity {
                 item.getSpecialMark(),
                 item.getCareNm(),
                 item.getCareTel(),
+                item.getCareAddr(),
                 0
         );
 

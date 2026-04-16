@@ -21,6 +21,7 @@ public record AnimalRes(
 
         String careNm,
         String careTel,
+        String careAddr,
 
         Integer totalCheerCount,
         double temperature
@@ -45,6 +46,7 @@ public record AnimalRes(
 
                 animal.getCareNm(),
                 animal.getCareTel(),
+                animal.getCareAddr(),
 
                 animal.getTotalCheerCount(),
                 animal.getTotalCheerCount() / (double) 50 // 목표하트수 50 임시설정값

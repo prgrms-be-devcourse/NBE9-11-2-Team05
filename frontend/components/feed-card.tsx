@@ -131,6 +131,7 @@ export function FeedCard({
               "object-cover transition-all duration-300 group-hover:scale-105",
               isAdopted && "brightness-90"
             )}
+            unoptimized
           />
           {isAdopted && (
             <div className="absolute inset-0 flex items-center justify-center">

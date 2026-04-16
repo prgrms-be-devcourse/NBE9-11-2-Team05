@@ -43,152 +43,101 @@ const top3Animals = [
   },
 ]
 
-// Simulated paginated feed data (10 items per page)
-const allFeedData = [
-  {
-    id: "1",
-    animalId: 1,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop",
-    animalInfo: "믹스견 · 2023년생 · 수원시동물보호센터",
-    cheerTemperature: 85,
-    maxCheerTemperature: 100,
-    totalHeartCount: 33,
-    comments: [
-      { id: "c1", author: "동물사랑", text: "너무 귀여워요! 좋은 가족 만나길 바라요" },
-      { id: "c2", author: "멍멍이팬", text: "응원합니다!" },
-      { id: "c3", author: "착한사람", text: "건강하게 잘 지내길!" },
-    ],
-  },
-  {
-    id: "2",
-    animalId: 2,
-    processState: "종료(입양)" as const,
-    imageUrl: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&h=600&fit=crop",
-    animalInfo: "한국고양이 · 2024년생",
-    adopterDiary:
-      "우리 집에 온 지 한 달이 되었어요! 처음엔 숨기만 하더니 이제는 제 무릎 위에서 골골송을 불러요. 매일매일 행복합니다.",
-    comments: [
-      { id: "c4", author: "냥이맘", text: "축하드려요! 행복하세요" },
-      { id: "c5", author: "고양이천사", text: "좋은 분께 입양되어서 다행이에요!" },
-    ],
-  },
-  {
-    id: "3",
-    animalId: 3,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=600&fit=crop",
-    animalInfo: "말티즈 · 2022년생 · 성남시동물보호센터",
-    cheerTemperature: 72,
-    maxCheerTemperature: 100,
-    totalHeartCount: 27,
-    comments: [
-      { id: "c6", author: "강아지조아", text: "빨리 가족을 찾길!" },
-    ],
-  },
-  {
-    id: "4",
-    animalId: 4,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=600&h=600&fit=crop",
-    animalInfo: "코리안숏헤어 · 2024년생 · 용인시동물보호센터",
-    cheerTemperature: 45,
-    maxCheerTemperature: 100,
-    totalHeartCount: 15,
-    comments: [],
-  },
-  {
-    id: "5",
-    animalId: 5,
-    processState: "종료(입양)" as const,
-    imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop",
-    animalInfo: "리트리버믹스 · 2021년생",
-    adopterDiary: "드디어 우리 가족이 되었어요! 산책을 너무 좋아해서 매일 아침 공원에 가요.",
-    comments: [
-      { id: "c7", author: "산책러버", text: "행복한 모습 보기 좋아요!" },
-    ],
-  },
-  {
-    id: "6",
-    animalId: 6,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=600&h=600&fit=crop",
-    animalInfo: "포메라니안 · 2023년생 · 서울시동물보호센터",
-    cheerTemperature: 63,
-    maxCheerTemperature: 100,
-    totalHeartCount: 23,
-    comments: [
-      { id: "c8", author: "포메사랑", text: "너무 사랑스러워요!" },
-      { id: "c9", author: "강아지맘", text: "응원해요!" },
-    ],
-  },
-  {
-    id: "7",
-    animalId: 7,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&h=600&fit=crop",
-    animalInfo: "러시안블루믹스 · 2023년생 · 인천시동물보호센터",
-    cheerTemperature: 38,
-    maxCheerTemperature: 100,
-    totalHeartCount: 11,
-    comments: [],
-  },
-  {
-    id: "8",
-    animalId: 8,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1477884213360-7e9d7dcc1e48?w=600&h=600&fit=crop",
-    animalInfo: "진돗개믹스 · 2022년생 · 부산시동물보호센터",
-    cheerTemperature: 51,
-    maxCheerTemperature: 100,
-    totalHeartCount: 17,
-    comments: [
-      { id: "c10", author: "부산사람", text: "우리 진돗개 화이팅!" },
-    ],
-  },
-  {
-    id: "9",
-    animalId: 9,
-    processState: "종료(입양)" as const,
-    imageUrl: "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=600&h=600&fit=crop",
-    animalInfo: "터키시앙고라 · 2023년생",
-    adopterDiary: "처음 만났을 때부터 인연인 것 같았어요. 지금은 집안의 작은 왕자님이 되었답니다!",
-    comments: [
-      { id: "c11", author: "앙고라팬", text: "정말 예쁘네요!" },
-    ],
-  },
-  {
-    id: "10",
-    animalId: 10,
-    processState: "보호중" as const,
-    imageUrl: "https://images.unsplash.com/photo-1587564403621-70d61a73c5b9?w=600&h=600&fit=crop",
-    animalInfo: "비글 · 2024년생 · 대전시동물보호센터",
-    cheerTemperature: 29,
-    maxCheerTemperature: 100,
-    totalHeartCount: 8,
-    comments: [],
-  },
-]
+type FeedItem = {
+  id: string
+  animalId: number
+  processState: "보호중" | "종료(입양)"
+  imageUrl: string
+  animalInfo: string
+  cheerTemperature: number
+  maxCheerTemperature: number
+  totalHeartCount: number
+  adopterDiary?: string
+  comments: Array<{ id: string; author: string; text: string }>
+}
 
-// Create additional pages of data by reusing items with different IDs
-const generatePageData = (page: number, itemsPerPage: number = 10) => {
-  return allFeedData.map((item, idx) => ({
-    ...item,
-    id: `page${page}-${item.id}`,
-    cheerTemperature: item.cheerTemperature
-      ? Math.max(10, item.cheerTemperature - page * 5 + idx)
-      : undefined,
-  }))
+type AnimalListItem = {
+  animalId: number
+  processState?: string
+  noticeNo?: string
+  noticeEdt?: string
+  upKindNm?: string
+  kindFullNm?: string
+  age?: string
+  popfile1?: string
+  careNm?: string
+  totalCheerCount?: number
+  temperature?: number
 }
 
 const ITEMS_PER_PAGE = 10
-const TOTAL_PAGES = 10
+
+const parseAnimalList = (payload: unknown): AnimalListItem[] => {
+  if (!payload) return []
+  if (Array.isArray(payload)) return payload as AnimalListItem[]
+  if (typeof payload !== "object") return []
+
+  const response = payload as Record<string, unknown>
+  if (Array.isArray(response.content)) return response.content as AnimalListItem[]
+  if (Array.isArray(response.animals)) return response.animals as AnimalListItem[]
+  if (response.data && typeof response.data === "object") {
+    const nested = response.data as Record<string, unknown>
+    if (Array.isArray(nested.content)) return nested.content as AnimalListItem[]
+    if (Array.isArray(nested.animals)) return nested.animals as AnimalListItem[]
+  }
+  return []
+}
+
+const mapProcessState = (value?: string): "보호중" | "종료(입양)" => {
+  const normalized = (value || "").toUpperCase()
+  if (normalized.includes("보호") || normalized.includes("PROTECT")) return "보호중"
+  return "종료(입양)"
+}
+
+const normalizeImageUrl = (value?: string): string => {
+  if (!value) return "/placeholder.svg"
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === "null" || trimmed === "undefined") return "/placeholder.svg"
+  if (trimmed.startsWith("http://openapi.animal.go.kr/")) {
+    return trimmed.replace("http://openapi.animal.go.kr/", "https://openapi.animal.go.kr/")
+  }
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("/")) {
+    return trimmed
+  }
+  return "/placeholder.svg"
+}
+
+const mapTemperature = (value?: number): number => {
+  if (typeof value !== "number" || Number.isNaN(value)) return 0
+  if (value <= 1) return Math.max(0, Math.min(100, value * 100))
+  return Math.max(0, Math.min(100, value))
+}
+
+const mapAnimalToFeedItem = (animal: AnimalListItem): FeedItem => {
+  const breed = animal.kindFullNm || animal.upKindNm || "품종 미상"
+  const age = animal.age || "나이 미상"
+  const shelter = animal.careNm || "보호소 정보 없음"
+  const animalId = Number(animal.animalId)
+  return {
+    id: String(animalId),
+    animalId,
+    processState: mapProcessState(animal.processState),
+    imageUrl: normalizeImageUrl(animal.popfile1),
+    animalInfo: `${breed} · ${age} · ${shelter}`,
+    cheerTemperature: mapTemperature(animal.temperature),
+    maxCheerTemperature: 100,
+    totalHeartCount: typeof animal.totalCheerCount === "number" ? animal.totalCheerCount : 0,
+    comments: [],
+  }
+}
 
 export default function SocialFeedPage() {
   const { user } = useAuth()
   const [currentPage, setCurrentPage] = useState(1)
   const [dailyHeartsRemaining, setDailyHeartsRemaining] = useState(MAX_DAILY_HEARTS)
-  const currentFeedData = generatePageData(currentPage, ITEMS_PER_PAGE)
+  const [animals, setAnimals] = useState<FeedItem[]>([])
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalAnimalCount, setTotalAnimalCount] = useState(0)
 
   const extractRemainingToday = (
     payload: { [key: string]: any } | string | number | null
@@ -243,9 +192,53 @@ export default function SocialFeedPage() {
     fetchDailyHeartsRemaining()
   }
 
+  const fetchAnimals = async (page: number) => {
+    const query = new URLSearchParams({
+      page: String(Math.max(page - 1, 0)),
+    }).toString()
+    const { data, error } = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?${query}`)
+    if (error) {
+      setAnimals([])
+      setTotalAnimalCount(0)
+      setTotalPages(1)
+      return
+    }
+
+    const parsedAnimals = parseAnimalList(data)
+    setAnimals(parsedAnimals.map(mapAnimalToFeedItem))
+
+    if (data && typeof data === "object") {
+      const response = data as Record<string, unknown>
+      const pages =
+        typeof response.totalPages === "number"
+          ? response.totalPages
+          : response.data && typeof response.data === "object" && typeof (response.data as Record<string, unknown>).totalPages === "number"
+            ? ((response.data as Record<string, unknown>).totalPages as number)
+            : 1
+      const total =
+        typeof response.totalElements === "number"
+          ? response.totalElements
+          : typeof response.totalAnimalCount === "number"
+            ? response.totalAnimalCount
+            : response.data && typeof response.data === "object" && typeof (response.data as Record<string, unknown>).totalElements === "number"
+              ? ((response.data as Record<string, unknown>).totalElements as number)
+              : parsedAnimals.length
+      setTotalPages(Math.max(1, pages))
+      setTotalAnimalCount(total)
+      return
+    }
+
+    setTotalPages(1)
+    setTotalAnimalCount(parsedAnimals.length)
+  }
+
   useEffect(() => {
     fetchDailyHeartsRemaining()
   }, [user])
+
+  useEffect(() => {
+    fetchAnimals(currentPage)
+  }, [currentPage])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -269,7 +262,7 @@ export default function SocialFeedPage() {
               전체 보호동물
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              총 {TOTAL_PAGES * ITEMS_PER_PAGE}마리의 친구들이 가족을 기다리고 있어요
+              총 {totalAnimalCount}마리의 친구들이 가족을 기다리고 있어요
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -286,7 +279,7 @@ export default function SocialFeedPage() {
 
         {/* Feed Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentFeedData.map((item) => (
+          {animals.map((item) => (
             <FeedCard
               key={item.id}
               id={item.id}
@@ -309,11 +302,11 @@ export default function SocialFeedPage() {
         <div className="py-10">
           <Pagination
             currentPage={currentPage}
-            totalPages={TOTAL_PAGES}
+            totalPages={totalPages}
             onPageChange={handlePageChange}
           />
           <p className="text-center text-sm text-muted-foreground mt-4">
-            {currentPage} / {TOTAL_PAGES} 페이지
+            {currentPage} / {totalPages} 페이지
           </p>
         </div>
       </main>

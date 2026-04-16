@@ -53,6 +53,7 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
 
           {/* Search & Actions */}
           <div className="flex items-center gap-3">
+            {/* 
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -60,6 +61,7 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
                 className="w-64 pl-10 bg-secondary/50 border-0 rounded-xl"
               />
             </div>
+            */}
             
             {user ? (
               <>
@@ -82,9 +84,9 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
                   </span>
                 </div>
                 
-                <Button variant="ghost" size="icon" className="text-muted-foreground">
+                {/* <Button variant="ghost" size="icon" className="text-muted-foreground">
                   <Bell className="w-5 h-5" />
-                </Button>
+                </Button> */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="text-muted-foreground">
