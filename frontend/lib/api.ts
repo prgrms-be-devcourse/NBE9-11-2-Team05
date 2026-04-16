@@ -258,6 +258,29 @@ export interface FeedPayload {
   imageUrl?: string;
 }
 
+export interface FeedComment {
+  userId: number
+  nickname: string
+  commentId: number
+  content: string
+  feedId: number
+  createdAt: string
+}
+
+export interface FeedDetail {
+  feedId: number
+  userId: number
+  category: string
+  title: string
+  content: string
+  imageUrl?: string
+  likeCount: number
+  commentCount: number
+  comments: FeedComment[]
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Feed {
   feedId: number;
   userId: number;
