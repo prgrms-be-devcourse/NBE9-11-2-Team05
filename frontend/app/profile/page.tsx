@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-context"
 import { apiRequest, API_ENDPOINTS } from "@/lib/api"
 import { User, Heart, FileText, Settings, Calendar, ThermometerSun, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { formatDate } from "@/lib/utils"
 
 interface CheeredAnimal {
   animalId: number
@@ -392,7 +393,7 @@ export default function ProfilePage() {
                             </p>
                             <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                               <Calendar className="w-3.5 h-3.5" />
-                              {new Date(feed.createdAt).toLocaleDateString("ko-KR")}
+                              {formatDate(feed.createdAt)}
                             </p>
                           </div>
 
