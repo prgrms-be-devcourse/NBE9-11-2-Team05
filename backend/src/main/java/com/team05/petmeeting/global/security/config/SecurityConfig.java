@@ -70,7 +70,7 @@ public class SecurityConfig {
                                 "/api/v1/animals/**",
                                 "/api/v1/animals/*/hearts",
                                 "/api/v1/feeds",
-                                "/api/v1/feeds/*"
+                                "/api/v1/feeds/**"
                         ).permitAll()
 
                         // 외부 API 적재용 엔드포인트 임시 공개
