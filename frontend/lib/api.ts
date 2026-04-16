@@ -185,11 +185,11 @@ export interface Comment {
 }
 
 export interface CommunityPost {
-  id: number
+  feedId: number
   title: string
   content: string
-  author: string
-  authorId: number
+  nickname: string
+  userId: number
   imageUrl?: string
   likeCount: number
   commentCount: number
@@ -215,6 +215,7 @@ export interface FeedPayload {
 export interface Feed {
   feedId: number;
   userId: number;
+  nickname?: string;
   category: string;
   title: string;
   content: string;
@@ -224,6 +225,14 @@ export interface Feed {
   createdAt: string;
   updatedAt: string;
 }
+
+export const getFeeds = async (page = 0, size = 20) => {
+  const query = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  }).toString();
+  return await apiRequest<PaginatedResponse<Feed>>(`${API_ENDPOINTS.feeds}?${query}`);
+};
 
 export const createFeed = async (payload: FeedPayload) => {
   return await apiRequest<Feed>(API_ENDPOINTS.feeds, { // POST /api/v1/feeds

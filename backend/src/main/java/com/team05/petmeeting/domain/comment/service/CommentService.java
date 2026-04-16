@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -71,5 +73,13 @@ public class CommentService {
         FeedComment comment = feedCommentRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND));
         feedCommentRepository.delete(comment);
+    }
+
+    public List<FeedCommentRes> getFeedComments(Long feedId) {
+        Feed feed = feedService.findByFeedId(feedId);
+        return feedCommentRepository.findByFeed(feed)
+                .stream()
+                .map(FeedCommentRes::from)
+                .toList();
     }
 }

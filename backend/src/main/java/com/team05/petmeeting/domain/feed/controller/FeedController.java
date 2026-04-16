@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/feeds")
@@ -54,6 +56,15 @@ public class FeedController {
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
         commentService.deleteFeedComment(commentId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "피드 댓글 목록 조회")
+    @GetMapping("/{feedId}/comments")
+    public ResponseEntity<List<FeedCommentRes>> getFeedComments(
+            @PathVariable Long feedId
+    ) {
+        List<FeedCommentRes> res = commentService.getFeedComments(feedId);
+        return ResponseEntity.ok(res);
     }
 
     @Operation(summary = "피드 글 작성")
