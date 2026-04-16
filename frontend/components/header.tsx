@@ -1,10 +1,12 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Search, Bell, Heart, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth-context"
+import { API_ENDPOINTS, apiRequest } from "@/lib/api"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +20,62 @@ interface HeaderProps {
   maxDailyHearts?: number
 }
 
-export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderProps) {
+const DEFAULT_MAX_DAILY_HEARTS = 5
+
+const extractRemainingToday = (payload: unknown): number | null => {
+  if (typeof payload === "number") return payload
+  if (typeof payload === "string") {
+    const parsed = Number(payload)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  if (!payload || typeof payload !== "object") return null
+
+  const obj = payload as Record<string, unknown>
+  const direct =
+    obj.remainingToday ?? obj.remaining ?? obj.remainingCheers ?? (obj as any).heartsRemaining ?? (obj as any).dailyHeartsRemaining
+
+  if (typeof direct === "number") return direct
+  if (typeof direct === "string") {
+    const parsed = Number(direct)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  if (obj.data && typeof obj.data === "object") return extractRemainingToday(obj.data)
+  if (obj.result && typeof obj.result === "object") return extractRemainingToday(obj.result)
+  return null
+}
+
+export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
   const { user, logout } = useAuth()
+  const effectiveMax = maxDailyHearts ?? DEFAULT_MAX_DAILY_HEARTS
+  const isControlled = dailyHeartsRemaining != null && maxDailyHearts != null
+  const [uncontrolledRemaining, setUncontrolledRemaining] = useState(effectiveMax)
+
+  const effectiveRemaining = useMemo(() => {
+    if (isControlled) return Math.max(0, Math.min(effectiveMax, dailyHeartsRemaining!))
+    return Math.max(0, Math.min(effectiveMax, uncontrolledRemaining))
+  }, [dailyHeartsRemaining, effectiveMax, isControlled, uncontrolledRemaining])
+
+  useEffect(() => {
+    if (isControlled) return
+    if (!user) {
+      setUncontrolledRemaining(effectiveMax)
+      return
+    }
+
+    let cancelled = false
+    ;(async () => {
+      const { data } = await apiRequest<unknown>(API_ENDPOINTS.cheersToday)
+      const remainingToday = extractRemainingToday(data)
+      if (remainingToday == null) return
+      if (cancelled) return
+      setUncontrolledRemaining(Math.max(0, Math.min(effectiveMax, remainingToday)))
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [effectiveMax, isControlled, user])
 
   const handleLogout = async () => {
     await logout()
@@ -68,11 +124,11 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
                 {/* Daily Hearts Indicator */}
                 <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-xl">
                   <div className="flex items-center gap-0.5">
-                    {Array.from({ length: maxDailyHearts }).map((_, index) => (
+                    {Array.from({ length: effectiveMax }).map((_, index) => (
                       <Heart 
                         key={index}
                         className={`w-4 h-4 transition-all ${
-                          index < dailyHeartsRemaining 
+                          index < effectiveRemaining 
                             ? "fill-primary text-primary" 
                             : "text-primary/30"
                         }`} 
@@ -80,7 +136,7 @@ export function Header({ dailyHeartsRemaining = 5, maxDailyHearts = 5 }: HeaderP
                     ))}
                   </div>
                   <span className="text-xs font-medium text-primary">
-                    {dailyHeartsRemaining}/{maxDailyHearts}
+                    {effectiveRemaining}/{effectiveMax}
                   </span>
                 </div>
                 
