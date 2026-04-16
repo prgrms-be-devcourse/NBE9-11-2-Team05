@@ -102,6 +102,7 @@ export async function apiRequest<T>(
       // Some APIs respond with plain text/number instead of JSON.
       return { data: responseText as T, error: null }
     }
+
   } catch (error) {
     return { data: null, error: error instanceof Error ? error.message : "Network error" }
   }
@@ -236,4 +237,18 @@ export const updateFeed = async (feedId: number, payload: FeedPayload) => {
     method: "PUT",
     body: JSON.stringify(payload)
   });
+};
+// 피드 삭제
+export const deleteFeed = async (feedId: number) => {
+  return await apiRequest<void>(API_ENDPOINTS.feedDetail(feedId), {
+    method: "DELETE",
+  })
+  ;
+};
+// 피드 좋아요 토글
+export const toggleFeedLike = async (feedId: number) => {
+  return await apiRequest<{ likeCount: number; isLiked: boolean }>(
+    `${API_ENDPOINTS.feedDetail(feedId)}/likes`,
+    { method: "POST" }
+  );
 };
