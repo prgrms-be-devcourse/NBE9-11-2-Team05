@@ -6,7 +6,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost
 export const API_ENDPOINTS = {
   // Auth
   login: `${API_BASE_URL}/auth/login`,
-  register: `${API_BASE_URL}/auth/register`,
+  register: `${API_BASE_URL}/auth/signup`,
   logout: `${API_BASE_URL}/auth/logout`,
 
   // Animals

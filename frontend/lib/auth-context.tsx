@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>
-  register: (username: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>
+  register: (username: string, password: string, nickname: string, realname: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   updateUser: (updates: Partial<User>) => void
 }
@@ -95,36 +95,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const register = async (username: string, password: string, name: string) => {
+  const register = async (username: string, password: string, nickname: string, realname: string) => {
     try {
-      const { data, error } = await apiRequest<{ user: User; token: string }>(
+      const { data, error } = await apiRequest<{ userId: number; username: string; nickname: string }>(
         API_ENDPOINTS.register,
         {
           method: "POST",
-          body: JSON.stringify({ username, password, name }),
+          body: JSON.stringify({ username, password, nickname, realname }),
         }
       )
 
       if (error || !data) {
-        // For demo purposes, allow mock registration when backend is not available
-        const mockUser: User = { id: Date.now(), username, name }
-        setUser(mockUser)
-        localStorage.setItem("user", JSON.stringify(mockUser))
-        localStorage.setItem("auth_token", "mock_token")
-        return { success: true }
+        return { success: false, error: error || "회원가입에 실패했습니다" }
       }
 
-      setUser(data.user)
-      localStorage.setItem("user", JSON.stringify(data.user))
-      localStorage.setItem("auth_token", data.token)
       return { success: true }
-    } catch {
-      // Fallback to mock registration on any error
-      const mockUser: User = { id: Date.now(), username, name }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
-      localStorage.setItem("auth_token", "mock_token")
-      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "회원가입에 실패했습니다" }
     }
   }
 
