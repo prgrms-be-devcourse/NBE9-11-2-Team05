@@ -37,24 +37,30 @@ public class FeedController {
     @Operation(summary = "피드 댓글 작성")
     @PostMapping("/{feedId}/comments")
     public ResponseEntity<FeedCommentRes> createFeedComment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long feedId,
             @Valid @RequestBody CommentReq commentReq) {
-        FeedCommentRes res = commentService.createFeedComment(feedId, commentReq);
+        FeedCommentRes res = commentService.createFeedComment(userDetails.getUserId(), feedId, commentReq);
         return ResponseEntity.ok(res);
     }
 
     @Operation(summary = "피드 댓글 수정")
-    @PutMapping("/{feedId}/comments/{commentId}")
-    public ResponseEntity<FeedCommentRes> updateComment(@PathVariable Long commentId,
+    @PatchMapping("/{feedId}/comments/{commentId}")
+    public ResponseEntity<FeedCommentRes> updateComment(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                        @PathVariable Long feedId,
+                                                        @PathVariable Long commentId,
                                                         @Valid @RequestBody CommentReq commentReq) {
-        FeedCommentRes res = commentService.updateFeedComment(commentId, commentReq);
+        FeedCommentRes res = commentService.updateFeedComment(userDetails.getUserId(), commentId, commentReq);
         return ResponseEntity.ok(res);
     }
 
     @Operation(summary = "피드 댓글 삭제")
     @DeleteMapping("/{feedId}/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
-        commentService.deleteFeedComment(commentId);
+    public ResponseEntity<Void> deleteComment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long feedId,
+            @PathVariable Long commentId) {
+        commentService.deleteFeedComment(userDetails.getUserId(), commentId);
         return ResponseEntity.noContent().build();
     }
 

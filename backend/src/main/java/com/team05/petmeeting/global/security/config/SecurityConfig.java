@@ -55,6 +55,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         // 미인가 접근 허용
+//                        .requestMatchers("/**").permitAll()  // 테스트용
                         .requestMatchers(
                                 "/api/v1/auth/signup", // 회원가입
                                 "/api/v1/auth/login",  // 로그인
