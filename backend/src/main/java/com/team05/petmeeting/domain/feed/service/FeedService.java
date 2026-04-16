@@ -7,6 +7,7 @@ import com.team05.petmeeting.domain.feed.entity.Feed;
 import com.team05.petmeeting.domain.feed.repository.FeedLikeRepository;
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
 import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class FeedService {
 
     private final FeedRepository feedRepository;
     private final FeedLikeRepository feedLikeRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public FeedRes write(FeedReq request, User user) {
@@ -55,9 +57,17 @@ public class FeedService {
         return new FeedRes(feed, likeCount);
     }
 
-    public Page<FeedListRes> getFeeds(Pageable pageable) {
+    public Page<FeedListRes> getFeeds(Pageable pageable, Long userId) {
         return feedRepository.findAll(pageable)
-                .map(feed -> new FeedListRes(feed, (int) feedLikeRepository.countByFeed(feed)));
+                .map(feed -> {
+                    int likeCount = (int) feedLikeRepository.countByFeed(feed);
+                    boolean isLiked = false;
+                    if (userId != null) {
+                        User user = userRepository.findById(userId).orElse(null);
+                        isLiked = user != null && feedLikeRepository.existsByUserAndFeed(user, feed);
+                    }
+                    return new FeedListRes(feed, likeCount, isLiked);
+                });
     }
 
     public Feed findByFeedId(Long id) {

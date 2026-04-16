@@ -14,11 +14,12 @@ public record FeedListRes(
         String content,
         String imageUrl,
         int likeCount,
+        boolean isLiked,
         int commentCount,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public FeedListRes(Feed feed, int likeCount) {
+    public FeedListRes(Feed feed, int likeCount, boolean isLiked) {
         this(
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null,
@@ -28,6 +29,7 @@ public record FeedListRes(
                 feed.getContent(),
                 feed.getImageUrl(),
                 likeCount,
+                isLiked,
                 feed.getComments().size(),
                 feed.getCreatedAt(),
                 feed.getUpdatedAt()
