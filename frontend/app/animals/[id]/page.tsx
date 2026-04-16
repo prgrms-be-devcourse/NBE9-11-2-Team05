@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User, Send, MessageCircle, MoreVertical, Edit2, Trash2 } from "lucide-react"
+import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User, Send, MessageCircle, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,36 +12,65 @@ import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import { API_ENDPOINTS, apiRequest, type Animal, type Comment } from "@/lib/api"
 
-// Mock data for demo - replace with API call in production
-const mockAnimalData: Animal = {
-  animalId: 1,
-  noticeNo: "서울-송파-2024-00123",
-  kind: "개",
-  breed: "믹스견",
-  age: "2024(년생)",
-  gender: "M",
-  neutered: "Y",
-  weight: "5.3",
-  color: "갈색",
-  specialMark: "왼쪽 귀 끝 상처 있음",
-  imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=800&fit=crop",
-  shelterName: "송파구 유기동물보호소",
-  shelterTel: "02-000-0000",
-  shelterAddr: "서울특별시 송파구 위례성대로 12길 100",
-  chargeNm: "김담당",
-  region: "서울특별시 송파구",
-  noticeStartDate: "2024-08-01",
-  noticeEndDate: "2024-08-15",
-  processState: "보호중",
-  heartCount: 23,
-  temperature: 46.0,
+const normalizeImageUrl = (value?: string): string => {
+  if (!value) return "/placeholder.svg"
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === "null" || trimmed === "undefined") return "/placeholder.svg"
+  if (trimmed.startsWith("http://openapi.animal.go.kr/")) {
+    return trimmed.replace("http://openapi.animal.go.kr/", "https://openapi.animal.go.kr/")
+  }
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("/")) {
+    return trimmed
+  }
+  return "/placeholder.svg"
 }
 
-const mockComments: Comment[] = [
-  { id: 1, author: "동물사랑", authorId: 1, text: "너무 귀여워요! 좋은 가족 만나길 바라요", createdAt: "2024-08-10T10:30:00" },
-  { id: 2, author: "멍멍이팬", authorId: 2, text: "응원합니다! 빨리 좋은 분께 입양되길", createdAt: "2024-08-10T11:15:00" },
-  { id: 3, author: "착한사람", authorId: 3, text: "건강하게 잘 지내길 바랍니다", createdAt: "2024-08-11T09:00:00" },
-]
+const normalizeAnimalDetail = (payload: unknown): Animal | null => {
+  if (!payload) return null
+  if (typeof payload !== "object") return null
+
+  const response = payload as Record<string, unknown>
+  const rawAnimal =
+    response.animal && typeof response.animal === "object"
+      ? (response.animal as Record<string, unknown>)
+      : response.data && typeof response.data === "object"
+        ? ((response.data as Record<string, unknown>).animal as Record<string, unknown> | undefined) ||
+          (response.data as Record<string, unknown>)
+        : response
+
+  const animalId = Number(rawAnimal.animalId)
+  if (!Number.isFinite(animalId)) return null
+  const rawSex = String(rawAnimal.sexCd ?? rawAnimal.gender ?? "")
+  const mappedGender = rawSex === "W" ? "F" : rawSex
+  const rawTemp = Number(rawAnimal.temperature ?? 0)
+  const mappedTemperature = Number.isFinite(rawTemp)
+    ? (rawTemp <= 1 ? rawTemp * 100 : rawTemp)
+    : 0
+
+  return {
+    animalId,
+    noticeNo: String(rawAnimal.noticeNo ?? ""),
+    kind: String(rawAnimal.upKindNm ?? rawAnimal.kind ?? ""),
+    breed: String(rawAnimal.kindFullNm ?? rawAnimal.breed ?? ""),
+    age: String(rawAnimal.age ?? ""),
+    gender: mappedGender,
+    neutered: String(rawAnimal.neutered ?? ""),
+    weight: String(rawAnimal.weight ?? ""),
+    color: String(rawAnimal.colorCd ?? rawAnimal.color ?? ""),
+    specialMark: String(rawAnimal.specialMark ?? ""),
+    imageUrl: normalizeImageUrl(String(rawAnimal.popfile1 ?? rawAnimal.imageUrl ?? "")),
+    shelterName: String(rawAnimal.careNm ?? rawAnimal.shelterName ?? ""),
+    shelterTel: String(rawAnimal.careTel ?? rawAnimal.shelterTel ?? ""),
+    shelterAddr: String(rawAnimal.careAddr ?? rawAnimal.shelterAddr ?? ""),
+    chargeNm: String(rawAnimal.chargeNm ?? ""),
+    region: String(rawAnimal.region ?? ""),
+    noticeStartDate: String(rawAnimal.noticeStartDate ?? rawAnimal.noticeSdt ?? ""),
+    noticeEndDate: String(rawAnimal.noticeEndDate ?? rawAnimal.noticeEdt ?? ""),
+    processState: String(rawAnimal.processState ?? ""),
+    heartCount: Number(rawAnimal.totalCheerCount ?? rawAnimal.heartCount ?? 0) || 0,
+    temperature: mappedTemperature,
+  }
+}
 
 export default function AnimalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -106,20 +135,25 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   }
 
   useEffect(() => {
-    // In production, fetch from API:
-    // const fetchAnimal = async () => {
-    //   const { data } = await apiRequest<Animal>(API_ENDPOINTS.animalDetail(Number(resolvedParams.id)))
-    //   if (data) setAnimal(data)
-    // }
+    const fetchAnimalDetail = async () => {
+      setIsLoading(true)
+      const { data } = await apiRequest<unknown>(API_ENDPOINTS.animalDetail(Number(resolvedParams.id)))
+      const normalizedAnimal = normalizeAnimalDetail(data)
 
-    // Mock data for demo
-    setAnimal(mockAnimalData)
-    // Fetch real comments
-    fetchComments()
-    setTotalHearts(mockAnimalData.heartCount)
-    setCurrentTemp(mockAnimalData.temperature)
-    fetchRemainingToday()
-    setIsLoading(false)
+      if (normalizedAnimal) {
+        setAnimal(normalizedAnimal)
+        setTotalHearts(normalizedAnimal.heartCount)
+        setCurrentTemp(normalizedAnimal.temperature)
+      } else {
+        setAnimal(null)
+      }
+
+      await fetchComments()
+      await fetchRemainingToday()
+      setIsLoading(false)
+    }
+
+    fetchAnimalDetail()
   }, [resolvedParams.id, user])
 
   const handleCheer = async () => {
@@ -206,7 +240,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     }
   }
 
-  if (isLoading || !animal) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -217,9 +251,21 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     )
   }
 
+  if (!animal) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-muted-foreground">동물 정보를 불러오지 못했습니다.</div>
+        </div>
+      </div>
+    )
+  }
+
   const isProtecting = animal.processState === "보호중"
   const genderLabel = animal.gender === "M" ? "수컷" : animal.gender === "F" ? "암컷" : "미상"
   const neuteredLabel = animal.neutered === "Y" ? "중성화 O" : animal.neutered === "N" ? "중성화 X" : "미상"
+  const addressText = animal.shelterAddr || animal.region || "주소 정보 없음"
 
   return (
     <div className="min-h-screen bg-background">
@@ -242,6 +288,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                 fill
                 className="object-cover"
                 priority
+                unoptimized
               />
               {!isProtecting && (
                 <div className="absolute inset-0 flex items-center justify-center bg-foreground/20">
@@ -297,8 +344,8 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                   <p className="text-sm font-medium text-foreground">{neuteredLabel}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">지역</p>
-                  <p className="text-sm font-medium text-foreground">{animal.region}</p>
+                  <p className="text-xs text-muted-foreground">주소</p>
+                  <p className="text-sm font-medium text-foreground break-words">{addressText}</p>
                 </div>
               </CardContent>
             </Card>
@@ -392,7 +439,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                 <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
                   <MapPin className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <p className="text-sm text-muted-foreground">{animal.shelterAddr}</p>
+                <p className="text-sm text-muted-foreground break-words">{addressText}</p>
               </div>
             </div>
           </CardContent>
