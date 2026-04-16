@@ -99,7 +99,7 @@ export default function ProfilePage() {
       const profileResponse = await apiRequest<{
         username: string, profileImageUrl?: string, nickname?: string, name: string, createdAt: string
       }>(API_ENDPOINTS.myProfile)
-      
+
       if (profileResponse.data) {
         if (!user.createdAt || user.nickname !== profileResponse.data.nickname || user.username !== profileResponse.data.username) {
           updateUser({

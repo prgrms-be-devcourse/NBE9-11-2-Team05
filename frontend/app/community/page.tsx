@@ -119,13 +119,13 @@ const mockCommunityPosts: CommunityPost[] = [
   },
 ]
 
-function CommunityPostCard({ 
-  post, 
-  onUpdate, 
+function CommunityPostCard({
+  post,
+  onUpdate,
   onDelete
-}: { 
-  post: CommunityPost; 
-  onUpdate: (updatedPost: CommunityPost) => void 
+}: {
+  post: CommunityPost;
+  onUpdate: (updatedPost: CommunityPost) => void
   onDelete: (feedId: number) => void
 }) {
   const { user } = useAuth()
@@ -165,14 +165,14 @@ function CommunityPostCard({
       alert("로그인이 필요합니다")
       return
     }
-  
+
     const { data, error } = await toggleFeedLike(post.feedId)
-  
+
     if (error) {
       alert("좋아요 실패: " + error)
       return
     }
-  
+
     if (!data) {
       alert("좋아요 응답이 올바르지 않습니다.")
       return
@@ -260,9 +260,9 @@ function CommunityPostCard({
           </div>
           {canEdit && (
             <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setShowUpdateModal(true)}>수정</Button>
-            <Button variant="ghost" size="sm" onClick={handleDelete}>삭제</Button>
-          </div>
+              <Button variant="ghost" size="sm" onClick={() => setShowUpdateModal(true)}>수정</Button>
+              <Button variant="ghost" size="sm" onClick={handleDelete}>삭제</Button>
+            </div>
           )}
         </div>
       </CardHeader>
@@ -726,8 +726,8 @@ export default function CommunityPage() {
   }
 
   const handleDeletePost = (postId: number) => {
-  setPosts(prev => prev.filter(p => p.feedId !== postId))
-}
+    setPosts(prev => prev.filter(p => p.feedId !== postId))
+  }
 
   return (
     <div className="min-h-screen bg-background">
