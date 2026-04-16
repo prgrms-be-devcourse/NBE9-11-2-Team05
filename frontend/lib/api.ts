@@ -6,8 +6,10 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost
 export const API_ENDPOINTS = {
   // Auth
   login: `${API_BASE_URL}/auth/login`,
-  register: `${API_BASE_URL}/auth/register`,
+  register: `${API_BASE_URL}/auth/signup`,
+  refresh: `${API_BASE_URL}/auth/refresh`,
   logout: `${API_BASE_URL}/auth/logout`,
+  withdraw: `${API_BASE_URL}/auth/withdraw`,
 
   // Animals
   animals: `${API_BASE_URL}/animals`,
@@ -50,59 +52,104 @@ export const API_ENDPOINTS = {
   animalSync: `${API_BASE_URL}/animals/sync`,
 }
 
+type ApiResult<T> = { data: T | null; error: string | null; errorCode?: string; status?: number }
+
+let refreshPromise: Promise<boolean> | null = null
+
+async function executeRequest<T>(url: string, options: RequestInit = {}): Promise<ApiResult<T>> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  }
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+    credentials: options.credentials ?? "include",
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "")
+    let errorData: Record<string, any> = {}
+    if (errorText) {
+      try {
+        errorData = JSON.parse(errorText)
+      } catch {
+        errorData = {}
+      }
+    }
+    return {
+      data: null,
+      error: errorData.message || `Error: ${response.status}`,
+      errorCode: errorData.code || errorData.errorCode || errorData.status,
+      status: response.status,
+    }
+  }
+
+  const responseText = await response.text()
+  if (!responseText) {
+    return { data: null, error: null, status: response.status }
+  }
+
+  try {
+    const data = JSON.parse(responseText) as T
+    return { data, error: null, status: response.status }
+  } catch {
+    return { data: responseText as T, error: null, status: response.status }
+  }
+}
+
+async function refreshAccessToken(): Promise<boolean> {
+  if (typeof window === "undefined") return false
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const response = await executeRequest<{ tokenType: string; accessToken: string }>(API_ENDPOINTS.refresh, {
+        method: "POST",
+      })
+
+      if (response.error || !response.data?.accessToken) {
+        localStorage.removeItem("auth_token")
+        return false
+      }
+
+      localStorage.setItem("auth_token", response.data.accessToken)
+      return true
+    })().finally(() => {
+      refreshPromise = null
+    })
+  }
+
+  return refreshPromise
+}
+
 // API Helper Functions
 export async function apiRequest<T>(
   url: string,
   options: RequestInit = {}
-): Promise<{ data: T | null; error: string | null; errorCode?: string }> {
+): Promise<ApiResult<T>> {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
+    const initialResponse = await executeRequest<T>(url, options)
+    const shouldTryRefresh =
+      initialResponse.status === 401 &&
+      url !== API_ENDPOINTS.login &&
+      url !== API_ENDPOINTS.register &&
+      url !== API_ENDPOINTS.refresh
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
-    }
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "")
-      let errorData: Record<string, any> = {}
-      if (errorText) {
-        try {
-          errorData = JSON.parse(errorText)
-        } catch {
-          errorData = {}
-        }
-      }
-      return { 
-        data: null, 
-        error: errorData.message || `Error: ${response.status}`,
-        errorCode: errorData.code || errorData.errorCode || errorData.status
+    if (shouldTryRefresh) {
+      const refreshed = await refreshAccessToken()
+      if (refreshed) {
+        return await executeRequest<T>(url, options)
       }
     }
 
-    // Some endpoints can return 200/204 with empty body.
-    const responseText = await response.text()
-    if (!responseText) {
-      return { data: null, error: null }
-    }
-
-    try {
-      const data = JSON.parse(responseText) as T
-      return { data, error: null }
-    } catch {
-      // Some APIs respond with plain text/number instead of JSON.
-      return { data: responseText as T, error: null }
-    }
-
+    return initialResponse
   } catch (error) {
     return { data: null, error: error instanceof Error ? error.message : "Network error" }
   }

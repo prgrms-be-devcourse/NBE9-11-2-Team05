@@ -7,8 +7,8 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>
-  register: (username: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>
-  logout: () => void
+  register: (username: string, password: string, nickname: string, realname: string) => Promise<{ success: boolean; error?: string }>
+  logout: () => Promise<{ success: boolean; error?: string }>
   updateUser: (updates: Partial<User>) => void
 }
 
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const { data, error } = await apiRequest<{ user?: User; accessToken: string; tokenType: string }>(
+      const { data, error, status } = await apiRequest<{ tokenType: string; accessToken: string }>(
         API_ENDPOINTS.login,
         {
           method: "POST",
@@ -55,13 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       )
 
       if (error || !data) {
-        throw new Error("Login failed")
+        if (status === 401) {
+          return { success: false, error: "id 또는 비밀번호가 잘못되었습니다." }
+        }
+        return { success: false, error: error || "로그인에 실패했습니다." }
       }
 
       // JWT 디코딩하여 userId, role 추출
       const payload = decodeJWT(data.accessToken)
       
-      let loggedInUser: User = data.user || {
+      let loggedInUser: User = {
         id: payload?.userId || 1, // 백엔드에서 user 객체를 주지 않더라도 토큰에서 추출
         username,
         name: username,
@@ -85,53 +88,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(loggedInUser)
       localStorage.setItem("user", JSON.stringify(loggedInUser))
       return { success: true }
-    } catch {
-      // Fallback to mock login on any error
-      const mockUser: User = { id: 1, username, name: username, role: "USER" }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
-      localStorage.setItem("auth_token", "mock_token")
-      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "로그인에 실패했습니다." }
     }
   }
 
-  const register = async (username: string, password: string, name: string) => {
+  const register = async (username: string, password: string, nickname: string, realname: string) => {
     try {
-      const { data, error } = await apiRequest<{ user: User; token: string }>(
+      const { data, error } = await apiRequest<{ userId: number; username: string; nickname: string }>(
         API_ENDPOINTS.register,
         {
           method: "POST",
-          body: JSON.stringify({ username, password, name }),
+          body: JSON.stringify({ username, password, nickname, realname }),
         }
       )
 
       if (error || !data) {
-        // For demo purposes, allow mock registration when backend is not available
-        const mockUser: User = { id: Date.now(), username, name }
-        setUser(mockUser)
-        localStorage.setItem("user", JSON.stringify(mockUser))
-        localStorage.setItem("auth_token", "mock_token")
-        return { success: true }
+        return { success: false, error: error || "회원가입에 실패했습니다" }
       }
 
-      setUser(data.user)
-      localStorage.setItem("user", JSON.stringify(data.user))
-      localStorage.setItem("auth_token", data.token)
       return { success: true }
-    } catch {
-      // Fallback to mock registration on any error
-      const mockUser: User = { id: Date.now(), username, name }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
-      localStorage.setItem("auth_token", "mock_token")
-      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "회원가입에 실패했습니다" }
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-    localStorage.removeItem("auth_token")
+  const logout = async () => {
+    try {
+      const { error, status } = await apiRequest<void>(API_ENDPOINTS.logout, {
+        method: "POST",
+      })
+
+      if (error || status !== 204) {
+        return { success: false, error: error || "로그아웃에 실패했습니다." }
+      }
+
+      setUser(null)
+      localStorage.removeItem("user")
+      localStorage.removeItem("auth_token")
+      alert("로그아웃되었습니다.")
+      window.location.href = "/"
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "로그아웃에 실패했습니다." }
+    }
   }
 
   const updateUser = (updates: Partial<User>) => {
