@@ -10,6 +10,7 @@ public record FeedRes(
         String nickname,
         Long feedId,
         Long userId,
+        Long animalId,
         FeedCategory category,
         String title,
         String content,
@@ -23,9 +24,10 @@ public record FeedRes(
 ) {
     public FeedRes(Feed feed, int likeCount) {
         this(
-                feed.getUser().getNickname(),
+                feed.getUser() != null ? feed.getUser().getNickname() : null,
                 feed.getId(),
-                feed.getUser().getId(),
+                feed.getUser() != null ? feed.getUser().getId() : null,
+                feed.getAnimal() != null ? feed.getAnimal().getId() : null,
                 feed.getCategory(),
                 feed.getTitle(),
                 feed.getContent(),

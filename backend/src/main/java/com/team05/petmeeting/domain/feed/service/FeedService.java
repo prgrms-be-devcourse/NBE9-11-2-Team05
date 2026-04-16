@@ -1,5 +1,8 @@
 package com.team05.petmeeting.domain.feed.service;
 
+import com.team05.petmeeting.domain.animal.entity.Animal;
+import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
+import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.feed.dto.FeedListRes;
 import com.team05.petmeeting.domain.feed.dto.FeedReq;
 import com.team05.petmeeting.domain.feed.dto.FeedRes;
@@ -17,17 +20,27 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 @RequiredArgsConstructor
 public class FeedService {
 
     private final FeedRepository feedRepository;
     private final FeedLikeRepository feedLikeRepository;
-    private final UserRepository userRepository;
+    private final AnimalRepository animalRepository;
 
     @Transactional
     public FeedRes write(FeedReq request, User user) {
-        Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl());
+        // 유효성 검증
+        if (request.category() == FeedCategory.ADOPTION_REVIEW && request.animalId() == null) {
+            throw new BusinessException(FeedErrorCode.ANIMAL_REQUIRED);
+        }
+        Animal animal = null;
+        if (request.animalId() != null) {
+            animal = animalRepository.findById(request.animalId())
+                    .orElseThrow(() -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND));
+        }
+        Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl(), animal);
         feedRepository.save(feed);
         return new FeedRes(feed, 0);
     }

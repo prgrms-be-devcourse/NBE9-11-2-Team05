@@ -51,8 +51,8 @@ public class BaseInitData {
         User user = userRepository.save(
                 User.create("admin", passwordEncoder.encode("12345678Aa!"), "admin_nickname", "홍길동")
         );
-        FeedRes res1 = feedService.write(new FeedReq(FeedCategory.FREE, "제목1", "내용1", null), user);
-        FeedRes res2 = feedService.write(new FeedReq(FeedCategory.FREE, "제목2", "내용2", null), user);
+        FeedRes res1 = feedService.write(new FeedReq(FeedCategory.FREE, "제목1", "내용1", null, null), user);
+        FeedRes res2 = feedService.write(new FeedReq(FeedCategory.FREE, "제목2", "내용2", null, null), user);
         commentService.createFeedComment(user.getId(), res1.feedId(), new CommentReq("댓글1"));
 
     }
