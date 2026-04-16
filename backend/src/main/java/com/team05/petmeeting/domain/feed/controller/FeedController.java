@@ -1,6 +1,7 @@
 package com.team05.petmeeting.domain.feed.controller;
 
 import com.team05.petmeeting.domain.comment.dto.CommentReq;
+import com.team05.petmeeting.domain.comment.dto.FeedCommentListRes;
 import com.team05.petmeeting.domain.comment.dto.FeedCommentRes;
 import com.team05.petmeeting.domain.comment.service.CommentService;
 import com.team05.petmeeting.domain.feed.dto.FeedLikeRes;
@@ -66,10 +67,11 @@ public class FeedController {
 
     @Operation(summary = "피드 댓글 목록 조회")
     @GetMapping("/{feedId}/comments")
-    public ResponseEntity<List<FeedCommentRes>> getFeedComments(
+    public ResponseEntity<FeedCommentListRes> getFeedComments(
             @PathVariable Long feedId
     ) {
-        List<FeedCommentRes> res = commentService.getFeedComments(feedId);
+        List<FeedCommentRes> list = commentService.getFeedComments(feedId);
+        FeedCommentListRes res = FeedCommentListRes.from(list);
         return ResponseEntity.ok(res);
     }
 

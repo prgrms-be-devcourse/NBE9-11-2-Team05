@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 public record AnimalCommentRes(
         Long userId,
+        String nickname,
         Long commentId,
         String content,
         Long feedId,
@@ -14,6 +15,7 @@ public record AnimalCommentRes(
     public static AnimalCommentRes from(AnimalComment comment) {
         return new AnimalCommentRes(
                 comment.getUser().getId(),
+                comment.getUser().getNickname(),
                 comment.getId(),
                 comment.getContent(),
                 comment.getAnimal().getId(),

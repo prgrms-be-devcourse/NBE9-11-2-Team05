@@ -1,7 +1,6 @@
 package com.team05.petmeeting.domain.animal.controller;
 
-import com.team05.petmeeting.domain.comment.dto.AnimalCommentRes;
-import com.team05.petmeeting.domain.comment.dto.CommentReq;
+import com.team05.petmeeting.domain.comment.dto.*;
 import com.team05.petmeeting.domain.comment.service.CommentService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,12 +10,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/animals")
 public class AnimalCommentController {
 
     private final CommentService commentService;
+
+    @Operation(summary = "동물 댓글 조회")
+    @GetMapping("/{animalId}/comments")
+    public ResponseEntity<AnimalCommentListRes> getAnimalComments(
+            @PathVariable Long animalId
+    ){
+        List<AnimalCommentRes> list = commentService.getAnimalComments(animalId);
+        AnimalCommentListRes res = AnimalCommentListRes.from(list);
+        return ResponseEntity.ok(res);
+    }
 
     @Operation(summary = "동물 댓글 작성")
     @PostMapping("/{animalId}/comments")
