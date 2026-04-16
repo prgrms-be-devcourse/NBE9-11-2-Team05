@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import type { Animal, Comment } from "@/lib/api"
+import { API_ENDPOINTS, apiRequest, type Animal, type Comment } from "@/lib/api"
 
 // Mock data for demo - replace with API call in production
 const mockAnimalData: Animal = {
@@ -51,8 +51,57 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   const [newComment, setNewComment] = useState("")
   const [totalHearts, setTotalHearts] = useState(0)
   const [currentTemp, setCurrentTemp] = useState(0)
+  const [remainingToday, setRemainingToday] = useState<number | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  const extractRemainingToday = (
+    payload: { [key: string]: any } | string | number | null
+  ): number | null => {
+    if (typeof payload === "number") return payload
+    if (typeof payload === "string") {
+      const parsed = Number(payload)
+      return Number.isFinite(parsed) ? parsed : null
+    }
+    if (!payload || typeof payload !== "object") return null
+    if (typeof payload.remainingToday === "number") return payload.remainingToday
+    if (typeof payload.remainingToday === "string") {
+      const parsed = Number(payload.remainingToday)
+      if (Number.isFinite(parsed)) return parsed
+    }
+    if (typeof payload.remaining === "number") return payload.remaining
+    if (typeof payload.remaining === "string") {
+      const parsed = Number(payload.remaining)
+      if (Number.isFinite(parsed)) return parsed
+    }
+    if (typeof payload.remainingCheers === "number") return payload.remainingCheers
+    if (typeof payload.remainingCheers === "string") {
+      const parsed = Number(payload.remainingCheers)
+      if (Number.isFinite(parsed)) return parsed
+    }
+    if (payload.data && typeof payload.data === "object") {
+      return extractRemainingToday(payload.data as { [key: string]: any })
+    }
+    if (payload.result && typeof payload.result === "object") {
+      return extractRemainingToday(payload.result as { [key: string]: any })
+    }
+    return null
+  }
+
+  const fetchRemainingToday = async () => {
+    if (!user) {
+      setRemainingToday(5)
+      return
+    }
+
+    const { data } = await apiRequest<{ [key: string]: any }>(API_ENDPOINTS.cheersToday)
+    const parsedRemaining = extractRemainingToday(data)
+    if (parsedRemaining === null) {
+      return
+    }
+
+    setRemainingToday(Math.max(0, Math.min(5, parsedRemaining)))
+  }
 
   useEffect(() => {
     // In production, fetch from API:
@@ -66,20 +115,35 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     setComments(mockComments)
     setTotalHearts(mockAnimalData.heartCount)
     setCurrentTemp(mockAnimalData.temperature)
+    fetchRemainingToday()
     setIsLoading(false)
-  }, [resolvedParams.id])
+  }, [resolvedParams.id, user])
 
-  const handleCheer = () => {
+  const handleCheer = async () => {
     if (!user) {
       alert("로그인이 필요합니다")
       return
     }
+
+    if (!animal) return
+    if (remainingToday !== null && remainingToday <= 0) {
+      alert("오늘 사용할 수 있는 하트를 모두 사용했습니다. 내일 다시 응원해주세요!")
+      return
+    }
+
+    const { error } = await apiRequest(API_ENDPOINTS.addCheer(animal.animalId), {
+      method: "POST",
+    })
+    if (error) {
+      console.warn("addCheer failed, applying local fallback:", error)
+    }
+
     setTotalHearts(prev => prev + 1)
     setCurrentTemp(prev => Math.min(prev + 0.5, 100))
+    setRemainingToday(prev => (typeof prev === "number" ? Math.max(0, prev - 1) : prev))
     setIsAnimating(true)
     setTimeout(() => setIsAnimating(false), 300)
-    // In production, call API:
-    // await apiRequest(API_ENDPOINTS.addHeart(animal.animalId), { method: "POST" })
+    fetchRemainingToday()
   }
 
   const handleCommentSubmit = () => {
@@ -119,7 +183,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header dailyHeartsRemaining={remainingToday ?? 5} maxDailyHearts={5} />
       
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Back Button */}
@@ -225,7 +289,8 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                   {/* Cheer Button - Full Width */}
                   <button
                     onClick={handleCheer}
-                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl transition-all bg-primary/10 hover:bg-primary/20 text-primary"
+                    disabled={remainingToday !== null && remainingToday <= 0}
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl transition-all bg-primary/10 hover:bg-primary/20 text-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary/10"
                   >
                     <Heart className={cn(
                       "w-5 h-5 transition-transform",
@@ -249,6 +314,11 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                     <p className="text-sm text-muted-foreground text-center">
                       {totalHearts}명이 응원했어요
                     </p>
+                    {remainingToday !== null && (
+                      <p className="text-xs text-muted-foreground text-center">
+                        오늘 남은 하트 {remainingToday}개
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>

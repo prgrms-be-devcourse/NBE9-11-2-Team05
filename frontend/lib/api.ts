@@ -73,7 +73,15 @@ export async function apiRequest<T>(
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
+      const errorText = await response.text().catch(() => "")
+      let errorData: Record<string, any> = {}
+      if (errorText) {
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = {}
+        }
+      }
       return { 
         data: null, 
         error: errorData.message || `Error: ${response.status}`,
@@ -81,8 +89,19 @@ export async function apiRequest<T>(
       }
     }
 
-    const data = await response.json()
-    return { data, error: null }
+    // Some endpoints can return 200/204 with empty body.
+    const responseText = await response.text()
+    if (!responseText) {
+      return { data: null, error: null }
+    }
+
+    try {
+      const data = JSON.parse(responseText) as T
+      return { data, error: null }
+    } catch {
+      // Some APIs respond with plain text/number instead of JSON.
+      return { data: responseText as T, error: null }
+    }
   } catch (error) {
     return { data: null, error: error instanceof Error ? error.message : "Network error" }
   }
