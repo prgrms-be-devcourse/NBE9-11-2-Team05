@@ -1,5 +1,7 @@
 package com.team05.petmeeting.global.initData;
 
+import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
+import com.team05.petmeeting.domain.animal.service.AnimalSyncService;
 import com.team05.petmeeting.domain.comment.dto.CommentReq;
 import com.team05.petmeeting.domain.comment.service.CommentService;
 import com.team05.petmeeting.domain.feed.dto.FeedReq;
@@ -26,8 +28,10 @@ public class BaseInitData {
     private BaseInitData self;
     private final FeedService feedService;
     private final CommentService commentService;
+    private final AnimalSyncService animalSyncService;
 
     private final UserRepository userRepository;
+    private final AnimalRepository animalRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -35,6 +39,7 @@ public class BaseInitData {
     public ApplicationRunner initData() {
         return args -> {
             self.work1();
+            self.work2();
         };
     }
 
@@ -52,5 +57,8 @@ public class BaseInitData {
 
     }
 
-
+    public void work2() {
+        if (animalRepository.count() > 0) { return; }
+        animalSyncService.fetchAndSaveAnimals(1, 30);
+    }
 }
