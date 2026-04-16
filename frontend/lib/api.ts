@@ -73,7 +73,15 @@ export async function apiRequest<T>(
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
+      const errorText = await response.text().catch(() => "")
+      let errorData: Record<string, any> = {}
+      if (errorText) {
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = {}
+        }
+      }
       return { 
         data: null, 
         error: errorData.message || `Error: ${response.status}`,
@@ -81,14 +89,20 @@ export async function apiRequest<T>(
       }
     }
 
-  // 204(No Content)는 body가 없으므로 json() 파싱 방지
-  // DELETE 요청(피드 삭제)
-  if (response.status === 204) {
-    return { data: null, error: null }
-  }
+    // Some endpoints can return 200/204 with empty body.
+    const responseText = await response.text()
+    if (!responseText) {
+      return { data: null, error: null }
+    }
 
-    const data = await response.json()
-    return { data, error: null }
+    try {
+      const data = JSON.parse(responseText) as T
+      return { data, error: null }
+    } catch {
+      // Some APIs respond with plain text/number instead of JSON.
+      return { data: responseText as T, error: null }
+    }
+
   } catch (error) {
     return { data: null, error: error instanceof Error ? error.message : "Network error" }
   }

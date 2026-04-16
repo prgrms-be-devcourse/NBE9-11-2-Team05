@@ -15,7 +15,7 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     boolean existsByDesertionNo(String desertionNo);
 
     // 원자적 UPDATE
-    @Modifying
+    @Modifying(clearAutomatically = true) // 영속성 컨텍스트를 비워주는 설정 -> 쿼리 사용후 캐시삭제
     @Query("UPDATE Animal a SET a.totalCheerCount = a.totalCheerCount + 1 " +
             "WHERE a.id = :animalId")
     void incrementCheerCount(@Param("animalId") Long animalId);

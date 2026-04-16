@@ -72,26 +72,20 @@ public class CheerService {
         cheerRepository.save(cheer);
         // user 응원 횟수 증가
         user.useDailyCheer();
-        animalRepository.incrementCheerCount(animalId); // 원자적 업데이트(동시성 안전)
+        userRepository.saveAndFlush(user); // 변경된 user 상태를 DB에 즉시 반영
 
-        // 응원 부여 후 동물의 최신 정보 조회
-        int newCheerCount = animal.getTotalCheerCount();
-        double newTemperature = calculateTemperature(newCheerCount, 50);
-        int remainingHeartsToday = 5 - user.getDailyHeartCount();
+        animalRepository.incrementCheerCount(animalId); // 원자적 업데이트(동시성 안전), 캐시 비워짐
+
+        // 캐시가 비워졌으므로 DB에서 업데이트된 Animal, User 가져오기
+        Animal updatedAnimal = animalRepository.findById(animalId).get();
+        User updatedUser = userRepository.findById(userId).get();
 
         return new CheerRes(
                 animalId,
-                newCheerCount,
-                newTemperature,
-                remainingHeartsToday
+                updatedAnimal.getTotalCheerCount(),
+                updatedAnimal.getTemperature(),
+                5 - updatedUser.getDailyHeartCount()
         );
     }
-
-
-    // temperature = (heart_count / 목표_하트수) × 100 | 목표기본값 = 50
-    private double calculateTemperature(int cheersCount, int goalCount) {
-        return (double) cheersCount / goalCount;
-    }
-
 
 }
