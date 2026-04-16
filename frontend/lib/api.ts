@@ -222,6 +222,21 @@ export interface Animal {
   temperature: number
 }
 
+export interface AnimalDropdownItem {
+  animalId: number
+  noticeNo: string
+  kindFillName: string
+  careNm: string
+}
+
+export const getAnimals = async () => {
+  return await apiRequest<PaginatedResponse<AnimalDropdownItem>>(API_ENDPOINTS.animals)
+}
+
+export const getAnimalDetail = async (animalId: number) => {
+  return await apiRequest<AnimalDropdownItem>(API_ENDPOINTS.animalDetail(animalId))
+}
+
 export interface Comment {
   id: number
   author: string
@@ -256,6 +271,7 @@ export interface FeedPayload {
   title: string;
   content: string;
   imageUrl?: string;
+  animalId?: number;
 }
 
 export interface FeedComment {
@@ -270,6 +286,7 @@ export interface FeedComment {
 export interface FeedDetail {
   feedId: number
   userId: number
+  animalId?: number
   category: string
   title: string
   content: string

@@ -13,7 +13,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn, formatDate } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed,FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed,FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS, getAnimals, AnimalDropdownItem, getAnimalDetail } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -32,6 +32,7 @@ interface CommunityPost {
   content: string
   nickname: string
   userId: number
+  animalId?: number
   imageUrl?: string
   likeCount: number
   isLiked?: boolean
@@ -142,6 +143,7 @@ function CommunityPostCard({
   const [hasFetchedComments, setHasFetchedComments] = useState(false)
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
   const [editContent, setEditContent] = useState("")
+  const [animalInfoLabel, setAnimalInfoLabel] = useState("")
 
   const fetchComments = async () => {
     const { data } = await apiRequest<{ comments: any[] }>(API_ENDPOINTS.feedComments(post.feedId))
@@ -161,6 +163,25 @@ function CommunityPostCard({
       fetchComments()
     }
   }, [showComments, hasFetchedComments])
+
+  useEffect(() => {
+    if (!post.animalId) {
+      setAnimalInfoLabel("")
+      return
+    }
+
+    const fetchAnimalDetail = async () => {
+      const { data, error } = await getAnimalDetail(post.animalId!)
+      if (error || !data) {
+        setAnimalInfoLabel("")
+        return
+      }
+
+      setAnimalInfoLabel(`${data.noticeNo ?? ""} · ${data.kindFillName ?? ""} · ${data.careNm ?? ""}`)
+    }
+
+    fetchAnimalDetail()
+  }, [post.animalId])
 
   const handleLike = async () => {
     if (!user) {
@@ -275,6 +296,9 @@ function CommunityPostCard({
             {post.category}
           </span>
         </div>
+        {showComments && post.animalId && animalInfoLabel && (
+          <p className="text-xs text-muted-foreground">{animalInfoLabel}</p>
+        )}
         <h3 className="font-bold text-lg text-foreground">{post.title}</h3>
         <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
           {post.content}
@@ -413,6 +437,7 @@ function CommunityPostCard({
               title: updatedData.title,
               content: updatedData.content,
               imageUrl: updatedData.imageUrl,
+              animalId: updatedData.animalId,
             };
 
             const { data, error } = await updateFeed(post.feedId, payload);
@@ -427,6 +452,7 @@ function CommunityPostCard({
               category: updatedData.category,
               title: updatedData.title,
               content: updatedData.content,
+              animalId: updatedData.animalId,
               imageUrl: updatedData.imageUrl,
             });
             setShowUpdateModal(false);
@@ -449,10 +475,37 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [imageUrl, setImageUrl] = useState("")
+  const [animals, setAnimals] = useState<AnimalDropdownItem[]>([])
+  const [selectedAnimalId, setSelectedAnimalId] = useState<number | "">("")
+  const [isAnimalsLoading, setIsAnimalsLoading] = useState(false)
+  const [hasLoadedAnimals, setHasLoadedAnimals] = useState(false)
+
+  useEffect(() => {
+    if (category !== "입양후기" || hasLoadedAnimals) return
+
+    const fetchAnimals = async () => {
+      setIsAnimalsLoading(true)
+      const { data, error } = await getAnimals()
+      if (error || !data) {
+        console.error("동물 목록 조회 실패:", error)
+        setIsAnimalsLoading(false)
+        return
+      }
+      setAnimals(data?.content || [])
+      setHasLoadedAnimals(true)
+      setIsAnimalsLoading(false)
+    }
+
+    fetchAnimals()
+  }, [category, hasLoadedAnimals])
 
   const handleSubmit = () => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 입력해주세요")
+      return
+    }
+    if (category === "입양후기" && selectedAnimalId === "") {
+      alert("입양후기 작성 시 동물 선택은 필수입니다.")
       return
     }
 
@@ -462,6 +515,7 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
       content,
       nickname: user?.name || "익명",
       userId: user?.id || 0,
+      animalId: category === "입양후기" ? Number(selectedAnimalId) : undefined,
       imageUrl: imageUrl || undefined,
       likeCount: 0,
       commentCount: 0,
@@ -508,6 +562,31 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
               className="rounded-xl bg-secondary/50 border-0"
             />
           </div>
+          {category === "입양후기" && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                동물 선택 <span className="text-destructive">*</span>
+              </label>
+              <select
+                value={selectedAnimalId}
+                onChange={(e) => setSelectedAnimalId(e.target.value ? Number(e.target.value) : "")}
+                disabled={isAnimalsLoading}
+                className={cn(
+                  "w-full h-10 px-3 rounded-xl bg-secondary/50 border-0 text-sm",
+                  selectedAnimalId === "" && "text-muted-foreground"
+                )}
+              >
+                <option value="">
+                  {isAnimalsLoading ? "불러오는 중..." : "동물을 선택하세요"}
+                </option>
+                {animals.map((a) => (
+                  <option key={a.animalId} value={a.animalId}>
+                    {a.noticeNo ?? ""} · {a.kindFillName ?? ""} · {a.careNm ?? ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">내용</label>
             <Textarea
@@ -545,19 +624,52 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
   )
 }
 
-function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onClose: () => void; onSubmit: (data: { category: PostCategory, title: string, content: string, imageUrl?: string }) => void }) {
+function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onClose: () => void; onSubmit: (data: { category: PostCategory, title: string, content: string, imageUrl?: string, animalId?: number }) => void }) {
   const [category, setCategory] = useState<PostCategory>(post.category)
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.content)
   const [imageUrl, setImageUrl] = useState(post.imageUrl || "")
+  const [animals, setAnimals] = useState<AnimalDropdownItem[]>([])
+  const [selectedAnimalId, setSelectedAnimalId] = useState<number | "">(post.animalId ?? "")
+  const [isAnimalsLoading, setIsAnimalsLoading] = useState(false)
+  const [hasLoadedAnimals, setHasLoadedAnimals] = useState(false)
+
+  useEffect(() => {
+    if (category !== "입양후기" || hasLoadedAnimals) return
+
+    const fetchAnimals = async () => {
+      setIsAnimalsLoading(true)
+      const { data, error } = await getAnimals()
+      if (error || !data) {
+        console.error("동물 목록 조회 실패:", error)
+        setIsAnimalsLoading(false)
+        return
+      }
+      setAnimals(data?.content || [])
+      setHasLoadedAnimals(true)
+      setIsAnimalsLoading(false)
+    }
+
+    fetchAnimals()
+  }, [category, hasLoadedAnimals])
 
   const handleSubmit = () => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 입력해주세요")
       return
     }
+    if (category === "입양후기" && selectedAnimalId === "") {
+      alert("입양후기 수정 시 동물 선택은 필수입니다.")
+      return
+    }
 
-    onSubmit({ category, title, content, imageUrl: imageUrl || undefined })
+    onSubmit({
+      category,
+      title,
+      content,
+      imageUrl: imageUrl || undefined,
+      animalId: category === "입양후기" ? Number(selectedAnimalId) : undefined,
+    })
   }
 
   return (
@@ -598,6 +710,31 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
               className="rounded-xl bg-secondary/50 border-0"
             />
           </div>
+          {category === "입양후기" && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                동물 선택 <span className="text-destructive">*</span>
+              </label>
+              <select
+                value={selectedAnimalId}
+                onChange={(e) => setSelectedAnimalId(e.target.value ? Number(e.target.value) : "")}
+                disabled={isAnimalsLoading}
+                className={cn(
+                  "w-full h-10 px-3 rounded-xl bg-secondary/50 border-0 text-sm",
+                  selectedAnimalId === "" && "text-muted-foreground"
+                )}
+              >
+                <option value="">
+                  {isAnimalsLoading ? "불러오는 중..." : "동물을 선택하세요"}
+                </option>
+                {animals.map((a) => (
+                  <option key={a.animalId} value={a.animalId}>
+                    {a.noticeNo ?? ""} · {a.kindFillName ?? ""} · {a.careNm ?? ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">내용</label>
             <Textarea
@@ -679,6 +816,7 @@ export default function CommunityPage() {
         content: post.content,
         nickname: post.nickname || "익명",
         userId: post.userId,
+        animalId: (post as { animalId?: number }).animalId,
         imageUrl: post.imageUrl,
         likeCount: post.likeCount,
         isLiked: (post as any).isLiked ?? false,   // ✅ 이거 추가
@@ -711,6 +849,7 @@ export default function CommunityPage() {
       title: newPost.title,
       content: newPost.content,
       imageUrl: newPost.imageUrl,
+      animalId: newPost.animalId,
     };
 
     // 서버로 피드 생성 API 호출
