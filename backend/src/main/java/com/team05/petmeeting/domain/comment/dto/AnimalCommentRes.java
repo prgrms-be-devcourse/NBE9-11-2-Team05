@@ -5,6 +5,7 @@ import com.team05.petmeeting.domain.comment.entity.AnimalComment;
 import java.time.LocalDateTime;
 
 public record AnimalCommentRes(
+        Long userId,
         Long commentId,
         String content,
         Long feedId,
@@ -12,6 +13,7 @@ public record AnimalCommentRes(
 ) {
     public static AnimalCommentRes from(AnimalComment comment) {
         return new AnimalCommentRes(
+                comment.getUser().getId(),
                 comment.getId(),
                 comment.getContent(),
                 comment.getAnimal().getId(),
