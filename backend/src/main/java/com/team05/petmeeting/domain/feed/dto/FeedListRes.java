@@ -19,7 +19,7 @@ public record FeedListRes(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public FeedListRes(Feed feed, Long likeCount, boolean isLiked) {
+    public FeedListRes(Feed feed, Long likeCount, Long commentCount, boolean isLiked) {
         this(
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null,
@@ -31,7 +31,7 @@ public record FeedListRes(
                 feed.getImageUrl(),
                 likeCount.intValue(),
                 isLiked,
-                feed.getComments().size(),
+                commentCount.intValue(),
                 feed.getCreatedAt(),
                 feed.getUpdatedAt()
         );
