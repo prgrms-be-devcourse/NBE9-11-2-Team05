@@ -39,7 +39,7 @@ public class AnimalController {
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String kind,
             @RequestParam(required = false) String processState,
-            @PageableDefault(page = 0, size = 10, sort = "noticeEdt", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(page = 0, size = 12, sort = "noticeEdt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         Page<AnimalRes> page = animalService.getAnimals(region, kind, processState, pageable);
 
