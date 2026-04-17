@@ -9,6 +9,13 @@ import { Filter, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
 import { API_ENDPOINTS, apiRequest } from "@/lib/api"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const MAX_DAILY_HEARTS = 5
 
@@ -71,6 +78,29 @@ type AnimalListItem = {
 }
 
 const ITEMS_PER_PAGE = 10
+const REGION_OPTIONS = [
+  "전체",
+  "서울",
+  "부산",
+  "대구",
+  "인천",
+  "광주",
+  "대전",
+  "울산",
+  "세종",
+  "경기",
+  "강원",
+  "충북",
+  "충남",
+  "전북",
+  "전남",
+  "경북",
+  "경남",
+  "제주",
+]
+const SPECIES_OPTIONS = ["전체", "개", "고양이", "기타"]
+const STATUS_OPTIONS = ["보호중", "종료"]
+type SortOption = "noticeEndDate" | "cheerCount"
 
 const parseAnimalList = (payload: unknown): AnimalListItem[] => {
   if (!payload) return []
@@ -138,6 +168,10 @@ export default function SocialFeedPage() {
   const [animals, setAnimals] = useState<FeedItem[]>([])
   const [totalPages, setTotalPages] = useState(1)
   const [totalAnimalCount, setTotalAnimalCount] = useState(0)
+  const [selectedRegion, setSelectedRegion] = useState("전체")
+  const [selectedSpecies, setSelectedSpecies] = useState("전체")
+  const [selectedStatus, setSelectedStatus] = useState("보호중")
+  const [sortOption, setSortOption] = useState<SortOption>("noticeEndDate")
 
   const extractRemainingToday = (
     payload: { [key: string]: any } | string | number | null
@@ -193,9 +227,24 @@ export default function SocialFeedPage() {
   }
 
   const fetchAnimals = async (page: number) => {
-    const query = new URLSearchParams({
+    const queryParams = new URLSearchParams({
       page: String(Math.max(page - 1, 0)),
-    }).toString()
+      processState: selectedStatus,
+    })
+
+    if (selectedRegion !== "전체") {
+      queryParams.set("region", selectedRegion)
+    }
+
+    if (selectedSpecies !== "전체") {
+      queryParams.set("kind", selectedSpecies)
+    }
+
+    if (sortOption === "cheerCount") {
+      queryParams.set("sort", "totalCheerCount,DESC")
+    }
+
+    const query = queryParams.toString()
     const { data, error } = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?${query}`)
     if (error) {
       setAnimals([])
@@ -238,7 +287,11 @@ export default function SocialFeedPage() {
 
   useEffect(() => {
     fetchAnimals(currentPage)
-  }, [currentPage])
+  }, [currentPage, selectedRegion, selectedSpecies, selectedStatus, sortOption])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedRegion, selectedSpecies, selectedStatus, sortOption])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -256,7 +309,7 @@ export default function SocialFeedPage() {
       {/* Feed Section */}
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
           <div>
             <h2 className="text-xl font-bold text-foreground">
               전체 보호동물
@@ -265,15 +318,77 @@ export default function SocialFeedPage() {
               총 {totalAnimalCount}마리의 친구들이 가족을 기다리고 있어요
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 rounded-xl">
-              <Filter className="w-4 h-4" />
-              필터
-            </Button>
-            <Button variant="outline" size="sm" className="gap-2 rounded-xl">
-              <SlidersHorizontal className="w-4 h-4" />
-              정렬
-            </Button>
+          <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
+              <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">지역</span>
+                  <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                    <SelectTrigger className="h-9 rounded-lg border-border bg-background px-2">
+                      <SelectValue placeholder="지역" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {REGION_OPTIONS.map((region) => (
+                        <SelectItem key={region} value={region}>
+                          {region}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">종</span>
+                  <Select value={selectedSpecies} onValueChange={setSelectedSpecies}>
+                    <SelectTrigger className="h-9 rounded-lg border-border bg-background px-2">
+                      <SelectValue placeholder="축종" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SPECIES_OPTIONS.map((species) => (
+                        <SelectItem key={species} value={species}>
+                          {species}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">보호상태</span>
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger className="h-9 rounded-lg border-border bg-background px-2">
+                      <SelectValue placeholder="상태" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-2 py-2 sm:w-[220px]">
+              <SlidersHorizontal className="w-4 h-4 text-muted-foreground shrink-0" />
+              <div className="w-full min-w-0">
+                <Select
+                  value={sortOption}
+                  onValueChange={(value) => setSortOption(value as SortOption)}
+                >
+                  <SelectTrigger className="h-9 rounded-lg border-border bg-background px-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="noticeEndDate">공고 종료일순</SelectItem>
+                    <SelectItem value="cheerCount">응원 수 기준</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </div>
 
