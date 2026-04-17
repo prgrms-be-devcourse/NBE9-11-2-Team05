@@ -307,14 +307,14 @@ export default function SocialFeedPage() {
       <RankingBanner animals={top3Animals} />
 
       {/* Feed Section */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-lg md:text-xl font-bold text-foreground">
               전체 보호동물
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs md:text-sm text-muted-foreground mt-1">
               총 {totalAnimalCount}마리의 친구들이 가족을 기다리고 있어요
             </p>
           </div>
@@ -428,7 +428,7 @@ export default function SocialFeedPage() {
 
       {/* Footer */}
       <footer className="bg-card border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
               2024 유기동물 응원 피드. 모든 생명은 소중합니다.

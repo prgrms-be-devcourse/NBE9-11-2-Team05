@@ -83,32 +83,32 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border">
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between gap-8">
+      <div className="max-w-6xl mx-auto px-3 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-1 md:gap-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground">
-              <Heart className="w-5 h-5 fill-current" />
+            <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-xl bg-primary text-primary-foreground shrink-0">
+              <Heart className="w-4 h-4 md:w-5 md:h-5 fill-current" />
             </div>
-            <span className="text-xl font-bold text-foreground">펫미팅</span>
+            <span className="hidden min-[420px]:block text-lg md:text-xl font-bold text-foreground whitespace-nowrap">펫미팅</span>
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="flex items-center gap-0 md:gap-1">
             <Link href="/">
-              <Button variant="ghost" className="text-foreground font-medium">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-foreground font-medium px-1.5 md:px-4">
                 홈
               </Button>
             </Link>
             <Link href="/community">
-              <Button variant="ghost" className="text-muted-foreground font-medium">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground font-medium px-1.5 md:px-4">
                 커뮤니티
               </Button>
             </Link>
           </nav>
 
           {/* Search & Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             {/* 
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -175,12 +175,12 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/login">
-                  <Button variant="ghost" className="text-muted-foreground font-medium">
+                  <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground font-medium px-1.5 md:px-4">
                     로그인
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="hidden sm:flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl">
+                  <Button size="sm" className="flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl whitespace-nowrap px-2 md:px-4 text-xs sm:text-sm h-8 md:h-9">
                     회원가입
                   </Button>
                 </Link>
