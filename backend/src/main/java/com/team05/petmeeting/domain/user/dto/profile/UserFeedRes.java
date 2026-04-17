@@ -9,12 +9,11 @@ public record UserFeedRes(
         long totalFeedCount,
         List<ProfileFeedItem> feeds
 ) {
-    public static UserFeedRes from(List<Feed> feedList) {
+    public static UserFeedRes of(long totalFeedCount, List<Feed> feedList) {
         List<ProfileFeedItem> items = feedList.stream()
                 .map(ProfileFeedItem::from)
                 .toList();
-
-        return new UserFeedRes(items.size(), items);
+        return new UserFeedRes(totalFeedCount, items);
     }
 
     public record ProfileFeedItem(

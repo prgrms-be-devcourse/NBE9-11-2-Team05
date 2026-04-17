@@ -1,6 +1,11 @@
 package com.team05.petmeeting.domain.user.service;
 
 import com.team05.petmeeting.domain.cheer.repository.CheerRepository;
+import com.team05.petmeeting.domain.comment.entity.AnimalComment;
+import com.team05.petmeeting.domain.comment.entity.FeedComment;
+import com.team05.petmeeting.domain.comment.repository.AnimalCommentRepository;
+import com.team05.petmeeting.domain.comment.repository.FeedCommentRepository;
+import com.team05.petmeeting.domain.feed.entity.Feed;
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
 import com.team05.petmeeting.domain.user.dto.profile.*;
 import com.team05.petmeeting.domain.user.entity.User;
@@ -24,6 +29,8 @@ public class UserProfileService {
     private final PasswordEncoder passwordEncoder;
     private final FeedRepository feedRepository;
     private final CheerRepository cheerRepository;
+    private final AnimalCommentRepository animalCommentRepository;
+    private final FeedCommentRepository feedCommentRepository;
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
@@ -65,12 +72,15 @@ public class UserProfileService {
         User user = getUserById(userId);
         Long feedCount = feedRepository.countByUser(user);
         Long cheerCount = cheerRepository.countDistinctAnimalByUser(user);
-        return MyProfileDetailRes.from(feedCount, cheerCount);
+        Long feedCommentCount = feedCommentRepository.countFeedCommentByUser(user);
+        Long animalCommentCount = animalCommentRepository.countAnimalCommentByUser(user);
+        return MyProfileDetailRes.of(feedCount, cheerCount, feedCommentCount, animalCommentCount);
     }
 
     public UserFeedRes getMyFeeds(Long userId) {
         User user = getUserById(userId);
-        return UserFeedRes.from(feedRepository.findAllByUserOrderByCreatedAtDesc(user));
+        List<Feed> feedList = feedRepository.findAllByUserOrderByCreatedAtDesc(user);
+        return UserFeedRes.of(feedList.size(), feedList);
     }
 
     public UserCheerAnimalRes getMyCheerAnimals(Long userId) {
@@ -87,5 +97,17 @@ public class UserProfileService {
     public UserSummaryRes getUserSummary(Long userId) {
         User user = getUserById(userId);
         return UserSummaryRes.from(user);
+    }
+
+    public UserFeedCommentRes getMyFeedComments(Long userId) {
+        User user = getUserById(userId);
+        List<FeedComment> feedCommentList = feedCommentRepository.findAllByUserOrderByCreatedAtDesc(user);
+        return UserFeedCommentRes.of(feedCommentList.size(), feedCommentList);
+    }
+
+    public UserAnimalCommentRes getMyAnimalComments(Long userId) {
+        User user = getUserById(userId);
+        List<AnimalComment> animalCommentList = animalCommentRepository.findAllByUserOrderByCreatedAtDesc(user);
+        return UserAnimalCommentRes.of(animalCommentList.size(), animalCommentList);
     }
 }

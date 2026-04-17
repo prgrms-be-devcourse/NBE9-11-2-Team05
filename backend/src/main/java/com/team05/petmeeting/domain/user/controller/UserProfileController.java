@@ -81,6 +81,26 @@ public class UserProfileController {
         return ResponseEntity.ok(res);
     }
 
+    // 작성 피드 댓글 목록 & 갯수 전달
+    @GetMapping("/comments/feeds")
+    public ResponseEntity<UserFeedCommentRes> feedComments(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long userId = userDetails.getUserId();
+        UserFeedCommentRes res = userProfileService.getMyFeedComments(userId);
+        return ResponseEntity.ok(res);
+    }
+
+    // 작성 동물 댓글 목록 & 갯수 전달
+    @GetMapping("/comments/animals")
+    public ResponseEntity<UserAnimalCommentRes> animalComments(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long userId = userDetails.getUserId();
+        UserAnimalCommentRes res = userProfileService.getMyAnimalComments(userId);
+        return ResponseEntity.ok(res);
+    }
+
     // 응원 동물 목록 & 갯수 전달
     @GetMapping("/cheer-animals")
     public ResponseEntity<UserCheerAnimalRes> animals(@AuthenticationPrincipal CustomUserDetails userDetails) {
