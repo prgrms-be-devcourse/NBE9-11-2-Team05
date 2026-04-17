@@ -138,7 +138,7 @@ export async function apiRequest<T>(
     const initialResponse = await executeRequest<T>(url, options)
     const shouldTryRefresh =
       initialResponse.status === 401 &&
-      initialResponse.errorCode == "INVALID_TOKEN" &&
+      initialResponse.errorCode === "S-001" &&
       url !== API_ENDPOINTS.login &&
       url !== API_ENDPOINTS.register &&
       url !== API_ENDPOINTS.refresh
