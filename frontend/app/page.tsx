@@ -227,9 +227,24 @@ export default function SocialFeedPage() {
   }
 
   const fetchAnimals = async (page: number) => {
-    const query = new URLSearchParams({
+    const queryParams = new URLSearchParams({
       page: String(Math.max(page - 1, 0)),
-    }).toString()
+      processState: selectedStatus,
+    })
+
+    if (selectedRegion !== "전체") {
+      queryParams.set("region", selectedRegion)
+    }
+
+    if (selectedSpecies !== "전체") {
+      queryParams.set("kind", selectedSpecies)
+    }
+
+    if (sortOption === "cheerCount") {
+      queryParams.set("sort", "totalCheerCount,DESC")
+    }
+
+    const query = queryParams.toString()
     const { data, error } = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?${query}`)
     if (error) {
       setAnimals([])
@@ -272,7 +287,11 @@ export default function SocialFeedPage() {
 
   useEffect(() => {
     fetchAnimals(currentPage)
-  }, [currentPage])
+  }, [currentPage, selectedRegion, selectedSpecies, selectedStatus, sortOption])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedRegion, selectedSpecies, selectedStatus, sortOption])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
