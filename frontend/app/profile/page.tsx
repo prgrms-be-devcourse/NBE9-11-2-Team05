@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/lib/auth-context"
 import { apiRequest, API_ENDPOINTS } from "@/lib/api"
-import { User, Heart, FileText, Settings, Calendar, ThermometerSun, X } from "lucide-react"
+import { User, Heart, FileText, Settings, Calendar, ThermometerSun, X, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { formatDate } from "@/lib/utils"
+import { MyFeedComment, MyAnimalComment } from "@/lib/api"
 
 interface CheeredAnimal {
   animalId: number
@@ -44,11 +45,11 @@ const mockMyFeeds: MyFeed[] = [
 ]
 
 const categoryLabels: Record<string, string> = {
-  REVIEW: "입양 후기",
-  VOLUNTEER: "봉사 후기",
+  ADOPTION_REVIEW: "입양후기",
+  VOLUNTEER: "봉사활동",
+  FREE: "자유게시판",
   PROMOTE: "홍보",
   QUESTION: "질문",
-  FREE: "자유",
 }
 
 export default function ProfilePage() {
@@ -56,11 +57,19 @@ export default function ProfilePage() {
   const { user, isLoading: authLoading, updateUser } = useAuth()
   const [cheeredAnimals, setCheeredAnimals] = useState<CheeredAnimal[]>([])
   const [myFeeds, setMyFeeds] = useState<MyFeed[]>([])
-  const [profileStats, setProfileStats] = useState<{ feedCount: number, cheerCount: number, createdAt?: string }>({ feedCount: 0, cheerCount: 0 })
+  const [profileStats, setProfileStats] = useState<{ 
+    feedCount: number, 
+    cheerCount: number, 
+    feedCommentCount: number, 
+    animalCommentCount: number, 
+    createdAt?: string 
+  }>({ feedCount: 0, cheerCount: 0, feedCommentCount: 0, animalCommentCount: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [showUsernameModal, setShowUsernameModal] = useState(false)
+  const [myFeedComments, setMyFeedComments] = useState<MyFeedComment[]>([])
+  const [myAnimalComments, setMyAnimalComments] = useState<MyAnimalComment[]>([])
   const [isWithdrawing, setIsWithdrawing] = useState(false)
 
   const handleWithdraw = async () => {
@@ -113,9 +122,13 @@ export default function ProfilePage() {
       }
 
       // Fetch profile stats overview
-      const statsResponse = await apiRequest<{ feedCount: number, cheerCount: number, createdAt?: string }>(
-        API_ENDPOINTS.myProfileStats
-      )
+      const statsResponse = await apiRequest<{ 
+        feedCount: number, 
+        cheerCount: number, 
+        feedCommentCount: number, 
+        animalCommentCount: number, 
+        createdAt?: string 
+      }>(API_ENDPOINTS.myProfileStats)
       if (statsResponse.data) {
         setProfileStats(statsResponse.data)
       }
@@ -142,6 +155,24 @@ export default function ProfilePage() {
       } else {
         // Use mock data for demo
         setMyFeeds(mockMyFeeds)
+      }
+
+      // Fetch my feed comments
+      const feedCommentsResponse = await apiRequest<{
+        totalCommentCount: number, comments: MyFeedComment[]
+      }>(API_ENDPOINTS.myFeedComments)
+
+      if (feedCommentsResponse.data?.comments) {
+        setMyFeedComments(feedCommentsResponse.data.comments)
+      }
+
+      // Fetch my animal comments
+      const animalCommentsResponse = await apiRequest<{
+        totalCommentCount: number, comments: MyAnimalComment[]
+      }>(API_ENDPOINTS.myAnimalComments)
+
+      if (animalCommentsResponse.data?.comments) {
+        setMyAnimalComments(animalCommentsResponse.data.comments)
       }
 
       setIsLoading(false)
@@ -174,18 +205,30 @@ export default function ProfilePage() {
                 <p className="text-muted-foreground">@{user.username}</p>
 
                 {/* Stats */}
-                <div className="flex justify-center sm:justify-start gap-6 mt-4">
+                <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-4 mt-6">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-primary">{profileStats.cheerCount}</p>
-                    <p className="text-sm text-muted-foreground">보낸 응원</p>
+                    <p className="text-xs text-muted-foreground mt-1">보낸 응원</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-primary">{cheeredAnimals.length}</p>
-                    <p className="text-sm text-muted-foreground">응원한 동물</p>
+                    <p className="text-xs text-muted-foreground mt-1">응원한 동물</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-primary">{profileStats.feedCount}</p>
-                    <p className="text-sm text-muted-foreground">작성한 글</p>
+                    <p className="text-xs text-muted-foreground mt-1">작성한 글</p>
+                  </div>
+                  
+                  {/* Divider for comments */}
+                  <div className="hidden sm:block w-px h-8 bg-border self-center mx-2" />
+                  
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-foreground">{profileStats.feedCommentCount || 0}</p>
+                    <p className="text-xs text-muted-foreground mt-1">피드 댓글</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-foreground">{profileStats.animalCommentCount || 0}</p>
+                    <p className="text-xs text-muted-foreground mt-1">동물 댓글</p>
                   </div>
                 </div>
               </div>
@@ -201,7 +244,7 @@ export default function ProfilePage() {
 
         {/* Tabs */}
         <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 rounded-xl">
+          <TabsList className="grid w-full grid-cols-5 rounded-xl">
             <TabsTrigger value="account" className="gap-2 rounded-xl">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">계정 정보</span>
@@ -213,6 +256,14 @@ export default function ProfilePage() {
             <TabsTrigger value="posts" className="gap-2 rounded-xl">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">작성한 글</span>
+            </TabsTrigger>
+            <TabsTrigger value="feed-comments" className="gap-2 rounded-xl">
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">피드 댓글</span>
+            </TabsTrigger>
+            <TabsTrigger value="animal-comments" className="gap-2 rounded-xl">
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">동물 댓글</span>
             </TabsTrigger>
           </TabsList>
 
@@ -251,9 +302,11 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="pt-4 border-t flex flex-wrap items-center gap-2">
+                  {/* 
                   <Button variant="outline" className="rounded-xl" onClick={() => setShowUsernameModal(true)}>
                     아이디 변경
                   </Button>
+                  */}
                   <Button variant="outline" className="rounded-xl" onClick={() => setShowPasswordModal(true)}>
                     비밀번호 변경
                   </Button>
@@ -379,27 +432,132 @@ export default function ProfilePage() {
                       <Link
                         key={feed.feedId}
                         href={`/community/${feed.feedId}`}
-                        className="block"
+                        className="block group"
                       >
-                        <div className="flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+                        <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-secondary/50 transition-all border border-transparent hover:border-border/50">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-primary/10 text-primary uppercase">
                                 {categoryLabels[feed.category] || feed.category}
                               </span>
                             </div>
-                            <p className="font-medium text-foreground truncate">
+                            <p className="font-semibold text-foreground truncate mb-1">
                               {feed.title}
                             </p>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                              <Calendar className="w-3.5 h-3.5" />
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
                               {formatDate(feed.createdAt)}
                             </p>
                           </div>
-
-                          {/* Arrow */}
-                          <div className="text-muted-foreground">
+                          <div className="ml-4 text-muted-foreground group-hover:text-primary transition-colors">
                             &rarr;
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Feed Comments Tab */}
+          <TabsContent value="feed-comments">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                  작성한 피드 댓글 ({myFeedComments.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">로딩 중...</div>
+                ) : myFeedComments.length === 0 ? (
+                  <div className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                    <p className="text-muted-foreground">아직 작성한 댓글이 없습니다</p>
+                    <Link href="/community">
+                      <Button className="mt-4 rounded-xl">커뮤니티 가기</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {myFeedComments.map((comment, index) => (
+                      <Link key={index} href={`/community/${comment.feedId}`} className="block group">
+                        <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-secondary/50 transition-all border border-border/50">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-primary/10 text-primary uppercase">
+                                {categoryLabels[comment.category] || comment.category}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground mb-2 line-clamp-2 leading-relaxed">
+                              "{comment.content}"
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {formatDate(comment.createdAt)}
+                            </p>
+                          </div>
+                          <div className="ml-4 text-muted-foreground group-hover:text-primary transition-colors text-xs whitespace-nowrap">
+                            피드 보기 &rarr;
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Animal Comments Tab */}
+          <TabsContent value="animal-comments">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                  작성한 동물 댓글 ({myAnimalComments.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">로딩 중...</div>
+                ) : myAnimalComments.length === 0 ? (
+                  <div className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                    <p className="text-muted-foreground">아직 작성한 댓글이 없습니다</p>
+                    <Link href="/">
+                      <Button className="mt-4 rounded-xl">동물 보러 가기</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {myAnimalComments.map((comment, index) => (
+                      <Link key={index} href={`/animals/${comment.animalId || comment.feedId}`} className="block group">
+                        <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-secondary/50 transition-all border border-border/50">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-accent/20 text-accent-foreground uppercase">
+                                동물 상세
+                              </span>
+                              {comment.desertionNo && (
+                                <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 bg-secondary rounded-md">
+                                  No.{comment.desertionNo}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground mb-2 line-clamp-2 leading-relaxed">
+                              "{comment.content}"
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {formatDate(comment.createdAt)}
+                            </p>
+                          </div>
+                          <div className="ml-4 text-muted-foreground group-hover:text-primary transition-colors text-xs whitespace-nowrap">
+                            상세 보기 &rarr;
                           </div>
                         </div>
                       </Link>
@@ -572,12 +730,18 @@ function UpdateNicknameModal({ currentNickname, onClose, onSuccess }: { currentN
 function UpdatePasswordModal({ onClose }: { onClose: () => void }) {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
 
   const handleSubmit = async () => {
     setErrorMessage("")
-    if (!currentPassword || !newPassword) {
-      setErrorMessage("현재 비밀번호와 새 비밀번호를 모두 입력해주세요.")
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setErrorMessage("모든 비밀번호 필드를 입력해주세요.")
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage("새 비밀번호가 서로 일치하지 않습니다.")
       return
     }
 
@@ -646,7 +810,17 @@ function UpdatePasswordModal({ onClose }: { onClose: () => void }) {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="새 비밀번호를 입력하세요"
+              placeholder="새로운 비밀번호"
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">새 비밀번호 확인</label>
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="비밀번호 재입력"
               className="rounded-xl"
             />
           </div>

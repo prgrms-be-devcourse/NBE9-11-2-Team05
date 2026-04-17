@@ -161,7 +161,7 @@ export function FeedCard({
               className={cn(
                 "flex items-center justify-center gap-2 w-full py-2 px-4 rounded-xl transition-all",
                 dailyHeartsRemaining > 0
-                  ? "bg-primary/10 hover:bg-primary/20 text-primary" 
+                  ? "bg-primary/10 hover:bg-primary/20 text-primary"
                   : "bg-muted text-muted-foreground cursor-not-allowed"
               )}
             >
@@ -211,15 +211,13 @@ export function FeedCard({
         )}
       </CardContent>
 
-      {/* Comment Section */}
+      {/* Comment Section - 메인 동물 목록 댓글 임시 주석 처리
       <CardFooter className="px-4 pb-4 pt-2 flex-col items-stretch gap-3">
-        {/* Comment Count */}
         <div className="flex items-center gap-1 text-muted-foreground">
           <MessageCircle className="w-4 h-4" />
           <span className="text-sm">댓글 {comments.length}개</span>
         </div>
 
-        {/* Existing Comments */}
         {comments.length > 0 && (
           <div className="space-y-2">
             {displayedComments.map((c) => (
@@ -246,7 +244,6 @@ export function FeedCard({
           </div>
         )}
 
-        {/* Comment Input */}
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Input
@@ -278,6 +275,7 @@ export function FeedCard({
           </div>
         </div>
       </CardFooter>
+      */}
     </Card>
   )
 }

@@ -35,6 +35,8 @@ export const API_ENDPOINTS = {
   updateProfileImg: `${API_BASE_URL}/me/profileImg`,
   updatePassword: `${API_BASE_URL}/me/password`,
   updateNickname: `${API_BASE_URL}/me/nickname`,
+  myFeedComments: `${API_BASE_URL}/me/comments/feeds`,
+  myAnimalComments: `${API_BASE_URL}/me/comments/animals`,
 
   // Cheers
   addCheer: (animalId: number) => `${API_BASE_URL}/animals/${animalId}/cheers`,
@@ -308,6 +310,23 @@ export interface Feed {
   imageUrl?: string;
   likeCount: number;
   commentCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyFeedComment {
+  feedId: number;
+  category: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyAnimalComment {
+  feedId?: number;
+  animalId?: number;
+  desertionNo?: string;
+  content: string;
   createdAt: string;
   updatedAt: string;
 }
