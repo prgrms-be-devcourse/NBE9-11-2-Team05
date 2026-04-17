@@ -39,12 +39,13 @@ public class Feed extends BaseEntity {
 
     private String imageUrl;
 
-    public Feed(User user, FeedCategory category, String title, String content, String imageUrl) {
+    public Feed(User user, FeedCategory category, String title, String content, String imageUrl, Animal animal) {
         this.user = user;
         this.category = category;
         this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
+        this.animal = animal;
     }
 
     public void update(FeedCategory category, String title, String content, String imageUrl) {

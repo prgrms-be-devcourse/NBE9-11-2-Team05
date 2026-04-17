@@ -6,6 +6,7 @@ public record FeedReq(
         FeedCategory category,
         String title,
         String content,
-        String imageUrl
+        String imageUrl,
+        Long animalId
 ) {
 }

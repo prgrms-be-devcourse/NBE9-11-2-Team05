@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
 import {
-  apiRequest, API_ENDPOINTS, toggleFeedLike, deleteFeed,
+  apiRequest, API_ENDPOINTS, toggleFeedLike, deleteFeed, getAnimalDetail,
   type FeedDetail, type FeedComment
 } from "@/lib/api"
 import { cn, formatDate } from "@/lib/utils"
@@ -40,6 +40,7 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
   const [editContent, setEditContent] = useState("")
   const [openMenuId, setOpenMenuId] = useState<number | null>(null)
+  const [animalInfoLabel, setAnimalInfoLabel] = useState("")
 
   // ── 피드 로드 ──────────────────────────────────────────────
   useEffect(() => {
@@ -64,6 +65,24 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
     }
     fetchFeed()
   }, [feedId])
+
+  useEffect(() => {
+    if (!feed?.animalId) {
+      setAnimalInfoLabel("")
+      return
+    }
+
+    const fetchAnimalDetail = async () => {
+      const { data, error } = await getAnimalDetail(feed.animalId!)
+      if (error || !data) {
+        setAnimalInfoLabel("")
+        return
+      }
+      setAnimalInfoLabel(`${data.noticeNo ?? ""} · ${data.kindFillName ?? ""} · ${data.careNm ?? ""}`)
+    }
+
+    fetchAnimalDetail()
+  }, [feed?.animalId])
 
   // ── 좋아요 ─────────────────────────────────────────────────
   const handleLike = async () => {
@@ -194,6 +213,9 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
             </span>
 
             {/* 제목 */}
+            {feed.animalId && animalInfoLabel && (
+              <p className="text-xs text-muted-foreground mb-2">{animalInfoLabel}</p>
+            )}
             <h1 className="text-2xl font-bold text-foreground mb-3">{feed.title}</h1>
           </div>
 
