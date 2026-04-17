@@ -2,9 +2,11 @@ package com.team05.petmeeting.domain.user.dto.profile;
 
 public record MyProfileDetailRes(
         Long feedCount,
-        Long cheerCount
+        Long cheerCount,
+        Long feedCommentCount,
+        Long animalCommentCount
 ) {
-    public static MyProfileDetailRes from(Long feedCount, Long cheerCount) {
-        return new MyProfileDetailRes(feedCount, cheerCount);
+    public static MyProfileDetailRes of(Long feedCount, Long cheerCount, Long feedCommentCount, Long animalCommentCount) {
+        return new MyProfileDetailRes(feedCount, cheerCount, feedCommentCount, animalCommentCount);
     }
 }
