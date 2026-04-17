@@ -5,6 +5,12 @@ spring:
   profiles:
     active: dev
 
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:13306/my_project_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:1234}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   output:
     ansi:
       enabled: always
@@ -12,13 +18,14 @@ spring:
   jpa:
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
 
     # db 스키마 자동 생성, 수정 비활성화
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
 
     show-sql: true
 
@@ -41,6 +48,7 @@ animal:
     base-url: ${ANIMAL_API_BASE_URL}
     service-key: ${ANIMAL_API_SERVICE_KEY}
     return-type: ${ANIMAL_API_RETURN_TYPE:json}
+    initial-sync-date: 20240101
 
 # jwt access token 관련 설정
 jwt:

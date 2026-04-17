@@ -79,7 +79,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return path.contains("/signup")
                 || path.contains("login")
                 || path.contains("/logout")
-                || path.contains("/refresh");
+                || path.contains("/refresh")
+                || path.startsWith("/api/v1/animals/sync");
     }
 
     private String resolveToken(HttpServletRequest request) {

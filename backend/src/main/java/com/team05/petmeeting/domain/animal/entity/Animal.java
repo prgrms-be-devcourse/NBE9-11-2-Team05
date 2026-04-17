@@ -65,9 +65,6 @@ public class Animal extends BaseEntity {
     @Column(name = "care_tel")
     private String careTel; // 보호소 전화번호
 
-    @Column(name = "care_addr")
-    private String careAddr; // 보호소 주소
-
     @Column(name = "total_cheer_count", nullable = false)
     private Integer totalCheerCount; // 응원 수
 
@@ -82,11 +79,30 @@ public class Animal extends BaseEntity {
         this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
     }
 
+    public void updateFrom(AnimalItem item) {
+        this.processState = item.getProcessState();
+        this.noticeNo = item.getNoticeNo();
+        this.noticeEdt = parseNoticeEdt(item.getNoticeEdt());
+        this.upKindNm = item.getUpKindNm();
+        this.kindFullNm = item.getKindFullNm();
+        this.colorCd = item.getColorCd();
+        this.age = item.getAge();
+        this.weight = item.getWeight();
+        this.sexCd = item.getSexCd();
+        this.popfile1 = item.getPopfile1();
+        this.popfile2 = item.getPopfile2();
+        this.specialMark = item.getSpecialMark();
+        this.careNm = item.getCareNm();
+        this.careTel = item.getCareTel();
+        this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
+    }
+
     public boolean needsProcessStateUpdate(AnimalItem item) {
-        LocalDateTime incomingUpdatedAt = parseUpdTm(item.getUpdTm());
+        LocalDateTime incomingUpdatedAt = parseUpdTm(item.getUpdTm()); // API에서 제공하는 업데이트 시각을 파싱한다.
 
         if (this.apiUpdatedAt != null && incomingUpdatedAt != null) {
             return incomingUpdatedAt.isAfter(this.apiUpdatedAt);
+            //apiUpdateAt은 데이터베이스에 이미 지정된 값
         }
 
         return !Objects.equals(this.processState, item.getProcessState());
@@ -119,7 +135,6 @@ public class Animal extends BaseEntity {
             String specialMark,
             String careNm,
             String careTel,
-            String careAddr,
             Integer totalCheerCount
     ) {
         this.desertionNo = desertionNo;
@@ -137,7 +152,6 @@ public class Animal extends BaseEntity {
         this.specialMark = specialMark;
         this.careNm = careNm;
         this.careTel = careTel;
-        this.careAddr = careAddr;
         this.totalCheerCount = totalCheerCount;
     }
 
@@ -159,7 +173,6 @@ public class Animal extends BaseEntity {
                 item.getSpecialMark(),
                 item.getCareNm(),
                 item.getCareTel(),
-                item.getCareAddr(),
                 0
         );
 
@@ -167,6 +180,7 @@ public class Animal extends BaseEntity {
         return animal;
     }
 
+    // API에서 제공하는 noticeEdt는 "yyyyMMdd" 형식이므로, 이를 LocalDate로 파싱하는 헬퍼 메서드
     private static LocalDate parseNoticeEdt(String noticeEdt) {
         return LocalDate.parse(noticeEdt, DateTimeFormatter.BASIC_ISO_DATE);
     }
