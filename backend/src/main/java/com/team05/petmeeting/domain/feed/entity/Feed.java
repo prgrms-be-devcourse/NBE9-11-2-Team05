@@ -7,13 +7,20 @@ import com.team05.petmeeting.domain.feed.errorCode.FeedErrorCode;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import com.team05.petmeeting.global.exception.BusinessException;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -38,6 +45,9 @@ public class Feed extends BaseEntity {
     private String content;
 
     private String imageUrl;
+
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<FeedComment> comments = new ArrayList<>();
 
     public Feed(User user, FeedCategory category, String title, String content, String imageUrl, Animal animal) {
         this.user = user;
@@ -74,8 +84,5 @@ public class Feed extends BaseEntity {
             throw new BusinessException(FeedErrorCode.FORBIDDEN);
         }
     }
-
-    @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<FeedComment> comments = new ArrayList<>();
 
 }

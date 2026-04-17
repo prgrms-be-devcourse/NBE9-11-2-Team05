@@ -4,6 +4,7 @@ package com.team05.petmeeting.domain.feed.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.team05.petmeeting.domain.comment.entity.QFeedComment;
 import com.team05.petmeeting.domain.feed.dto.FeedListRes;
 import com.team05.petmeeting.domain.feed.entity.QFeed;
 import com.team05.petmeeting.domain.feed.entity.QFeedLike;
@@ -24,13 +25,15 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
 
         QFeed feed = QFeed.feed;
         QFeedLike feedLike = QFeedLike.feedLike;
+        QFeedComment feedComment = QFeedComment.feedComment;
 
         // content 조회
         List<FeedListRes> content = queryFactory
                 .select(Projections.constructor(
                         FeedListRes.class,
                         feed,
-                        feedLike.count(),
+                        feedLike.countDistinct(),
+                        feedComment.countDistinct(),
                         userId != null ?
                                 com.querydsl.jpa.JPAExpressions
                                         .selectOne()
@@ -44,6 +47,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 ))
                 .from(feed)
                 .leftJoin(feedLike).on(feedLike.feed.eq(feed))
+                .leftJoin(feedComment).on(feedComment.feed.eq(feed))
                 .where(categoryEq(category))
                 .groupBy(feed.id)
                 .orderBy(feed.createdAt.desc())
