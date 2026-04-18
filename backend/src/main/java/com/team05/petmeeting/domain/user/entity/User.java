@@ -4,12 +4,13 @@ import com.team05.petmeeting.domain.user.role.Role;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -33,7 +34,8 @@ public class User extends BaseEntity {
     private String profileImageUrl;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(nullable = false)
     private int dailyHeartCount;
@@ -66,7 +68,7 @@ public class User extends BaseEntity {
         user.nickname = nickname;
         user.profileImageUrl = "";
         user.realname = realname;
-        user.role = Role.USER.name();
+        user.role = Role.USER;
         user.dailyHeartCount = 0;
         user.lastHeartResetDate = LocalDate.now();
         return user;

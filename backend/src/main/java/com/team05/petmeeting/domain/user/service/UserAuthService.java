@@ -79,7 +79,7 @@ public class UserAuthService {
         }
 
         // jwt access token 생성
-        String accessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole()));
+        String accessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole().name()));
 
         // refresh 토큰 생성 및 db 저장 -> redis 변경 검토
         UUID uuid = UUID.randomUUID();
@@ -122,7 +122,7 @@ public class UserAuthService {
         User user = savedToken.getUser();
 
         // 3. access token 재발급
-        String newAccessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole()));
+        String newAccessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole().name()));
 
         // 4. refresh token rotate
         refreshTokenRepository.delete(savedToken);
