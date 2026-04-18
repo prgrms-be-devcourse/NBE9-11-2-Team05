@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,7 @@ public class UserAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private static final String OTP_PREFIX = "otp:find-id:";
 
     private final UserRepository userRepository;
@@ -156,41 +156,41 @@ public class UserAuthService {
         // soft delete 추후 고려
     }
 
-    public void sendFindIdOtp(String email) {
-
-        // 해당 이메일 회원이 없다고 알림
-        userRepository.findByEmail(email).orElseThrow(
-                () -> new BusinessException()
-        );
-
-        String code = generateOtp();
-
-        redisTemplate.opsForValue()
-                .set(OTP_PREFIX + email, code, 5, TimeUnit.MINUTES);
-
-        // 이메일 발송
-
-        //
-    }
-
-    public String verifyFindIdOtp(String email, String code) {
-        String saved = redisTemplate.opsForValue()
-                .get(OTP_PREFIX + email);
-
-        // 해당 이메일에 대한 코드가 레디스에 존재하지않음  || 잘못된 인증 코드가 전송
-        if (saved == null || !saved.equals(code)) {
-            throw new BusinessException();
-        }
-
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new BusinessException()
-        );
-
-        redisTemplate.delete(OTP_PREFIX + email);
-
-        // UserAuth에서 아이디를 가져와야할 것
-        return maskUsername(user.getUsername());
-    }
+//    public void sendFindIdOtp(String email) {
+//
+//        // 해당 이메일 회원이 없다고 알림
+//        userRepository.findByEmail(email).orElseThrow(
+//                () -> new BusinessException()
+//        );
+//
+//        String code = generateOtp();
+//
+//        email.opsForValue()
+//                .set(OTP_PREFIX + email, code, 5, TimeUnit.MINUTES);
+//
+//        // 이메일 발송
+//
+//        //
+//    }
+//
+//    public String verifyFindIdOtp(String email, String code) {
+//        String saved = redisTemplate.opsForValue()
+//                .get(OTP_PREFIX + email);
+//
+//        // 해당 이메일에 대한 코드가 레디스에 존재하지않음  || 잘못된 인증 코드가 전송
+//        if (saved == null || !saved.equals(code)) {
+//            throw new BusinessException();
+//        }
+//
+//        User user = userRepository.findByEmail(email).orElseThrow(
+//                () -> new BusinessException()
+//        );
+//
+//        redisTemplate.delete(OTP_PREFIX + email);
+//
+//        // UserAuth에서 아이디를 가져와야할 것
+//        return maskUsername(user.getUsername());
+//    }
 
     private Optional<String> extractRefreshToken(HttpServletRequest request) {
 

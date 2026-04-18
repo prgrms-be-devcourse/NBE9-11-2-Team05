@@ -75,7 +75,9 @@ public class BaseInitData {
 
     // 동물 외부 api 호출
     public void work2() {
-        if (animalRepository.count() > 0) { return; }
+        if (animalRepository.count() > 0) {
+            return;
+        }
         animalSyncService.fetchAndSaveAnimals(1, 30);
     }
 

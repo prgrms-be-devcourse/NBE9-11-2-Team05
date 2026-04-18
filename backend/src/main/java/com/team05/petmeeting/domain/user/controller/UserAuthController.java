@@ -1,8 +1,5 @@
 package com.team05.petmeeting.domain.user.controller;
 
-import com.team05.petmeeting.domain.user.dto.find.FindIdReq;
-import com.team05.petmeeting.domain.user.dto.find.FindIdRes;
-import com.team05.petmeeting.domain.user.dto.find.VerifyCodeReq;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
@@ -86,24 +83,24 @@ public class UserAuthController {
     }
 
     // id, pw 찾기
-    @PostMapping("/find-id/request")
-    public ResponseEntity<Void> requestFindId(
-            @RequestBody @Valid FindIdReq request
-    ) {
-        userAuthService.sendFindIdOtp(request.email());
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/find-id/verify")
-    public ResponseEntity<FindIdRes> verifyFindId(
-            @RequestBody @Valid VerifyCodeReq request
-    ) {
-        String username = userAuthService.verifyFindIdOtp(
-                request.email(),
-                request.code()
-        );
-        return ResponseEntity.ok(new FindIdRes(username));
-    }
+//    @PostMapping("/find-id/request")
+//    public ResponseEntity<Void> requestFindId(
+//            @RequestBody @Valid FindIdReq request
+//    ) {
+//        userAuthService.sendFindIdOtp(request.email());
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    @PostMapping("/find-id/verify")
+//    public ResponseEntity<FindIdRes> verifyFindId(
+//            @RequestBody @Valid VerifyCodeReq request
+//    ) {
+//        String username = userAuthService.verifyFindIdOtp(
+//                request.email(),
+//                request.code()
+//        );
+//        return ResponseEntity.ok(new FindIdRes(username));
+//    }
 
     // 탈퇴
     @DeleteMapping("/withdraw")
