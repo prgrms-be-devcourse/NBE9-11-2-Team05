@@ -32,6 +32,9 @@ public class Animal extends BaseEntity {
     @Column(name = "notice_edt", nullable = false)
     private LocalDate noticeEdt; // 공고 종료일
 
+    @Column(name = "happen_place", nullable = true, length = 255)
+    private String happenPlace; // 발견 장소
+
     @Column(name = "up_kind_nm", nullable = false, length = 30)
     private String upKindNm; // 종 (개, 고양이 등)
 
@@ -61,6 +64,9 @@ public class Animal extends BaseEntity {
 
     @Column(name = "care_nm")
     private String careNm; // 보호소 이름
+
+    @Column(name = "care_ower_nm", nullable = true, length = 100)
+    private String careOwerNm; // 보호소 담당자
 
     @Column(name = "care_tel")
     private String careTel; // 보호소 전화번호
@@ -108,6 +114,7 @@ public class Animal extends BaseEntity {
             String processState,
             String noticeNo,
             LocalDate noticeEdt,
+            String happenPlace,
             String upKindNm,
             String kindFullName,
             String colorCd,
@@ -117,6 +124,7 @@ public class Animal extends BaseEntity {
             String popfile1,
             String popfile2,
             String specialMark,
+            String careOwerNm,
             String careNm,
             String careTel,
             String careAddr,
@@ -126,6 +134,7 @@ public class Animal extends BaseEntity {
         this.processState = processState;
         this.noticeNo = noticeNo;
         this.noticeEdt = noticeEdt;
+        this.happenPlace = happenPlace;
         this.upKindNm = upKindNm;
         this.kindFullNm = kindFullName;
         this.colorCd = colorCd;
@@ -135,6 +144,7 @@ public class Animal extends BaseEntity {
         this.popfile1 = popfile1;
         this.popfile2 = popfile2;
         this.specialMark = specialMark;
+        this.careOwerNm = careOwerNm;
         this.careNm = careNm;
         this.careTel = careTel;
         this.careAddr = careAddr;
@@ -148,6 +158,7 @@ public class Animal extends BaseEntity {
                 item.getProcessState(),
                 item.getNoticeNo(),
                 parseNoticeEdt(item.getNoticeEdt()),
+                item.getHappenPlace(),
                 item.getUpKindNm(),
                 item.getKindFullNm(),
                 item.getColorCd(),
@@ -157,6 +168,7 @@ public class Animal extends BaseEntity {
                 item.getPopfile1(),
                 item.getPopfile2(),
                 item.getSpecialMark(),
+                item.getCareOwerNm(),
                 item.getCareNm(),
                 item.getCareTel(),
                 item.getCareAddr(),

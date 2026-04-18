@@ -11,6 +11,7 @@ public class AnimalItem {
     private String noticeNo;
     private String noticeEdt;
 
+    private String happenPlace;
     private String upKindNm;
     private String kindFullNm;
     private String colorCd;
@@ -22,8 +23,10 @@ public class AnimalItem {
     private String popfile2;
 
     private String specialMark;
+    private String careOwerNm;
     private String careNm;
     private String careAddr;
     private String careTel;
     private String updTm; // API에서 제공하는 데이터의 최종 업데이트 시각
+
 }
