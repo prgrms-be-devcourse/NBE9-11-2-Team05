@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User, Send, MessageCircle, Edit2, Trash2 } from "lucide-react"
+import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -462,14 +462,24 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
               ) : (
                 comments.map((comment) => (
                   <div key={comment.commentId} className="flex gap-3 group">
-                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4 text-muted-foreground" />
+                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                      {comment.profileImageUrl ? (
+                        <Image 
+                          src={comment.profileImageUrl} 
+                          alt={comment.nickname || "User"} 
+                          width={32} 
+                          height={32} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <UserIcon className="w-4 h-4 text-muted-foreground" />
+                      )}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-foreground">{comment.nickname || "익명"}</span>
-                          <span className="text-xs text-muted-foreground">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 overflow-hidden">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm font-semibold text-foreground truncate">{comment.nickname || "익명"}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">
                             {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
                           </span>
                         </div>

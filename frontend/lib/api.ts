@@ -163,6 +163,7 @@ export interface User {
   name: string
   role?: string
   nickname?: string
+  profileImageUrl?: string
   createdAt?: string
 }
 
@@ -243,6 +244,7 @@ export interface Comment {
   id: number
   author: string
   authorId: number
+  profileImageUrl?: string
   text: string
   createdAt: string
 }
@@ -279,6 +281,7 @@ export interface FeedPayload {
 export interface FeedComment {
   userId: number
   nickname: string
+  profileImageUrl?: string
   commentId: number
   content: string
   feedId: number
@@ -288,6 +291,8 @@ export interface FeedComment {
 export interface FeedDetail {
   feedId: number
   userId: number
+  nickname?: string
+  profileImageUrl?: string
   animalId?: number
   category: string
   title: string
@@ -304,6 +309,7 @@ export interface Feed {
   feedId: number;
   userId: number;
   nickname?: string;
+  profileImageUrl?: string;
   category: string;
   title: string;
   content: string;
