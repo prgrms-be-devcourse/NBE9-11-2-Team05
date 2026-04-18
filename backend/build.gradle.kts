@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.testImplementation
-
 plugins {
     java
     id("org.springframework.boot") version "4.0.5"
@@ -45,6 +43,7 @@ dependencies {
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 }
 
 tasks.withType<Test> {

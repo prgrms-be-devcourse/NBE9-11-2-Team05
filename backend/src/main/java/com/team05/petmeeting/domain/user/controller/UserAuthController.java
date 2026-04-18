@@ -5,6 +5,7 @@ import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
+import com.team05.petmeeting.domain.user.service.MailService;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import com.team05.petmeeting.global.security.util.RefreshTokenUtil;
@@ -17,9 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,6 +33,7 @@ public class UserAuthController {
 
     private final UserAuthService userAuthService;
     private final RefreshTokenUtil refreshTokenUtil;
+    private final MailService mailService;
 
     // 회원가입
     @PostMapping("/signup")
@@ -101,6 +105,16 @@ public class UserAuthController {
 //        );
 //        return ResponseEntity.ok(new FindIdRes(username));
 //    }
+
+    @GetMapping("/mail")
+    public String sendTestMail(@RequestParam String email) {
+        mailService.sendMail(
+                email,
+                "테스트 메일입니다",
+                "메일 발송 테스트 성공!"
+        );
+        return "메일 전송 완료";
+    }
 
     // 탈퇴
     @DeleteMapping("/withdraw")
