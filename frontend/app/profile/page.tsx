@@ -57,12 +57,12 @@ export default function ProfilePage() {
   const { user, isLoading: authLoading, updateUser } = useAuth()
   const [cheeredAnimals, setCheeredAnimals] = useState<CheeredAnimal[]>([])
   const [myFeeds, setMyFeeds] = useState<MyFeed[]>([])
-  const [profileStats, setProfileStats] = useState<{ 
-    feedCount: number, 
-    cheerCount: number, 
-    feedCommentCount: number, 
-    animalCommentCount: number, 
-    createdAt?: string 
+  const [profileStats, setProfileStats] = useState<{
+    feedCount: number,
+    cheerCount: number,
+    feedCommentCount: number,
+    animalCommentCount: number,
+    createdAt?: string
   }>({ feedCount: 0, cheerCount: 0, feedCommentCount: 0, animalCommentCount: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [showNicknameModal, setShowNicknameModal] = useState(false)
@@ -123,12 +123,12 @@ export default function ProfilePage() {
       }
 
       // Fetch profile stats overview
-      const statsResponse = await apiRequest<{ 
-        feedCount: number, 
-        cheerCount: number, 
-        feedCommentCount: number, 
-        animalCommentCount: number, 
-        createdAt?: string 
+      const statsResponse = await apiRequest<{
+        feedCount: number,
+        cheerCount: number,
+        feedCommentCount: number,
+        animalCommentCount: number,
+        createdAt?: string
       }>(API_ENDPOINTS.myProfileStats)
       if (statsResponse.data) {
         setProfileStats(statsResponse.data)
@@ -196,15 +196,15 @@ export default function ProfilePage() {
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               {/* Avatar */}
-              <div 
+              <div
                 className="relative w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden cursor-pointer group"
                 onClick={() => setShowProfileImgModal(true)}
               >
                 {user.profileImageUrl ? (
-                   <Image 
-                    src={user.profileImageUrl} 
-                    alt={user.nickname || user.name} 
-                    fill 
+                  <Image
+                    src={user.profileImageUrl}
+                    alt={user.nickname || user.name}
+                    fill
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (
@@ -215,73 +215,85 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* User Info */}
-              <div className="flex-1 text-center sm:text-left">
-                <h1 className="text-2xl font-bold text-foreground">{user.nickname || user.name}</h1>
-                <p className="text-muted-foreground">@{user.username}</p>
+              {/* User Info & Stats */}
+              <div className="flex-1 w-full">
+                <div className="hidden sm:block">
+                  <h1 className="text-2xl font-bold text-foreground">{user.nickname || user.name}</h1>
+                  <p className="text-muted-foreground">@{user.username}</p>
+                </div>
 
-                {/* Stats */}
-                <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-4 mt-6">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-primary">{profileStats.cheerCount}</p>
-                    <p className="text-xs text-muted-foreground mt-1">보낸 응원</p>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:flex sm:flex-wrap items-center justify-start gap-x-4 md:gap-x-8 gap-y-4 mt-4 sm:mt-6">
+                  <div className="text-left">
+                    <p className="text-xl md:text-2xl font-bold text-primary">{profileStats.cheerCount}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">보낸 응원</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-primary">{cheeredAnimals.length}</p>
-                    <p className="text-xs text-muted-foreground mt-1">응원한 동물</p>
+                  <div className="text-left">
+                    <p className="text-xl md:text-2xl font-bold text-primary">{cheeredAnimals.length}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">응원한 동물</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-primary">{profileStats.feedCount}</p>
-                    <p className="text-xs text-muted-foreground mt-1">작성한 글</p>
+                  <div className="text-left">
+                    <p className="text-xl md:text-2xl font-bold text-primary">{profileStats.feedCount}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">작성한 글</p>
                   </div>
-                  
+
                   {/* Divider for comments */}
-                  <div className="hidden sm:block w-px h-8 bg-border self-center mx-2" />
-                  
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{profileStats.feedCommentCount || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">피드 댓글</p>
+                  <div className="hidden min-[400px]:block w-px h-8 bg-border self-center" />
+
+                  <div className="text-left">
+                    <p className="text-xl md:text-2xl font-bold text-foreground">{profileStats.feedCommentCount || 0}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">피드 댓글</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{profileStats.animalCommentCount || 0}</p>
-                    <p className="text-xs text-muted-foreground mt-1">동물 댓글</p>
+                  <div className="text-left">
+                    <p className="text-xl md:text-2xl font-bold text-foreground">{profileStats.animalCommentCount || 0}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">동물 댓글</p>
                   </div>
                 </div>
               </div>
 
-              {/* Settings Button */}
-              <Button variant="outline" className="rounded-xl gap-2" onClick={() => setShowNicknameModal(true)}>
-                <Settings className="w-4 h-4" />
-                설정
-              </Button>
+              {/* Settings Button (Desktop) */}
+              <div className="hidden sm:block">
+                {/* <Button variant="outline" className="rounded-xl gap-2" onClick={() => setShowNicknameModal(true)}>
+                  <Settings className="w-4 h-4" />
+                  설정
+                </Button> */}
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Tabs */}
         <Tabs defaultValue="account" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 rounded-xl">
-            <TabsTrigger value="account" className="gap-2 rounded-xl">
-              <UserIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">계정 정보</span>
-            </TabsTrigger>
-            <TabsTrigger value="hearts" className="gap-2 rounded-xl">
-              <Heart className="w-4 h-4" />
-              <span className="hidden sm:inline">응원 내역</span>
-            </TabsTrigger>
-            <TabsTrigger value="posts" className="gap-2 rounded-xl">
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">작성한 글</span>
-            </TabsTrigger>
-            <TabsTrigger value="feed-comments" className="gap-2 rounded-xl">
-              <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">피드 댓글</span>
-            </TabsTrigger>
-            <TabsTrigger value="animal-comments" className="gap-2 rounded-xl">
-              <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">동물 댓글</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="flex w-fit sm:w-full min-w-full rounded-xl bg-muted/50 p-1">
+              <TabsTrigger value="account" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
+                <UserIcon className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline text-xs sm:text-sm">계정 정보</span>
+              </TabsTrigger>
+              <TabsTrigger value="hearts" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
+                <Heart className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline text-xs sm:text-sm">응원 내역</span>
+              </TabsTrigger>
+              <TabsTrigger value="posts" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
+                <FileText className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline text-xs sm:text-sm">작성한 글</span>
+              </TabsTrigger>
+              <TabsTrigger value="feed-comments" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                <span className="text-xs sm:text-sm">
+                  <span className="sm:hidden">피드</span>
+                  <span className="hidden sm:inline">피드 댓글</span>
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="animal-comments" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                <span className="text-xs sm:text-sm">
+                  <span className="sm:hidden">동물</span>
+                  <span className="hidden sm:inline">동물 댓글</span>
+                </span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Account Info Tab */}
           <TabsContent value="account">
@@ -933,8 +945,8 @@ function UpdateProfileImgModal({ currentImageUrl, onClose, onSuccess }: { curren
           )}
           <div className="flex gap-2 w-full pt-4">
             <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose} disabled={isLoading}>취소</Button>
-            <Button 
-              className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" 
+            <Button
+              className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={handleSubmit}
               disabled={isLoading}
             >

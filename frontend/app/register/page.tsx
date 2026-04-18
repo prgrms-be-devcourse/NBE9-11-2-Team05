@@ -107,22 +107,22 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-background flex flex-col sm:justify-center items-center px-4 py-4 sm:py-8">
       <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="text-center pb-2">
-          <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground">
-              <Heart className="w-6 h-6 fill-current" />
+          <Link href="/" className="inline-flex items-center justify-center gap-2 mb-2 md:mb-4">
+            <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary text-primary-foreground">
+              <Heart className="w-5 h-5 md:w-6 md:h-6 fill-current" />
             </div>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">회원가입</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">회원가입</h1>
+          <p className="hidden xs:block text-xs md:text-sm text-muted-foreground mt-1">
             함께 유기동물을 응원해요
           </p>
         </CardHeader>
-        <CardContent className="pt-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+        <CardContent className="pt-2 md:pt-4">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+            <div className="space-y-1.5 md:space-y-2">
               <label htmlFor="username" className="text-sm font-medium text-foreground">
                 아이디
               </label>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
               />
               {fieldErrors.username && <p className="text-sm text-destructive">{fieldErrors.username}</p>}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               <label htmlFor="nickname" className="text-sm font-medium text-foreground">
                 닉네임
               </label>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
               />
               {fieldErrors.nickname && <p className="text-sm text-destructive">{fieldErrors.nickname}</p>}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               <label htmlFor="realname" className="text-sm font-medium text-foreground">
                 이름
               </label>
@@ -179,7 +179,7 @@ export default function RegisterPage() {
               />
               {fieldErrors.realname && <p className="text-sm text-destructive">{fieldErrors.realname}</p>}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               <label htmlFor="password" className="text-sm font-medium text-foreground">
                 비밀번호
               </label>
@@ -211,7 +211,7 @@ export default function RegisterPage() {
               </div>
               {fieldErrors.password && <p className="text-sm text-destructive">{fieldErrors.password}</p>}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
                 비밀번호 확인
               </label>
@@ -258,8 +258,8 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-4 md:mt-6 text-center">
+            <p className="text-xs md:text-sm text-muted-foreground">
               이미 계정이 있으신가요?{" "}
               <Link href="/login" className="text-primary font-medium hover:underline">
                 로그인
@@ -267,8 +267,8 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <div className="mt-4 text-center">
-            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <div className="mt-2 md:mt-4 text-center">
+            <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               홈으로 돌아가기
             </Link>
           </div>
