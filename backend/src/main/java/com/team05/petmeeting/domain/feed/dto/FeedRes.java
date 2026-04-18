@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record FeedRes(
+        String profileImageUrl,
         String nickname,
         Long feedId,
         Long userId,
@@ -24,6 +25,7 @@ public record FeedRes(
 ) {
     public FeedRes(Feed feed, int likeCount) {
         this(
+                feed.getUser() != null ? feed.getUser().getProfileImageUrl() : null,
                 feed.getUser() != null ? feed.getUser().getNickname() : null,
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null,

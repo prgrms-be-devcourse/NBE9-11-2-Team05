@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public record FeedCommentRes(
         Long userId,
         String nickname,
+        String profileImageUrl,
         Long commentId,
         String content,
         Long feedId,
@@ -18,6 +19,7 @@ public record FeedCommentRes(
         return new FeedCommentRes(
                 comment.getUser().getId(),
                 comment.getUser().getNickname(),
+                comment.getUser().getProfileImageUrl(),
                 comment.getId(),
                 comment.getContent(),
                 comment.getFeed().getId(),

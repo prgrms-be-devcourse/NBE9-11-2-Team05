@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public record FeedListRes(
         Long feedId,
         Long userId,
+        String profileImageUrl,
         Long animalId,
         String nickname,
         FeedCategory category,
@@ -23,6 +24,7 @@ public record FeedListRes(
         this(
                 feed.getId(),
                 feed.getUser() != null ? feed.getUser().getId() : null,
+                feed.getUser() != null ? feed.getUser().getProfileImageUrl() : null,
                 feed.getAnimal() != null ? feed.getAnimal().getId() : null, // null 체크
                 feed.getUser() != null ? feed.getUser().getNickname() : null,
                 feed.getCategory(),
