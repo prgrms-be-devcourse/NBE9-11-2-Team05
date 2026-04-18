@@ -22,7 +22,7 @@ public class UserProfileController {
     @PatchMapping("/username")
     public ResponseEntity<UserProfileRes> username(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UsernameReq req
+            @Valid @RequestBody UsernameReq req
     ) {
         Long userId = userDetails.getUserId();
         UserProfileRes res = userProfileService.modifyUsername(userId, req.newUsername());
@@ -33,7 +33,7 @@ public class UserProfileController {
     @PatchMapping("/nickname")
     public ResponseEntity<UserProfileRes> nickname(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody NicknameReq req
+            @Valid @RequestBody NicknameReq req
     ) {
         Long userId = userDetails.getUserId();
         UserProfileRes res = userProfileService.modifyNickname(userId, req.nickname());

@@ -187,11 +187,21 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
           <div className="p-6 pb-0">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                  <User className="w-5 h-5 text-muted-foreground" />
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                  {feed.profileImageUrl ? (
+                    <Image 
+                      src={feed.profileImageUrl} 
+                      alt={feed.nickname || "User"} 
+                      width={40} 
+                      height={40} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-muted-foreground" />
+                  )}
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">{feed.userId}번 사용자</p>
+                  <p className="font-semibold text-foreground">{feed.nickname || `${feed.userId}번 사용자`}</p>
                   <p className="text-xs text-muted-foreground">{formatDate(feed.createdAt)}</p>
                 </div>
               </div>
@@ -261,14 +271,27 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
                   const isEditing = editingCommentId === comment.commentId
                   return (
                     <li key={comment.commentId} className="px-6 py-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden mt-1">
+                          {comment.profileImageUrl ? (
+                            <Image 
+                              src={comment.profileImageUrl} 
+                              alt={comment.nickname || "User"} 
+                              width={32} 
+                              height={32} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-4 h-4 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
                           {/* 작성자 & 날짜 */}
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-foreground">
+                          <div className="flex items-center gap-2 mb-1 overflow-hidden">
+                            <span className="text-sm font-semibold text-foreground truncate">
                               {comment.nickname || "익명"}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-muted-foreground shrink-0">
                               {formatDate(comment.createdAt)}
                             </span>
                           </div>

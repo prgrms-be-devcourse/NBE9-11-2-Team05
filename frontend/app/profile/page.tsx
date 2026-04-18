@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/lib/auth-context"
 import { apiRequest, API_ENDPOINTS } from "@/lib/api"
-import { User, Heart, FileText, Settings, Calendar, ThermometerSun, X, MessageSquare } from "lucide-react"
+import { User as UserIcon, Heart, FileText, Settings, Calendar, ThermometerSun, X, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { formatDate } from "@/lib/utils"
-import { MyFeedComment, MyAnimalComment } from "@/lib/api"
+import { MyFeedComment, MyAnimalComment, User } from "@/lib/api"
 
 interface CheeredAnimal {
   animalId: number
@@ -68,6 +68,7 @@ export default function ProfilePage() {
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [showUsernameModal, setShowUsernameModal] = useState(false)
+  const [showProfileImgModal, setShowProfileImgModal] = useState(false)
   const [myFeedComments, setMyFeedComments] = useState<MyFeedComment[]>([])
   const [myAnimalComments, setMyAnimalComments] = useState<MyAnimalComment[]>([])
   const [isWithdrawing, setIsWithdrawing] = useState(false)
@@ -193,20 +194,25 @@ export default function ProfilePage() {
         {/* Profile Header */}
         <Card className="mb-8">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              {/* Avatar & Basic Info (Mobile) */}
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <User className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              {/* Avatar */}
+              <div
+                className="relative w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden cursor-pointer group"
+                onClick={() => setShowProfileImgModal(true)}
+              >
+                {user.profileImageUrl ? (
+                  <Image
+                    src={user.profileImageUrl}
+                    alt={user.nickname || user.name}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <UserIcon className="w-12 h-12 text-primary" />
+                )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Settings className="w-6 h-6 text-white" />
                 </div>
-                <div className="sm:hidden flex-1 min-w-0">
-                  <h1 className="text-xl font-bold text-foreground truncate">{user.nickname || user.name}</h1>
-                  <p className="text-sm text-muted-foreground truncate">@{user.username}</p>
-                </div>
-                {/* <Button variant="outline" size="sm" className="sm:hidden rounded-xl gap-1 shrink-0" onClick={() => setShowNicknameModal(true)}>
-                  <Settings className="w-3.5 h-3.5" />
-                  설정
-                </Button> */}
               </div>
 
               {/* User Info & Stats */}
@@ -261,7 +267,7 @@ export default function ProfilePage() {
           <div className="overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
             <TabsList className="flex w-fit sm:w-full min-w-full rounded-xl bg-muted/50 p-1">
               <TabsTrigger value="account" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
-                <User className="w-4 h-4 shrink-0" />
+                <UserIcon className="w-4 h-4 shrink-0" />
                 <span className="hidden sm:inline text-xs sm:text-sm">계정 정보</span>
               </TabsTrigger>
               <TabsTrigger value="hearts" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
@@ -619,6 +625,17 @@ export default function ProfilePage() {
           onClose={() => setShowPasswordModal(false)}
         />
       )}
+
+      {showProfileImgModal && (
+        <UpdateProfileImgModal
+          currentImageUrl={user.profileImageUrl || ""}
+          onClose={() => setShowProfileImgModal(false)}
+          onSuccess={(newUrl) => {
+            setShowProfileImgModal(false)
+            updateUser({ profileImageUrl: newUrl })
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -695,7 +712,12 @@ function UpdateNicknameModal({ currentNickname, onClose, onSuccess }: { currentN
   const handleSubmit = async () => {
     setErrorMessage("")
     if (!nickname.trim()) {
-      setErrorMessage("변경할 닉네임을 입력해주세요.")
+      setErrorMessage("닉네임은 필수 입력값입니다.")
+      return
+    }
+
+    if (nickname.length < 1 || nickname.length > 20) {
+      setErrorMessage("닉네임은 1~20자 사이여야 합니다.")
       return
     }
 
@@ -852,6 +874,84 @@ function UpdatePasswordModal({ onClose }: { onClose: () => void }) {
           <div className="flex gap-2 w-full pt-4">
             <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose}>취소</Button>
             <Button className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSubmit}>변경하기</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+function UpdateProfileImgModal({ currentImageUrl, onClose, onSuccess }: { currentImageUrl: string, onClose: () => void, onSuccess: (newUrl: string) => void }) {
+  const [imageUrl, setImageUrl] = useState(currentImageUrl)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    setErrorMessage("")
+    if (!imageUrl.trim()) {
+      setErrorMessage("이미지 URL을 입력해주세요.")
+      return
+    }
+
+    setIsLoading(true)
+    const { data, error, errorCode } = await apiRequest<User>(API_ENDPOINTS.updateProfileImg, {
+      method: "PATCH",
+      body: JSON.stringify({ profileImageUrl: imageUrl })
+    })
+    setIsLoading(false)
+
+    if (error || errorCode) {
+      setErrorMessage(error || "프로필 이미지 변경에 실패했습니다.")
+      return
+    }
+
+    alert("프로필 이미지가 성공적으로 변경되었습니다.")
+    onSuccess(imageUrl)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-sm border-0 shadow-2xl">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-lg">프로필 이미지 변경</CardTitle>
+          <Button variant="ghost" size="icon" onClick={onClose} disabled={isLoading}>
+            <X className="w-5 h-5" />
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">이미지 URL</label>
+            <div className="flex gap-4 items-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-muted overflow-hidden flex-shrink-0">
+                {imageUrl ? (
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <UserIcon className="w-8 h-8" />
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">이미지 URL을 입력하면 실시간으로 미리보기가 표시됩니다.</p>
+            </div>
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              className="rounded-xl"
+              disabled={isLoading}
+            />
+          </div>
+          {errorMessage && (
+            <p className="text-sm font-medium text-destructive">{errorMessage}</p>
+          )}
+          <div className="flex gap-2 w-full pt-4">
+            <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose} disabled={isLoading}>취소</Button>
+            <Button
+              className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
+              {isLoading ? "변경 중..." : "변경하기"}
+            </Button>
           </div>
         </CardContent>
       </Card>

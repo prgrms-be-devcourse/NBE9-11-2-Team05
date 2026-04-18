@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Heart, MessageCircle, User, Send, Plus, X, ImageIcon, Edit2, Trash2 } from "lucide-react"
+import { Heart, MessageCircle, User as UserIcon, Send, Plus, X, ImageIcon, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,7 +13,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn, formatDate } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed,FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS, getAnimals, AnimalDropdownItem, getAnimalDetail } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed, FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS, getAnimals, AnimalDropdownItem, getAnimalDetail } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -31,6 +31,7 @@ interface CommunityPost {
   title: string
   content: string
   nickname: string
+  profileImageUrl?: string
   userId: number
   animalId?: number
   imageUrl?: string
@@ -68,6 +69,7 @@ const mockCommunityPosts: CommunityPost[] = [
     content: "오늘 처음으로 유기동물 보호소에서 봉사활동을 했어요. 아이들이 정말 순하고 사랑스러웠어요. 많은 분들이 관심 가져주시면 좋겠습니다.",
     nickname: "봉사천사",
     userId: 4,
+    profileImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
     likeCount: 28,
     commentCount: 1,
     comments: [
@@ -82,6 +84,7 @@ const mockCommunityPosts: CommunityPost[] = [
     content: "고양이 입양을 준비하시는 분들을 위해 제가 준비했던 것들 공유할게요.\n\n1. 화장실 + 모래\n2. 사료와 물그릇\n3. 스크래쳐\n4. 캣타워\n5. 장난감\n6. 이동장\n\n처음엔 너무 많은 것 같았지만, 모두 필요했어요!",
     nickname: "고양이초보",
     userId: 6,
+    profileImageUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop",
     imageUrl: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=600&fit=crop",
     likeCount: 56,
     commentCount: 3,
@@ -99,6 +102,7 @@ const mockCommunityPosts: CommunityPost[] = [
     content: "드디어 우리 동네 길고양이들 TNR(중성화) 완료했습니다. 구청에서 지원받아서 무료로 진행할 수 있었어요. 관심 있으신 분들은 각 지역 구청에 문의해보세요!",
     nickname: "캣맘연합",
     userId: 10,
+    profileImageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
     likeCount: 34,
     commentCount: 0,
     comments: [],
@@ -111,6 +115,7 @@ const mockCommunityPosts: CommunityPost[] = [
     content: "2주 전에 입양한 우리 초코가 드디어 첫 산책을 성공했어요! 처음엔 무서워서 안 나가려고 했는데, 조금씩 적응시키니까 이제 산책을 너무 좋아해요. 인내심이 중요한 것 같아요.",
     nickname: "초코아빠",
     userId: 11,
+    profileImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
     imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=600&fit=crop",
     likeCount: 45,
     commentCount: 1,
@@ -271,8 +276,18 @@ function CommunityPostCard({
       <CardHeader className="pb-3 relative">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-              <User className="w-5 h-5 text-muted-foreground" />
+            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+              {post.profileImageUrl ? (
+                <Image
+                  src={post.profileImageUrl}
+                  alt={post.nickname}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserIcon className="w-5 h-5 text-muted-foreground" />
+              )}
             </div>
             <div>
               <p className="font-semibold text-foreground">{post.nickname}</p>
@@ -345,15 +360,27 @@ function CommunityPostCard({
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {comments.map((comment) => (
                   <div key={comment.commentId || comment.id} className="flex gap-3 group">
-                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4 text-muted-foreground" />
+                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                      {comment.profileImageUrl ? (
+                        <Image
+                          src={comment.profileImageUrl}
+                          alt="프로필"
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <UserIcon className="w-4 h-4 text-muted-foreground" />
+                      )}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-foreground text-sm">{comment.nickname || comment.author || "익명"}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 overflow-hidden">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold text-foreground text-sm truncate">
+                            {comment.nickname || comment.author || "익명"}
+                          </span>
                           {comment.createdAt && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-muted-foreground shrink-0">
                               {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
                             </span>
                           )}
@@ -460,8 +487,8 @@ function CommunityPostCard({
           }}
         />
       )}
-      <Link 
-        href={`/community/${post.feedId}`} 
+      <Link
+        href={`/community/${post.feedId}`}
         className="absolute inset-0 z-10"
         aria-label={`View post: ${post.title}`}
       />
@@ -593,7 +620,7 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
-              className="rounded-xl bg-secondary/50 border-0 min-h-32 resize-none"
+              className="rounded-xl bg-secondary/50 border-0 min-h-[200px] max-h-[400px] overflow-y-auto resize-none"
             />
           </div>
           <div className="space-y-2">
@@ -741,7 +768,7 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="내용을 입력하세요"
-              className="rounded-xl bg-secondary/50 border-0 min-h-32 resize-none"
+              className="rounded-xl bg-secondary/50 border-0 min-h-[200px] max-h-[400px] overflow-y-auto resize-none"
             />
           </div>
           <div className="space-y-2">
@@ -815,11 +842,12 @@ export default function CommunityPage() {
         title: post.title,
         content: post.content,
         nickname: post.nickname || "익명",
+        profileImageUrl: post.profileImageUrl,
         userId: post.userId,
         animalId: (post as { animalId?: number }).animalId,
         imageUrl: post.imageUrl,
         likeCount: post.likeCount,
-        isLiked: (post as any).isLiked ?? false,   // ✅ 이거 추가
+        isLiked: (post as any).isLiked ?? false,
         commentCount: post.commentCount || 0,
         comments: [],
         createdAt: post.createdAt,
