@@ -1,6 +1,9 @@
 package com.team05.petmeeting.domain.user.controller;
 
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResponse;
+import com.team05.petmeeting.domain.user.dto.find.FindIdReq;
+import com.team05.petmeeting.domain.user.dto.find.FindIdRes;
+import com.team05.petmeeting.domain.user.dto.find.VerifyCodeReq;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
@@ -44,7 +47,7 @@ public class UserAuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginAndRefreshResponse> login(
+    public ResponseEntity<LoginAndRefreshRes> login(
             @Valid @RequestBody LoginReq loginReq,
             HttpServletResponse response
     ) {
@@ -53,7 +56,7 @@ public class UserAuthController {
         // 리프레시토큰 설정
         refreshTokenUtil.add(response, loginAndRefreshResult.refreshToken());
 
-        return ResponseEntity.ok(loginAndRefreshResult.loginAndRefreshResponse());
+        return ResponseEntity.ok(loginAndRefreshResult.loginAndRefreshRes());
     }
 
     // 로그아웃
@@ -70,7 +73,7 @@ public class UserAuthController {
 
     // 리프레시 토큰 재발급
     @PostMapping("/refresh")
-    public ResponseEntity<LoginAndRefreshResponse> refresh(
+    public ResponseEntity<LoginAndRefreshRes> refresh(
             HttpServletRequest request,
             HttpServletResponse response
     ) {
@@ -79,7 +82,27 @@ public class UserAuthController {
         // refresh token 재설정 (rotate)
         refreshTokenUtil.add(response, result.refreshToken());
 
-        return ResponseEntity.ok(result.loginAndRefreshResponse());
+        return ResponseEntity.ok(result.loginAndRefreshRes());
+    }
+
+    // id, pw 찾기
+    @PostMapping("/find-id/request")
+    public ResponseEntity<Void> requestFindId(
+            @RequestBody @Valid FindIdReq request
+    ) {
+        userAuthService.sendFindIdOtp(request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/find-id/verify")
+    public ResponseEntity<FindIdRes> verifyFindId(
+            @RequestBody @Valid VerifyCodeReq request
+    ) {
+        String username = userAuthService.verifyFindIdOtp(
+                request.email(),
+                request.code()
+        );
+        return ResponseEntity.ok(new FindIdRes(username));
     }
 
     // 탈퇴

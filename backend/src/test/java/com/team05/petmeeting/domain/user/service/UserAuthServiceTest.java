@@ -110,7 +110,7 @@ class UserAuthServiceTest {
         LoginAndRefreshResult result = userAuthService.login(request);
 
         // then
-        assertThat(result.loginAndRefreshResponse().accessToken()).isEqualTo("accessToken");
+        assertThat(result.loginAndRefreshRes().accessToken()).isEqualTo("accessToken");
         assertThat(result.refreshToken()).isNotNull();
 
         verify(refreshTokenRepository).save(any());

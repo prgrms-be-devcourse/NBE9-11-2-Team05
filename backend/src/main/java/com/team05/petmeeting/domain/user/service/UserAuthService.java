@@ -2,7 +2,7 @@ package com.team05.petmeeting.domain.user.service;
 
 import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
 
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResponse;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.LoginReq;
 import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
@@ -89,7 +89,7 @@ public class UserAuthService {
         // dto 반환
         return new LoginAndRefreshResult(
                 uuid.toString(),
-                new LoginAndRefreshResponse("Bearer", accessToken)
+                new LoginAndRefreshRes("Bearer", accessToken)
         );
     }
 
@@ -133,7 +133,7 @@ public class UserAuthService {
 
         return new LoginAndRefreshResult(
                 uuid.toString(),
-                new LoginAndRefreshResponse("Bearer", newAccessToken)
+                new LoginAndRefreshRes("Bearer", newAccessToken)
         );
     }
 
@@ -149,6 +149,15 @@ public class UserAuthService {
         userRepository.delete(user);
 
         // soft delete 추후 고려
+    }
+
+    public void sendFindIdOtp(String email) {
+
+    }
+
+    public String verifyFindIdOtp(String email, String code) {
+
+        return "";
     }
 
     private Optional<String> extractRefreshToken(HttpServletRequest request) {

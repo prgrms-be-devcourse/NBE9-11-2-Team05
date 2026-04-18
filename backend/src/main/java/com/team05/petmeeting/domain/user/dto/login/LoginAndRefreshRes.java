@@ -1,6 +1,6 @@
 package com.team05.petmeeting.domain.user.dto.login;
 
-public record LoginAndRefreshResponse(
+public record LoginAndRefreshRes(
 
         String tokenType,
         String accessToken
