@@ -23,31 +23,34 @@ public class Animal extends BaseEntity {
     @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
     private String desertionNo; // 유기번호
 
-    @Column(name = "process_state", nullable = false, length = 30)
+    @Column(name = "process_state", length = 30)
     private String processState; // 상태 (보호중, 입양가능, 입양대기, 파양, 종결 등)
 
-    @Column(name = "notice_no", nullable = false, length = 50)
+    @Column(name = "notice_no", length = 50)
     private String noticeNo; // 공고번호
 
-    @Column(name = "notice_edt", nullable = false)
+    @Column(name = "notice_edt")
     private LocalDate noticeEdt; // 공고 종료일
 
-    @Column(name = "up_kind_nm", nullable = false, length = 30)
+    @Column(name ="happen_place", length = 100)
+    private String happenPlace; // 발견 장소
+
+    @Column(name = "up_kind_nm", length = 30)
     private String upKindNm; // 종 (개, 고양이 등)
 
-    @Column(name = "kind_full_name", nullable = false, length = 100)
+    @Column(name = "kind_full_name", length = 100)
     private String kindFullNm; // 품종 (예: 믹스견, 시바견 등)
 
-    @Column(name = "color_cd", nullable = false, length = 100)
+    @Column(name = "color_cd", length = 100)
     private String colorCd; // 색상
 
-    @Column(name = "age", nullable = false)
+    @Column(name = "age")
     private String age; // 나이
 
-    @Column(name = "weight", nullable = false, length = 30)
+    @Column(name = "weight", length = 30)
     private String weight; // 몸무게 (예: 5kg, 10kg 등)
 
-    @Column(name = "sex_cd", nullable = false, length = 10)
+    @Column(name = "sex_cd", length = 10)
     private String sexCd; // 성별
 
     @Column(name = "popfile1", nullable = true, length = 500)
@@ -59,8 +62,14 @@ public class Animal extends BaseEntity {
     @Column(name = "special_mark", nullable = true, length = 500)
     private String specialMark; // 사진 URL
 
+    @Column(name = "care_ower_nm", nullable = true, length = 50)
+    private String careOwerNm; // 보호자 이름
+
     @Column(name = "care_nm")
     private String careNm; // 보호소 이름
+
+    @Column(name = "care_addr", length = 255)
+    private String careAddr; // 보호소 주소
 
     @Column(name = "care_tel")
     private String careTel; // 보호소 전화번호
@@ -83,6 +92,7 @@ public class Animal extends BaseEntity {
         this.processState = item.getProcessState();
         this.noticeNo = item.getNoticeNo();
         this.noticeEdt = parseNoticeEdt(item.getNoticeEdt());
+        this.happenPlace = item.getHappenPlace();
         this.upKindNm = item.getUpKindNm();
         this.kindFullNm = item.getKindFullNm();
         this.colorCd = item.getColorCd();
@@ -92,7 +102,9 @@ public class Animal extends BaseEntity {
         this.popfile1 = item.getPopfile1();
         this.popfile2 = item.getPopfile2();
         this.specialMark = item.getSpecialMark();
+        this.careOwerNm = item.getCareOwnerNm();
         this.careNm = item.getCareNm();
+        this.careAddr = item.getCareAddr();
         this.careTel = item.getCareTel();
         this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
     }
@@ -123,6 +135,7 @@ public class Animal extends BaseEntity {
             String desertionNo,
             String processState,
             String noticeNo,
+            String happenPlace,
             LocalDate noticeEdt,
             String upKindNm,
             String kindFullName,
@@ -133,13 +146,16 @@ public class Animal extends BaseEntity {
             String popfile1,
             String popfile2,
             String specialMark,
+            String careOwerNm,
             String careNm,
+            String careAddr,
             String careTel,
             Integer totalCheerCount
     ) {
         this.desertionNo = desertionNo;
         this.processState = processState;
         this.noticeNo = noticeNo;
+        this.happenPlace = happenPlace;
         this.noticeEdt = noticeEdt;
         this.upKindNm = upKindNm;
         this.kindFullNm = kindFullName;
@@ -150,7 +166,9 @@ public class Animal extends BaseEntity {
         this.popfile1 = popfile1;
         this.popfile2 = popfile2;
         this.specialMark = specialMark;
+        this.careOwerNm = careOwerNm;
         this.careNm = careNm;
+        this.careAddr = careAddr;
         this.careTel = careTel;
         this.totalCheerCount = totalCheerCount;
     }
@@ -161,6 +179,7 @@ public class Animal extends BaseEntity {
                 item.getDesertionNo(),
                 item.getProcessState(),
                 item.getNoticeNo(),
+                item.getHappenPlace(),
                 parseNoticeEdt(item.getNoticeEdt()),
                 item.getUpKindNm(),
                 item.getKindFullNm(),
@@ -171,7 +190,9 @@ public class Animal extends BaseEntity {
                 item.getPopfile1(),
                 item.getPopfile2(),
                 item.getSpecialMark(),
+                item.getCareOwnerNm(),
                 item.getCareNm(),
+                item.getCareAddr(),
                 item.getCareTel(),
                 0
         );
@@ -182,6 +203,10 @@ public class Animal extends BaseEntity {
 
     // API에서 제공하는 noticeEdt는 "yyyyMMdd" 형식이므로, 이를 LocalDate로 파싱하는 헬퍼 메서드
     private static LocalDate parseNoticeEdt(String noticeEdt) {
+        if (noticeEdt == null || noticeEdt.isBlank()) {
+            return null;
+        }
+
         return LocalDate.parse(noticeEdt, DateTimeFormatter.BASIC_ISO_DATE);
     }
 

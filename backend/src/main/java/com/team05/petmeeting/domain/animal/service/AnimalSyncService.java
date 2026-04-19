@@ -40,6 +40,8 @@ public class AnimalSyncService {
     private final AnimalExternalService animalExternalService;
     private final AnimalRepository animalRepository;
     private final SyncStateRepository syncStateRepository;
+    private final InitialSyncProgressNotifier initialSyncProgressNotifier;
+    private final AnimalSyncMetricsRecorder animalSyncMetricsRecorder;
     private final Clock clock;
 
     // 특정 페이지 번호와 페이지당 항목 수를 기준으로 유기동물 데이터를 조회하고 DB에 저장하는 메서드
@@ -85,7 +87,9 @@ public class AnimalSyncService {
 
     public SyncResult runInitialMonthlySync(int numOfRows) {
         Instant startedAt = clock.instant();
+        animalSyncMetricsRecorder.startInitialSync();
         int savedCount = fetchAndSaveMonthlyAnimalsFrom2008(numOfRows);
+        animalSyncMetricsRecorder.completeInitialSync(savedCount);
         updateSyncState(AnimalSyncType.INITIAL);
         return new SyncResult("INITIAL_MONTHLY_SYNC_OK", savedCount, Duration.between(startedAt, clock.instant()).toMillis());
     }
@@ -108,12 +112,14 @@ public class AnimalSyncService {
                 currentMonthEnd = today;
             }
 
+            int previousSavedCount = totalSavedCount;
             totalSavedCount += fetchAndSaveAnimalsByDateRange(
                     currentMonthStart,
                     currentMonthEnd,
                     numOfRows,
                     maxSaveCount - totalSavedCount
             );
+            initialSyncProgressNotifier.notifyProgress(previousSavedCount, totalSavedCount);
             currentMonthStart = currentMonthStart.plusMonths(1).withDayOfMonth(1);
         }
 
@@ -122,16 +128,19 @@ public class AnimalSyncService {
 
     public SyncResult runUpdateSync(int numOfRows) {
         Instant startedAt = clock.instant();
+        animalSyncMetricsRecorder.startUpdateSync();
         LocalDate bgupd = getUpdateStartDate();
         LocalDate enupd = LocalDate.now();
-        fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
+        int savedCount = fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
+        animalSyncMetricsRecorder.completeUpdateSync(savedCount);
         updateSyncState(AnimalSyncType.UPDATE);
-        return new SyncResult("UPDATE_SYNC_OK", 0, Duration.between(startedAt, clock.instant()).toMillis());
+        return new SyncResult("UPDATE_SYNC_OK", savedCount, Duration.between(startedAt, clock.instant()).toMillis());
     }
 
     @Transactional
-    public void fetchAndSaveAnimalsByUpdatedDate(LocalDate bgupd, LocalDate enupd, int numOfRows) {
+    public int fetchAndSaveAnimalsByUpdatedDate(LocalDate bgupd, LocalDate enupd, int numOfRows) {
         int pageNo = 1;
+        int totalSavedCount = 0;
 
         while (true) {
             Instant startedAt = clock.instant();
@@ -147,9 +156,11 @@ public class AnimalSyncService {
                 break;
             }
 
-            saveOrUpdateAnimals(items);
+            int savedCount = saveOrUpdateAnimals(items);
+            animalSyncMetricsRecorder.recordUpdateBatchSaved(savedCount);
+            totalSavedCount += savedCount;
             log.info("Animal update sync page completed: pageNo={}, numOfRows={}, bgupd={}, enupd={}, savedCount={}, elapsedMs={}",
-                    pageNo, numOfRows, bgupd, enupd, items.size(), Duration.between(startedAt, clock.instant()).toMillis());
+                    pageNo, numOfRows, bgupd, enupd, savedCount, Duration.between(startedAt, clock.instant()).toMillis());
             pageNo++;
 
             try {
@@ -159,6 +170,8 @@ public class AnimalSyncService {
                 throw new IllegalStateException("업데이트 동기화 대기 중 인터럽트가 발생했습니다.", e);
             }
         }
+
+        return totalSavedCount;
     }
 
     private LocalDate getUpdateStartDate() {
@@ -193,6 +206,7 @@ public class AnimalSyncService {
             }
 
             totalSavedCount += result.savedCount();
+            animalSyncMetricsRecorder.recordInitialBatchSaved(result.savedCount());
             pageNo++;
         }
 
@@ -223,7 +237,9 @@ public class AnimalSyncService {
         return animalsToSave.size();
     }
 
-    private void saveOrUpdateAnimals(List<AnimalItem> items) {
+    private int saveOrUpdateAnimals(List<AnimalItem> items) {
+        int savedCount = 0;
+
         for (AnimalItem item : items) {
             if (item.getDesertionNo() == null || item.getDesertionNo().isBlank()) {
                 continue;
@@ -234,6 +250,9 @@ public class AnimalSyncService {
                             animal -> animal.updateFrom(item),
                             () -> animalRepository.save(Animal.from(item))
                     );
+            savedCount++;
         }
+
+        return savedCount;
     }
 }

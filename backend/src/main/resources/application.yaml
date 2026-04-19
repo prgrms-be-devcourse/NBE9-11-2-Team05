@@ -41,6 +41,21 @@ logging:
   level:
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
+  file:
+    name: ${LOG_FILE_PATH:logs/application.log}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 # 유기 동물 API 설정
 animal:
@@ -49,6 +64,14 @@ animal:
     service-key: ${ANIMAL_API_SERVICE_KEY}
     return-type: ${ANIMAL_API_RETURN_TYPE:json}
     initial-sync-date: 20240101
+  sync:
+    notification-threshold: ${ANIMAL_SYNC_NOTIFICATION_THRESHOLD:100000}
+    github:
+      enabled: ${ANIMAL_SYNC_GITHUB_NOTIFY_ENABLED:false}
+      owner: ${GITHUB_REPO_OWNER:}
+      repo: ${GITHUB_REPO_NAME:}
+      issue-number: ${ANIMAL_SYNC_GITHUB_ISSUE_NUMBER:0}
+      token: ${GITHUB_TOKEN:}
 
 # jwt access token 관련 설정
 jwt:

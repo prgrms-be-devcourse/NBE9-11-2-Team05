@@ -9,6 +9,7 @@ public record AnimalRes(
         String noticeNo,
         String noticeEdt,
 
+        String happenPlace,
         String upKindNm,
         String kindFullNm,
         String colorCd,
@@ -19,9 +20,10 @@ public record AnimalRes(
         String popfile1,
         String popfile2,
 
+        String careOwnerNm,
         String careNm,
-        String careTel,
         String careAddr,
+        String careTel,
 
         Integer totalCheerCount,
         double temperature
@@ -33,6 +35,7 @@ public record AnimalRes(
                 animal.getProcessState(),
                 animal.getNoticeNo(),
                 String.valueOf(animal.getNoticeEdt()),
+                animal.getHappenPlace(),
 
                 animal.getUpKindNm(),
                 animal.getKindFullNm(),
@@ -44,9 +47,10 @@ public record AnimalRes(
                 animal.getPopfile1(),
                 animal.getPopfile2(),
 
+                animal.getCareOwerNm(),
                 animal.getCareNm(),
-                animal.getCareTel(),
                 animal.getCareAddr(),
+                animal.getCareTel(),
 
                 animal.getTotalCheerCount(),
                 animal.getTotalCheerCount() / (double) 50 // 목표하트수 50 임시설정값

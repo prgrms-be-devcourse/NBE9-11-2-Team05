@@ -1,0 +1,1 @@
+ALTER TABLE animals ADD COLUMN care_addr VARCHAR(255) NULL;

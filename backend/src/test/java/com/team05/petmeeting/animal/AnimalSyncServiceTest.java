@@ -1,162 +1,176 @@
-//package com.team05.demo.animal;
-//
-//import com.team05.demo.domain.animal.client.AnimalApiClient;
-//import com.team05.demo.domain.animal.config.AnimalApiProperties;
-//import com.team05.demo.domain.animal.entity.Animal;
-//import com.team05.demo.domain.animal.repository.AnimalRepository;
-//import com.team05.demo.domain.animal.service.AnimalExternalService;
-//import com.team05.demo.domain.animal.service.AnimalSyncService;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.context.ActiveProfiles;
-//
-//import java.io.IOException;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//import java.util.Map;
-//import java.util.stream.Collectors;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//
-//@SpringBootTest
-//@ActiveProfiles("test")
-//public class AnimalSyncServiceTest {
-//
-//    @Autowired
-//    private AnimalRepository animalRepository;
-//
-//    @Test
-//    @DisplayName("외부 API에서 동물 데이터를 가져와 DB에 저장하는 테스트")
-//    void t1() {
-//
-//        AnimalSyncService animalSyncService = createAnimalSyncService();
-//
-//        animalSyncService.fetchAndSaveAnimals();
-//
-//        assertTrue(animalRepository.count() > 0);
-//    }
-//
-//    private AnimalSyncService createAnimalSyncService() {
-//        AnimalApiProperties properties = new AnimalApiProperties();
-//        properties.setBaseUrl(getRequiredConfig("ANIMAL_API_BASE_URL"));
-//        properties.setServiceKey(getRequiredConfig("ANIMAL_API_SERVICE_KEY"));
-//        properties.setReturnType(getConfigOrDefault("ANIMAL_API_RETURN_TYPE", "json"));
-//
-//        AnimalApiClient animalApiClient = new AnimalApiClient(properties);
-//        AnimalExternalService animalExternalService = new AnimalExternalService(animalApiClient);
-//
-//        return new AnimalSyncService(animalExternalService, animalRepository);
-//    }
-//
-//    private String getRequiredConfig(String key) {
-//        String value = getConfig(key);
-//        if (value == null || value.isBlank()) {
-//            throw new IllegalStateException("Missing required config: " + key);
-//        }
-//        return value;
-//    }
-//
-//    private String getConfigOrDefault(String key, String defaultValue) {
-//        String value = getConfig(key);
-//        return (value == null || value.isBlank()) ? defaultValue : value;
-//    }
-//
-//    private String getConfig(String key) {
-//        String envValue = System.getenv(key);
-//        if (envValue != null && !envValue.isBlank()) {
-//            return envValue;
-//        }
-//
-//        return readDotEnv().get(key);
-//    }
-//
-//    private Map<String, String> readDotEnv() {
-//        Path path = Path.of(".env");
-//
-//        if (!Files.exists(path)) {
-//            return Map.of();
-//        }
-//
-//        try {
-//            return Files.readAllLines(path).stream()
-//                    .map(String::trim)
-//                    .filter(line -> !line.isEmpty())
-//                    .filter(line -> !line.startsWith("#"))
-//                    .map(line -> line.split("=", 2))
-//                    .filter(parts -> parts.length == 2)
-//                    .collect(Collectors.toMap(
-//                            parts -> parts[0].trim(),
-//                            parts -> parts[1].trim()
-//                    ));
-//        } catch (IOException e) {
-//            throw new IllegalStateException("Failed to read .env file", e);
-//        }
-//    }
-//
-//    @Test
-//    @DisplayName("저장된 Animal 데이터의 주요 필드를 검증한다")
-//    void savedAnimalFields() {
-//        // given
-//        AnimalSyncService animalSyncService = createAnimalSyncService();
-//
-//        // when
-//        animalSyncService.fetchAndSaveAnimals();
-//
-//        // then
-//        Animal animal = animalRepository.findAll().get(0);
-//
-//        assertNotNull(animal.getDesertionNo());
-//        assertEquals(0, animal.getTotalCheerCount());
-//        assertNotNull(animal.getNoticeEdt());
-//        assertNotNull(animal.getKindFullNm());
-//        assertNotNull(animal.getPopfile1());
-//    }
-//
-//    @Test
-//    @DisplayName("같은 유기동물 데이터는 중복 저장 방지 테스트")
-//    void doesNotSaveDuplicates() {
-//        // given
-//        AnimalSyncService animalSyncService = createAnimalSyncService();
-//
-//        // when
-//        animalSyncService.fetchAndSaveAnimals();
-//        long firstCount = animalRepository.count();
-//
-//        animalSyncService.fetchAndSaveAnimals();
-//        long secondCount = animalRepository.count();
-//
-//        // then
-//        assertEquals(firstCount, secondCount);
-//    }
-//
-//    @Test
-//    @DisplayName("저장된 Animal 데이터의 주요 필드를 검증")
-//    void fetchAndSaveAnimals_savesAnimalFieldsCorrectly() {
-//        // given
-//        AnimalSyncService animalSyncService = createAnimalSyncService();
-//
-//        // when
-//        animalSyncService.fetchAndSaveAnimals();
-//
-//        // then
-//        Animal animal = animalRepository.findAll().get(0);
-//
-//        assertNotNull(animal.getId());
-//        assertNotNull(animal.getDesertionNo());
-//        assertNotNull(animal.getProcessState());
-//        assertNotNull(animal.getNoticeNo());
-//        assertNotNull(animal.getNoticeEdt());
-//        assertNotNull(animal.getUpKindNm());
-//        assertNotNull(animal.getKindFullNm());
-//        assertNotNull(animal.getColorCd());
-//        assertNotNull(animal.getAge());
-//        assertNotNull(animal.getWeight());
-//        assertNotNull(animal.getSexCd());
-//        assertNotNull(animal.getPopfile1());
-//        assertNotNull(animal.getCareNm());
-//        assertNotNull(animal.getCareTel());
-//        assertEquals(0, animal.getTotalCheerCount());
-//    }
-//}
+package com.team05.petmeeting.animal;
+
+import com.team05.petmeeting.domain.animal.dto.external.AnimalApiResponse;
+import com.team05.petmeeting.domain.animal.dto.external.AnimalBody;
+import com.team05.petmeeting.domain.animal.dto.external.AnimalItem;
+import com.team05.petmeeting.domain.animal.dto.external.AnimalItems;
+import com.team05.petmeeting.domain.animal.dto.external.AnimalResponse;
+import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
+import com.team05.petmeeting.domain.animal.repository.SyncStateRepository;
+import com.team05.petmeeting.domain.animal.service.AnimalExternalService;
+import com.team05.petmeeting.domain.animal.service.AnimalSyncService;
+import com.team05.petmeeting.domain.animal.service.InitialSyncProgressNotificationService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class AnimalSyncServiceTest {
+
+    @Mock
+    private AnimalExternalService animalExternalService;
+
+    @Mock
+    private AnimalRepository animalRepository;
+
+    @Mock
+    private SyncStateRepository syncStateRepository;
+
+    @Mock
+    private InitialSyncProgressNotificationService initialSyncProgressNotificationService;
+
+    private AnimalSyncService animalSyncService;
+
+    @BeforeEach
+    void setUp() {
+        Clock fixedClock = Clock.fixed(Instant.parse("2026-04-16T03:04:05Z"), ZoneId.of("Asia/Seoul"));
+        animalSyncService = new AnimalSyncService(
+                animalExternalService,
+                animalRepository,
+                syncStateRepository,
+                initialSyncProgressNotificationService,
+                fixedClock
+        );
+    }
+
+    @Test
+    @DisplayName("페이지 적재 시 desertionNo가 비었거나 중복이면 저장 대상에서 제외한다")
+    void fetchAndInsertAnimals_filtersBlankAndDuplicateDesertionNo() {
+        when(animalExternalService.fetchAnimals(eq(1), eq(10), any(), any()))
+                .thenReturn(responseWithItems(
+                        createAnimalItem("A-100"),
+                        createAnimalItem("A-100"),
+                        createAnimalItem(" "),
+                        createAnimalItem("A-200")
+                ));
+
+        AnimalSyncService.SyncResult result = animalSyncService.fetchAndInsertAnimals(
+                1,
+                10,
+                LocalDate.of(2026, 4, 1),
+                LocalDate.of(2026, 4, 30),
+                Integer.MAX_VALUE
+        );
+
+        ArgumentCaptor<List> animalsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(animalRepository).saveAll(animalsCaptor.capture());
+        assertThat(animalsCaptor.getValue()).hasSize(2);
+        assertThat(result.savedCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("업데이트 적재는 빈 페이지를 만날 때까지 조회한다")
+    void fetchAndSaveAnimalsByUpdatedDate_stopsAtEmptyPage() {
+        when(animalExternalService.fetchAnimalsByUpdatedDate(eq(1), eq(10), any(), any()))
+                .thenReturn(responseWithItems(createAnimalItem("A-100")));
+        when(animalExternalService.fetchAnimalsByUpdatedDate(eq(2), eq(10), any(), any()))
+                .thenReturn(emptyResponse());
+
+        animalSyncService.fetchAndSaveAnimalsByUpdatedDate(
+                LocalDate.of(2026, 4, 14),
+                LocalDate.of(2026, 4, 18),
+                10
+        );
+
+        verify(animalExternalService).fetchAnimalsByUpdatedDate(
+                1,
+                10,
+                LocalDate.of(2026, 4, 14),
+                LocalDate.of(2026, 4, 18)
+        );
+        verify(animalExternalService).fetchAnimalsByUpdatedDate(
+                2,
+                10,
+                LocalDate.of(2026, 4, 14),
+                LocalDate.of(2026, 4, 18)
+        );
+    }
+
+    @Test
+    @DisplayName("초기 적재가 임계값을 넘지 않으면 진행 알림을 보내지 않는다")
+    void fetchAndSaveMonthlyAnimalsFrom2008_doesNotNotifyWhenThresholdNotReached() {
+        when(animalExternalService.fetchAnimals(eq(1), eq(2), any(), any()))
+                .thenReturn(responseWithItems(createAnimalItem("A-100"), createAnimalItem("A-200")));
+        when(animalExternalService.fetchAnimals(eq(2), eq(2), any(), any()))
+                .thenReturn(emptyResponse());
+
+        animalSyncService.fetchAndSaveMonthlyAnimalsFrom2008(2, 2);
+
+        verify(initialSyncProgressNotificationService, never()).notifyMilestonesCrossed(any(Integer.class), any(Integer.class));
+    }
+
+    private AnimalApiResponse emptyResponse() {
+        return responseWithItems();
+    }
+
+    private AnimalApiResponse responseWithItems(AnimalItem... items) {
+        AnimalApiResponse apiResponse = new AnimalApiResponse();
+        AnimalResponse response = new AnimalResponse();
+        AnimalBody body = new AnimalBody();
+        AnimalItems animalItems = new AnimalItems();
+
+        ReflectionTestUtils.setField(animalItems, "item", List.of(items));
+        ReflectionTestUtils.setField(body, "items", animalItems);
+        ReflectionTestUtils.setField(response, "body", body);
+        ReflectionTestUtils.setField(apiResponse, "response", response);
+
+        return apiResponse;
+    }
+
+    private AnimalItem createAnimalItem(String desertionNo) {
+        AnimalItem item = new AnimalItem();
+        ReflectionTestUtils.setField(item, "desertionNo", desertionNo);
+        ReflectionTestUtils.setField(item, "processState", "보호중");
+        ReflectionTestUtils.setField(item, "noticeNo", "NOTICE-1");
+        ReflectionTestUtils.setField(item, "noticeEdt", "20260420");
+        ReflectionTestUtils.setField(item, "upKindNm", "개");
+        ReflectionTestUtils.setField(item, "kindFullNm", "믹스견");
+        ReflectionTestUtils.setField(item, "colorCd", "갈색");
+        ReflectionTestUtils.setField(item, "age", "2024(년생)");
+        ReflectionTestUtils.setField(item, "weight", "3(Kg)");
+        ReflectionTestUtils.setField(item, "sexCd", "M");
+        ReflectionTestUtils.setField(item, "popfile1", "https://example.com/1.jpg");
+        ReflectionTestUtils.setField(item, "popfile2", "https://example.com/2.jpg");
+        ReflectionTestUtils.setField(item, "specialMark", "활발함");
+        ReflectionTestUtils.setField(item, "careNm", "테스트 보호소");
+        ReflectionTestUtils.setField(item, "careTel", "010-0000-0000");
+        ReflectionTestUtils.setField(item, "happenDt", "20260415");
+        ReflectionTestUtils.setField(item, "happenPlace", "서울");
+        ReflectionTestUtils.setField(item, "careAddr", "서울시 강남구");
+        ReflectionTestUtils.setField(item, "orgNm", "강남구");
+        ReflectionTestUtils.setField(item, "noticeSdt", "20260415");
+        ReflectionTestUtils.setField(item, "officetel", "02-000-0000");
+        ReflectionTestUtils.setField(item, "chargeNm", "담당자");
+        ReflectionTestUtils.setField(item, "neuterYn", "N");
+        ReflectionTestUtils.setField(item, "specialMark", "활발함");
+        return item;
+    }
+}
