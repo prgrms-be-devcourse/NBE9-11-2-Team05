@@ -221,9 +221,13 @@ export default function SocialFeedPage() {
     setDailyHeartsRemaining(Math.max(0, Math.min(MAX_DAILY_HEARTS, remainingToday)))
   }
 
-  const handleCheerSuccess = () => {
-    setDailyHeartsRemaining(prev => Math.max(0, prev - 1))
-    fetchDailyHeartsRemaining()
+  const handleCheerSuccess = (info?: { remainingToday?: number }) => {
+    if (info?.remainingToday !== undefined) {
+      setDailyHeartsRemaining(Math.max(0, Math.min(MAX_DAILY_HEARTS, info.remainingToday)))
+    } else {
+      setDailyHeartsRemaining(prev => Math.max(0, prev - 1))
+      fetchDailyHeartsRemaining()
+    }
   }
 
   const fetchAnimals = async (page: number) => {

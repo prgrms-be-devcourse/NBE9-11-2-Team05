@@ -10,7 +10,14 @@ import { Input } from "@/components/ui/input"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
-import { API_ENDPOINTS, apiRequest, type Animal, type Comment } from "@/lib/api"
+import {
+  API_ENDPOINTS,
+  apiRequest,
+  normalizeAnimalTemperatureDisplay,
+  parseAddCheerResponse,
+  type Animal,
+  type Comment,
+} from "@/lib/api"
 
 const normalizeImageUrl = (value?: string): string => {
   if (!value) return "/placeholder.svg"
@@ -168,19 +175,34 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
       return
     }
 
-    const { error } = await apiRequest(API_ENDPOINTS.addCheer(animal.animalId), {
+    const { data, error } = await apiRequest<unknown>(API_ENDPOINTS.addCheer(animal.animalId), {
       method: "POST",
     })
     if (error) {
-      console.warn("addCheer failed, applying local fallback:", error)
+      alert(error)
+      return
     }
 
-    setTotalHearts(prev => prev + 1)
-    setCurrentTemp(prev => Math.min(prev + 0.5, 100))
-    setRemainingToday(prev => (typeof prev === "number" ? Math.max(0, prev - 1) : prev))
+    const cheer = parseAddCheerResponse(data)
+    if (!cheer) {
+      console.warn("addCheer: unexpected response body", data)
+      return
+    }
+
+    setTotalHearts(cheer.cheerCount)
+    setCurrentTemp(normalizeAnimalTemperatureDisplay(cheer.temperature, 100))
+    setRemainingToday(Math.max(0, Math.min(5, cheer.remaingCheersToday)))
+    setAnimal((prev) =>
+      prev
+        ? {
+            ...prev,
+            heartCount: cheer.cheerCount,
+            temperature: cheer.temperature,
+          }
+        : prev
+    )
     setIsAnimating(true)
     setTimeout(() => setIsAnimating(false), 300)
-    fetchRemainingToday()
   }
 
   const fetchComments = async () => {
