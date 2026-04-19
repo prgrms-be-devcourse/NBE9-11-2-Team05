@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, MessageCircle, Send, User } from "lucide-react"
@@ -9,7 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
-import { API_ENDPOINTS, apiRequest } from "@/lib/api"
+import { API_ENDPOINTS, apiRequest, normalizeAnimalTemperatureDisplay, parseAddCheerResponse } from "@/lib/api"
 
 interface Comment {
   id: string
@@ -30,7 +30,7 @@ interface FeedCardProps {
   adopterDiary?: string
   comments?: Comment[]
   dailyHeartsRemaining?: number
-  onCheerSuccess?: () => void
+  onCheerSuccess?: (info?: { remainingToday?: number }) => void
 }
 
 const MAX_DAILY_HEARTS = 5
@@ -61,6 +61,14 @@ export function FeedCard({
   const isAdopted = processState === "종료(입양)"
   const progressPercent = (currentTemp / maxCheerTemperature) * 100
 
+  useEffect(() => {
+    setCurrentTemp(cheerTemperature)
+  }, [cheerTemperature])
+
+  useEffect(() => {
+    setTotalHearts(totalHeartCount)
+  }, [totalHeartCount])
+
   const handleCheer = async () => {
     if (!user) {
       alert("로그인이 필요합니다")
@@ -71,18 +79,25 @@ export function FeedCard({
       return
     }
     if (isProtecting) {
-      const { error } = await apiRequest(API_ENDPOINTS.addCheer(animalId), {
+      const { data, error } = await apiRequest<unknown>(API_ENDPOINTS.addCheer(animalId), {
         method: "POST",
       })
       if (error) {
-        console.warn("addCheer failed, applying local fallback:", error)
+        alert(error)
+        return
       }
 
-      setTotalHearts(prev => prev + 1)
-      setCurrentTemp((prev) => Math.min(prev + 0.5, maxCheerTemperature))
+      const cheer = parseAddCheerResponse(data)
+      if (!cheer) {
+        console.warn("addCheer: unexpected response body", data)
+        return
+      }
+
+      setTotalHearts(cheer.cheerCount)
+      setCurrentTemp(normalizeAnimalTemperatureDisplay(cheer.temperature, maxCheerTemperature))
       setIsAnimating(true)
       setTimeout(() => setIsAnimating(false), 300)
-      onCheerSuccess?.()
+      onCheerSuccess?.({ remainingToday: cheer.remaingCheersToday })
     }
   }
 

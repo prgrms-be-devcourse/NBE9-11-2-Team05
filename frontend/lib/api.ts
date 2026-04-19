@@ -176,6 +176,49 @@ export interface JwtPayload {
   [key: string]: any
 }
 
+/** 동물 목록/상세/응원 API와 동일: 0~1 비율이면 0~100으로, 그 외는 0~100으로 클램프 */
+export function normalizeAnimalTemperatureDisplay(value: number, max = 100): number {
+  if (typeof value !== "number" || Number.isNaN(value)) return 0
+  const scaled = value <= 1 ? value * 100 : value
+  return Math.max(0, Math.min(max, scaled))
+}
+
+/** POST /animals/{id}/cheers 응답 (CheerRes) — 래핑된 바디도 허용 */
+export function parseAddCheerResponse(data: unknown): {
+  animalId: number
+  cheerCount: number
+  temperature: number
+  remaingCheersToday: number
+} | null {
+  if (data == null || typeof data !== "object") return null
+  const root = data as Record<string, unknown>
+  const raw =
+    root.data && typeof root.data === "object"
+      ? (root.data as Record<string, unknown>)
+      : root.result && typeof root.result === "object"
+        ? (root.result as Record<string, unknown>)
+        : root
+
+  const animalId = Number(raw.animalId)
+  const cheerCount = Number(raw.cheerCount)
+  const temperature = Number(raw.temperature)
+  const remainingRaw =
+    raw.remaingCheersToday ?? raw.remainingCheersToday ?? raw.remainingToday ?? raw.remaining
+  const remaingCheersToday =
+    typeof remainingRaw === "number" ? remainingRaw : Number(remainingRaw)
+
+  if (!Number.isFinite(animalId) || !Number.isFinite(cheerCount) || !Number.isFinite(temperature)) {
+    return null
+  }
+
+  return {
+    animalId,
+    cheerCount,
+    temperature,
+    remaingCheersToday: Number.isFinite(remaingCheersToday) ? remaingCheersToday : 0,
+  }
+}
+
 export function decodeJWT(token?: string): JwtPayload | null {
   if (!token) return null;
   try {
