@@ -50,7 +50,14 @@ jwt:
 # Meta Ads API 설정
 meta:
   ads:
-    access-token: ${META_ACCESS_TOKEN}
-    ad-account-id: ${META_AD_ACCOUNT_ID}
     page-id: ${META_PAGE_ID}
-    api-version: v19.0
+
+# Instagram API 설정
+instagram:
+  user-id: ${INSTAGRAM_USER_ID}
+  access-token: ${INSTAGRAM_ACCESS_TOKEN}
+
+# Claude API 설정
+claude:
+  api:
+    key: ${CLAUDE_API_KEY}
