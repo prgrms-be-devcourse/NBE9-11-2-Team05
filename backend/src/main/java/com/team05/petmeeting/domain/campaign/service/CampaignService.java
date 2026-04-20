@@ -44,8 +44,8 @@ public class CampaignService {
                 .orElseThrow(() -> new BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
     }
 
-    public void closeCampaign(Long id){
-        Campaign campaign = getCampaignOrThrow(id);
+    public void closeCampaign(Long userId, Long id){
+        Campaign campaign = getCampaignOrThrow(userId, id);
         if (campaign.getStatus() != CampaignStatus.ACTIVE){
             throw new BusinessException(CampaignErrorCode.CAMPAIGN_CLOSED);
         }
