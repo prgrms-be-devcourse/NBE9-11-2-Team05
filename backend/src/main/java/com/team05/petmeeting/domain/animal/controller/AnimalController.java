@@ -38,10 +38,10 @@ public class AnimalController {
     public ResponseEntity<PageResBody<AnimalRes>> animalList(
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String kind,
-            @RequestParam(required = false) String processState,
+            @RequestParam(required = false) Integer stateGroup,
             @PageableDefault(page = 0, size = 12, sort = "noticeEdt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        Page<AnimalRes> page = animalService.getAnimals(region, kind, processState, pageable);
+        Page<AnimalRes> page = animalService.getAnimals(region, kind, stateGroup, pageable);
 
         PageResBody<AnimalRes> response = new PageResBody<>(
                 page.getContent(),      // 현재 페이지에 해당하는 List<AnimalRes>

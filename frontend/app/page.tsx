@@ -231,9 +231,10 @@ export default function SocialFeedPage() {
   }
 
   const fetchAnimals = async (page: number) => {
+    const stateGroup = selectedStatus === "종료" ? 1 : 0
     const queryParams = new URLSearchParams({
       page: String(Math.max(page - 1, 0)),
-      processState: selectedStatus,
+      stateGroup: String(stateGroup),
     })
 
     if (selectedRegion !== "전체") {

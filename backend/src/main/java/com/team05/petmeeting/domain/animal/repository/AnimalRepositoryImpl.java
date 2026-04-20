@@ -25,7 +25,7 @@ public class AnimalRepositoryImpl implements AnimalRepositoryCustom {
 
 
     @Override
-    public Page<Animal> findAnimalsWithFilter(String region, String kind, String processState, Pageable pageable) {
+    public Page<Animal> findAnimalsWithFilter(String region, String kind, Integer stateGroup, Pageable pageable) {
 
         // 데이터처리 쿼리 (페이징)
         List<Animal> content = queryFactory
@@ -33,7 +33,7 @@ public class AnimalRepositoryImpl implements AnimalRepositoryCustom {
                 .where(
                         regionStartsWith(region),
                         kindEq(kind),
-                        processStateIn(processState)
+                        stateGroupEq(stateGroup)
                 )
                 .offset(pageable.getOffset())   // 페이지 시작위치
                 .limit(pageable.getPageSize())  // 페이지 사이즈
@@ -47,7 +47,7 @@ public class AnimalRepositoryImpl implements AnimalRepositoryCustom {
                 .where(
                         regionStartsWith(region),
                         kindEq(kind),
-                        processStateIn(processState)
+                        stateGroupEq(stateGroup)
                 )
                 .fetchOne(); // 쿼리 실행결과 -> 단일 객체
 
@@ -74,6 +74,7 @@ public class AnimalRepositoryImpl implements AnimalRepositoryCustom {
 
     // null 처리하는 동적 메서드
     // contains -> LIKE '%경남%' | startsWith -> LIKE '경남%'
+    // 공고번호(noticeNo)의 앞부분이 지역명으로 시작하는 API 특성을 활용하여 지역 필터링 | 경남-진주-2024-00124
     private BooleanExpression regionStartsWith(String region) {
         return StringUtils.hasText(region) ? animal.noticeNo.startsWith(region) : null;
     }
@@ -82,10 +83,7 @@ public class AnimalRepositoryImpl implements AnimalRepositoryCustom {
         return StringUtils.hasText(kind) ? animal.upKindNm.eq(kind) : null;
     }
 
-    private BooleanExpression processStateIn(String processState) {
-        if (processState.equals("종료")) {
-            return animal.processState.in("종료(반환)", "종료(안락사)", "종료(입양)", "종료(자연사)");
-        }
-        return animal.processState.eq("보호중");
+    private BooleanExpression stateGroupEq(Integer stateGroup) {
+        return stateGroup != null ? animal.stateGroup.eq(stateGroup) : null;
     }
 }

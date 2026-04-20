@@ -26,6 +26,9 @@ public class Animal extends BaseEntity {
     @Column(name = "process_state", nullable = false, length = 30)
     private String processState; // 상태 (보호중, 입양가능, 입양대기, 파양, 종결 등)
 
+    @Column(name = "state_group", nullable = false)
+    private Integer stateGroup; // 0: 보호중, 1: 종료
+
     @Column(name = "notice_no", nullable = false, length = 50)
     private String noticeNo; // 공고번호
 
@@ -83,8 +86,15 @@ public class Animal extends BaseEntity {
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
 
+    private Integer determineStateGroup(String processState) {
+        // processState 는 not null
+        return processState.startsWith("종료") ? 1 : 0;
+    }
+
     public void updateProcessState(AnimalItem item) {
         this.processState = item.getProcessState();
+        // 상태 문자열이 변경될 때 그룹 번호도 함께 갱신
+        this.stateGroup = determineStateGroup(item.getProcessState());
         this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
     }
 
@@ -132,6 +142,7 @@ public class Animal extends BaseEntity {
     ) {
         this.desertionNo = desertionNo;
         this.processState = processState;
+        this.stateGroup = determineStateGroup(processState); // 생성 시점에 0 또는 1 할당
         this.noticeNo = noticeNo;
         this.noticeEdt = noticeEdt;
         this.happenPlace = happenPlace;
