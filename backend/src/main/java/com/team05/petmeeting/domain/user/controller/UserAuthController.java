@@ -1,11 +1,13 @@
 package com.team05.petmeeting.domain.user.controller;
 
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
+import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartReq;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
+import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyRes;
+import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
-import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
-import com.team05.petmeeting.domain.user.service.MailService;
+import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import com.team05.petmeeting.global.security.util.RefreshTokenUtil;
@@ -18,11 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,31 +33,57 @@ public class UserAuthController {
 
     private final UserAuthService userAuthService;
     private final RefreshTokenUtil refreshTokenUtil;
-    private final MailService mailService;
 
-    // 회원가입
-    @PostMapping("/signup")
-    public ResponseEntity<SignupRes> signup(
-            @Valid @RequestBody SignupReq signupReq
+    @PostMapping("/email/start")
+    public ResponseEntity<EmailStartRes> startEmail(
+            @RequestBody @Valid EmailStartReq request
     ) {
-        SignupRes response = userAuthService.signup(signupReq);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(response);
+        EmailStartRes res = userAuthService.startEmailFlow(request.email());
+        return ResponseEntity.ok(res);
     }
 
-    // 로그인
-    @PostMapping("/login")
-    public ResponseEntity<LoginAndRefreshRes> login(
-            @Valid @RequestBody LoginReq loginReq,
+    @PostMapping("/email/send-otp")
+    public ResponseEntity<Void> sendEmail(
+            @RequestBody @Valid EmailStartReq request
+    ) {
+        userAuthService.sendSignupOtp(request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/email/verify")
+    public ResponseEntity<EmailVerifyRes> verifyEmail(
+            @Valid @RequestBody EmailVerifyReq request
+    ) {
+        String verifyToken = userAuthService.verifyOtp(request.email(), request.code());
+        return ResponseEntity.ok(new EmailVerifyRes(verifyToken));
+    }
+
+    @PostMapping("/email/signup")
+    public ResponseEntity<AccessTokenRes> signupWithEmail(
+            @Valid @RequestBody EmailSignupReq request,
             HttpServletResponse response
     ) {
-        LoginAndRefreshResult loginAndRefreshResult = userAuthService.login(loginReq);
+        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
 
-        // 리프레시토큰 설정
-        refreshTokenUtil.add(response, loginAndRefreshResult.refreshToken());
+        refreshTokenUtil.add(response, result.refreshToken());
 
-        return ResponseEntity.ok(loginAndRefreshResult.loginAndRefreshRes());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(result.accessTokenRes());
+    }
+
+    @PostMapping("/email/login")
+    public ResponseEntity<AccessTokenRes> loginWithEmail(
+            @Valid @RequestBody EmailLoginReq request,
+            HttpServletResponse response
+    ) {
+        LoginAndRefreshResult result = userAuthService.loginWithEmail(
+                request.email(),
+                request.password()
+        );
+
+        refreshTokenUtil.add(response, result.refreshToken());
+
+        return ResponseEntity.ok(result.accessTokenRes());
     }
 
     // 로그아웃
@@ -74,7 +100,7 @@ public class UserAuthController {
 
     // 리프레시 토큰 재발급
     @PostMapping("/refresh")
-    public ResponseEntity<LoginAndRefreshRes> refresh(
+    public ResponseEntity<AccessTokenRes> refresh(
             HttpServletRequest request,
             HttpServletResponse response
     ) {
@@ -83,37 +109,7 @@ public class UserAuthController {
         // refresh token 재설정 (rotate)
         refreshTokenUtil.add(response, result.refreshToken());
 
-        return ResponseEntity.ok(result.loginAndRefreshRes());
-    }
-
-    // id, pw 찾기
-//    @PostMapping("/find-id/request")
-//    public ResponseEntity<Void> requestFindId(
-//            @RequestBody @Valid FindIdReq request
-//    ) {
-//        userAuthService.sendFindIdOtp(request.email());
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    @PostMapping("/find-id/verify")
-//    public ResponseEntity<FindIdRes> verifyFindId(
-//            @RequestBody @Valid VerifyCodeReq request
-//    ) {
-//        String username = userAuthService.verifyFindIdOtp(
-//                request.email(),
-//                request.code()
-//        );
-//        return ResponseEntity.ok(new FindIdRes(username));
-//    }
-
-    @GetMapping("/mail")
-    public String sendTestMail(@RequestParam String email) {
-        mailService.sendMail(
-                email,
-                "테스트 메일입니다",
-                "메일 발송 테스트 성공!"
-        );
-        return "메일 전송 완료";
+        return ResponseEntity.ok(result.accessTokenRes());
     }
 
     // 탈퇴
