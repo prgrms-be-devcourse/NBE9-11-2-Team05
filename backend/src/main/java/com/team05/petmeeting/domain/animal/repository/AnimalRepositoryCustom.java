@@ -9,7 +9,7 @@ public interface AnimalRepositoryCustom {
     Page<Animal> findAnimalsWithFilter(
             String region,
             String kind,
-            String processState,
+            Integer stateGroup,
             Pageable pageable
     );
 
