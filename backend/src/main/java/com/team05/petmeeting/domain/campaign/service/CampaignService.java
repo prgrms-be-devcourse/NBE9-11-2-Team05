@@ -22,18 +22,24 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final ShelterService shelterService;
 
-    public CampaignCreateRes createCampaign(CampaignReq req){
-        if (campaignRepository.existsByStatus(CampaignStatus.ACTIVE)){
+    public CampaignCreateRes createCampaign(String shelterId, Long userId, CampaignReq req){
+        Shelter shelter = shelterService.findById(shelterId);
+        if (!shelter.isManagedBy(userId)) {
+            throw new BusinessException(CampaignErrorCode.UNAUTHORIZED_SHELTER);
+        }
+
+        if (campaignRepository.existsByShelter_CareRegNoAndStatus(shelterId, CampaignStatus.ACTIVE)) {
             throw new BusinessException(CampaignErrorCode.CAMPAIGN_ALREADY_EXISTS);
         }
-        Shelter shelter = shelterService.findById(req.shelterId());
+
         Campaign campaign = Campaign.create(shelter, req.title(), req.amount());
         campaignRepository.save(campaign);
         return CampaignCreateRes.from(campaign);
     }
 
     public CampaignDetailRes getCampaign(String shelterId){
-        return campaignRepository.findByShelter(shelterId)
+        Shelter shelter = shelterService.findById(shelterId);
+        return campaignRepository.findByShelter(shelter)
                 .map(CampaignDetailRes::from)
                 .orElseThrow(() -> new BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
     }

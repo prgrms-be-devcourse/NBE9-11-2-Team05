@@ -20,10 +20,10 @@ public class CampaignController {
     @PostMapping("/shelters/{shelterId}/campaign")
     public ResponseEntity<CampaignCreateRes> createCampaign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long shelterId,
+            @PathVariable String shelterId,
             @Valid @RequestBody CampaignReq req
             ){
-        CampaignCreateRes res = campaignService.createCampaign(req);
+        CampaignCreateRes res = campaignService.createCampaign(shelterId, userDetails.getUserId(), req);
         return ResponseEntity.ok(res);
     }
 

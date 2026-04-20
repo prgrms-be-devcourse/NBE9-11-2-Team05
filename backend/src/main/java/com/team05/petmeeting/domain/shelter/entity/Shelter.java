@@ -93,4 +93,12 @@ public class Shelter {
         this.orgNm = cmd.orgNm();
         this.updTm = cmd.updTm();
     }
+
+    public void assignUser(User user){
+        this.user = user;
+    }
+
+    public boolean isManagedBy(Long userId){
+        return this.user != null && this.user.getId().equals(userId);
+    }
 }
