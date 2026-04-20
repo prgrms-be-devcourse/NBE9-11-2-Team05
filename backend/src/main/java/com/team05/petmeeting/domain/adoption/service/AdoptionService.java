@@ -1,10 +1,14 @@
 package com.team05.petmeeting.domain.adoption.service;
 
+import com.team05.petmeeting.domain.adoption.dto.request.AdoptionApplyRequest;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
+import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
+import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdoptionService {
     private final AdoptionApplicationRepository adoptionApplicationRepository;
+    private final UserRepository userRepository;
+    private final AnimalRepository animalRepository;
 
     public List<AdoptionApplyResponse> getMyadoptions(Long userId) {
         return adoptionApplicationRepository.findByUser_Id(userId).stream()
@@ -73,5 +79,22 @@ public class AdoptionService {
                 animalInfo
         );
     }
-    //=======================================================================================================================//
+
+    public AdoptionApplyResponse applyApplication(Long userId, Long animalId, AdoptionApplyRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        Animal animal = animalRepository.findById(animalId)
+                .orElseThrow(() -> new RuntimeException("동물을 찾을 수 없습니다."));
+
+        AdoptionApplication application = AdoptionApplication.create(
+                user,
+                animal,
+                request.getApplyReason(),
+                request.getApplyTel()
+        );
+
+        AdoptionApplication saved = adoptionApplicationRepository.save(application);
+        return toResponse(saved);
+    }
 }
