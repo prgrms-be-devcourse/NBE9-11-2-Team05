@@ -91,25 +91,46 @@ public class Animal extends BaseEntity {
     private Shelter shelter;
 
     private Integer determineStateGroup(String processState) {
-        // processState 는 not null
-        return processState.startsWith("종료") ? 1 : 0;
+        if (processState != null && processState.contains("보호")) {
+            return 0;
+        }
+        return 1;
     }
 
-    public void updateProcessState(AnimalItem item) {
+    public void updateFrom(AnimalItem item) {
         this.processState = item.getProcessState();
-        // 상태 문자열이 변경될 때 그룹 번호도 함께 갱신
         this.stateGroup = determineStateGroup(item.getProcessState());
+        this.noticeNo = item.getNoticeNo();
+        this.noticeEdt = parseNoticeEdt(item.getNoticeEdt());
+        this.happenPlace = item.getHappenPlace();
+        this.upKindNm = item.getUpKindNm();
+        this.kindFullNm = item.getKindFullNm();
+        this.colorCd = item.getColorCd();
+        this.age = item.getAge();
+        this.weight = item.getWeight();
+        this.sexCd = item.getSexCd();
+        this.popfile1 = item.getPopfile1();
+        this.popfile2 = item.getPopfile2();
+        this.specialMark = item.getSpecialMark();
+        this.careNm = item.getCareNm();
+        this.careOwerNm = item.getCareOwerNm();
+        this.careTel = item.getCareTel();
+        this.careAddr = item.getCareAddr();
         this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
     }
 
-    public boolean needsProcessStateUpdate(AnimalItem item) {
+    public boolean needsUpdateFrom(AnimalItem item) {
         LocalDateTime incomingUpdatedAt = parseUpdTm(item.getUpdTm());
 
         if (this.apiUpdatedAt != null && incomingUpdatedAt != null) {
             return incomingUpdatedAt.isAfter(this.apiUpdatedAt);
         }
 
-        return !Objects.equals(this.processState, item.getProcessState());
+        return !Objects.equals(this.processState, item.getProcessState())
+                || !Objects.equals(this.noticeNo, item.getNoticeNo())
+                || !Objects.equals(this.happenPlace, item.getHappenPlace())
+                || !Objects.equals(this.specialMark, item.getSpecialMark())
+                || !Objects.equals(this.careNm, item.getCareNm());
     }
 
     private static LocalDateTime parseUpdTm(String updTm) {

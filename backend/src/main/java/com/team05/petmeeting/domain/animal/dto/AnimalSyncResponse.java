@@ -1,4 +1,4 @@
-package com.team05.petmeeting.domain.animal.dto.external;
+package com.team05.petmeeting.domain.animal.dto;
 
 public record AnimalSyncResponse(
         String message,
