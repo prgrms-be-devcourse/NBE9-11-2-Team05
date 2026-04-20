@@ -9,12 +9,24 @@ public class AdoptionApplyResponse {
     private AdoptionStatus status;
     private AnimalInfo animalInfo;
 
-    @Getter
-    public static class AnimalInfo{
-        private String desertionNo;
-        private String username;
-        private String kindFullNm;
-        private String careNm; // 보호소 이름
+    public AdoptionApplyResponse(Long applicationId, AdoptionStatus status, AnimalInfo animalInfo) {
+        this.applicationId = applicationId;
+        this.status = status;
+        this.animalInfo = animalInfo;
     }
 
+    @Getter
+    public static class AnimalInfo {
+        private String desertionNo;
+        private String kindFullNm;
+        private String careNm; // 보호소 이름
+        private String careOwerNm;
+
+        public AnimalInfo(String desertionNo, String kindFullNm, String careNm, String careOwerNm) {
+            this.desertionNo = desertionNo;
+            this.kindFullNm = kindFullNm;
+            this.careNm = careNm;
+            this.careOwerNm = careOwerNm;
+        }
+    }
 }
