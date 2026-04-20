@@ -133,6 +133,10 @@ public class Animal extends BaseEntity {
                 || !Objects.equals(this.careNm, item.getCareNm());
     }
 
+    public void assignShelter(Shelter shelter) {
+        this.shelter = shelter;
+    }
+
     private static LocalDateTime parseUpdTm(String updTm) {
         if (updTm == null || updTm.isBlank()) {
             return null;

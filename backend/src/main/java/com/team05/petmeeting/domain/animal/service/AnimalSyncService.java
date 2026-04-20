@@ -9,6 +9,8 @@ import com.team05.petmeeting.domain.animal.entity.SyncState;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.animal.repository.SyncStateRepository;
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
+import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.shelter.service.ShelterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ public class AnimalSyncService {
     private final AnimalExternalService animalExternalService;
     private final AnimalRepository animalRepository;
     private final SyncStateRepository syncStateRepository;
+    private final ShelterRepository shelterRepository;
     private final ShelterService shelterService;
 
     private record SyncPageResult(
@@ -206,7 +209,10 @@ public class AnimalSyncService {
                 continue;
             }
 
-            animalsToSave.add(Animal.from(item));
+            // 보호소가 이미 저장돼 있으면 동물과 연관관계도 함께 연결한다.
+            Animal animal = Animal.from(item);
+            assignShelter(animal, item);
+            animalsToSave.add(animal);
         }
 
         animalRepository.saveAll(animalsToSave);
@@ -226,8 +232,17 @@ public class AnimalSyncService {
 
             animalRepository.findByDesertionNo(item.getDesertionNo())
                     .ifPresentOrElse(
-                            animal -> animal.updateFrom(item),
-                            () -> animalRepository.save(Animal.from(item))
+                            animal -> {
+                                animal.updateFrom(item);
+                                // 기존 동물도 최신 보호소 정보에 맞춰 다시 연결한다.
+                                assignShelter(animal, item);
+                            },
+                            () -> {
+                                // 새 동물 저장 시에도 보호소 FK를 함께 채운다.
+                                Animal animal = Animal.from(item);
+                                assignShelter(animal, item);
+                                animalRepository.save(animal);
+                            }
                     );
             savedCount++;
         }
@@ -252,6 +267,18 @@ public class AnimalSyncService {
                 .toList();
 
         shelterService.createOrUpdateShelters(shelterCmds);
+    }
+
+    // careRegNo로 보호소를 찾아 Animal.shelter 연관관계를 연결한다.
+    private void assignShelter(Animal animal, AnimalItem item) {
+        if (item.getCareRegNo() == null || item.getCareRegNo().isBlank()) {
+            return;
+        }
+
+        Shelter shelter = shelterRepository.findById(item.getCareRegNo()).orElse(null);
+        if (shelter != null) {
+            animal.assignShelter(shelter);
+        }
     }
 
     // 외부 API 응답에서 실제 동물 목록만 꺼내고, 비정상 구조면 빈 리스트를 돌려준다.
