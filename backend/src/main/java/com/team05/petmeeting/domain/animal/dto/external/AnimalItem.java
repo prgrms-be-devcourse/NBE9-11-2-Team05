@@ -29,4 +29,6 @@ public class AnimalItem {
     private String careTel;
     private String updTm; // API에서 제공하는 데이터의 최종 업데이트 시각
 
+    private String careRegNo;
+    private String orgNm;
 }

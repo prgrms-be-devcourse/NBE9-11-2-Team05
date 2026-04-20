@@ -2,6 +2,7 @@ package com.team05.petmeeting.domain.animal.entity;
 
 import com.team05.petmeeting.domain.animal.dto.external.AnimalItem;
 import com.team05.petmeeting.domain.comment.entity.AnimalComment;
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -85,6 +86,9 @@ public class Animal extends BaseEntity {
 
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
+
+    @ManyToOne
+    private Shelter shelter;
 
     private Integer determineStateGroup(String processState) {
         // processState 는 not null

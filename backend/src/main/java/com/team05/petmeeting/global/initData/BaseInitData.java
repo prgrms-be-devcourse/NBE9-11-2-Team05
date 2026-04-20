@@ -8,6 +8,10 @@ import com.team05.petmeeting.domain.feed.dto.FeedReq;
 import com.team05.petmeeting.domain.feed.dto.FeedRes;
 import com.team05.petmeeting.domain.feed.enums.FeedCategory;
 import com.team05.petmeeting.domain.feed.service.FeedService;
+import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
+import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
+import com.team05.petmeeting.domain.shelter.service.ShelterService;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
@@ -29,8 +35,9 @@ public class BaseInitData {
     private final FeedService feedService;
     private final CommentService commentService;
     private final AnimalSyncService animalSyncService;
-
     private final UserRepository userRepository;
+    private final ShelterRepository shelterRepository;
+    private final ShelterService shelterService;
     private final AnimalRepository animalRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -43,6 +50,7 @@ public class BaseInitData {
         };
     }
 
+    // 유저, 피드, 댓글 생성
     @Transactional
     public void work1() {
         if (userRepository.count() > 0) {
@@ -57,8 +65,16 @@ public class BaseInitData {
 
     }
 
+    // 동물 외부 api 호출
     public void work2() {
         if (animalRepository.count() > 0) { return; }
         animalSyncService.fetchAndSaveAnimals(1, 30);
+    }
+
+    // 보호소, 캠페인, 도네이션 생성
+    @Transactional
+    public void work3() {
+        if (shelterRepository.count() > 0) { return; }
+            Shelter shelter = shelterService.createOrUpdateShelter(new ShelterCommand("343447202600001", "음성군 동물보호센터", "043-877-3081", "충청북도 음성군 삼성면 대금로 715-5", "음성군수", "충청북도 음성군", LocalDateTime.now()));
     }
 }
