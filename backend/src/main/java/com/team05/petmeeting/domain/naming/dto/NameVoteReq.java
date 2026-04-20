@@ -1,4 +1,7 @@
 package com.team05.petmeeting.domain.naming.dto;
-
-public class NameVoteReq { // 투표 DTO
+// 투표 DTO
+public record NameVoteReq(
+    Long candidateId,
+    int currentVoteCount
+) {
 }
