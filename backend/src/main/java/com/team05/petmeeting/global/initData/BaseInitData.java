@@ -86,6 +86,6 @@ public class BaseInitData {
             Shelter shelter = shelterService.createOrUpdateShelter(new ShelterCommand("343447202600001", "음성군 동물보호센터", "043-877-3081", "충청북도 음성군 삼성면 대금로 715-5", "음성군수", "충청북도 음성군", LocalDateTime.now()));
             User user = userService.findById(1L);
             shelter.assignUser(user);
-            campaignService.createCampaign(shelter.getCareRegNo(), user.getId(), new CampaignCreateReq("예시 캠페인", 1000000));
+            campaignService.createCampaign(shelter.getCareRegNo(), user.getId(), new CampaignCreateReq("예시 캠페인", "description", 1000000));
     }
 }

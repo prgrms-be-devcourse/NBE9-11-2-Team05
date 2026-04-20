@@ -35,16 +35,15 @@ public class CampaignService {
             throw new BusinessException(CampaignErrorCode.CAMPAIGN_ALREADY_EXISTS);
         }
 
-        Campaign campaign = Campaign.create(shelter, req.title(), req.amount());
+        Campaign campaign = Campaign.create(shelter, req.title(), req.description(), req.amount());
         campaignRepository.save(campaign);
         return CampaignCreateRes.from(campaign);
     }
 
     public CampaignDetailRes getCampaign(String shelterId){
         Shelter shelter = shelterService.findById(shelterId);
-        return campaignRepository.findByShelter(shelter)
-                .map(CampaignDetailRes::from)
-                .orElseThrow(() -> new BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+        List<Campaign> campaignList = campaignRepository.findByShelterOrderByStatusNative(shelter);
+        return CampaignDetailRes.from(campaignList);
     }
 
     public void closeCampaign(Long userId, Long id){

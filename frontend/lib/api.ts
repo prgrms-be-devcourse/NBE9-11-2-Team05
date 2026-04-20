@@ -50,6 +50,13 @@ export const API_ENDPOINTS = {
 
   // Animal Sync
   animalSync: `${API_BASE_URL}/animals/sync`,
+
+  // Campaigns
+  campaigns: `${API_BASE_URL}/campaigns`,
+  shelterCampaign: (shelterId: string) => `${API_BASE_URL}/shelters/${shelterId}/campaign`,
+
+  // Shelters
+  shelterDetail: (shelterId: string) => `${API_BASE_URL}/shelters/${shelterId}`,
 }
 
 type ApiResult<T> = { data: T | null; error: string | null; errorCode?: string; status?: number }
@@ -349,18 +356,34 @@ export interface FeedDetail {
 }
 
 export interface Feed {
-  feedId: number;
-  userId: number;
-  nickname?: string;
-  profileImageUrl?: string;
-  category: string;
-  title: string;
-  content: string;
-  imageUrl?: string;
-  likeCount: number;
-  commentCount: number;
-  createdAt: string;
   updatedAt: string;
+}
+
+export interface Campaign {
+  id: number;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  status: "ACTIVE" | string;
+  shelterId?: string;
+}
+
+export interface CampaignsResponse {
+  totalCampaigns: number;
+  campaigns: Campaign[];
+}
+
+export interface ShelterCampaignResponse {
+  campaignCount: number;
+  campaigns: Campaign[];
+}
+
+export interface Shelter {
+  shelterId: string;
+  careNm: string;
+  careTel: string;
+  careAddr: string;
+  orgNm: string;
 }
 
 export interface MyFeedComment {
@@ -422,4 +445,18 @@ export const toggleFeedLike = async (feedId: number) => {
     `${API_ENDPOINTS.feedDetail(feedId)}/likes`,
     { method: "POST" }
   );
+};
+
+// Campaigns
+export const getCampaigns = async () => {
+  return await apiRequest<CampaignsResponse>(API_ENDPOINTS.campaigns);
+};
+
+export const getShelterCampaign = async (shelterId: string) => {
+  return await apiRequest<ShelterCampaignResponse>(API_ENDPOINTS.shelterCampaign(shelterId));
+};
+
+// Shelters
+export const getShelterDetail = async (shelterId: string) => {
+  return await apiRequest<Shelter>(API_ENDPOINTS.shelterDetail(shelterId));
 };
