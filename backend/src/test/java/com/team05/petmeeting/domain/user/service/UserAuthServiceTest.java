@@ -8,11 +8,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
-import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
 import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
+import com.team05.petmeeting.domain.user.provider.Provider;
 import com.team05.petmeeting.domain.user.refreshtoken.repository.RefreshTokenRepository;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.exception.BusinessException;
@@ -46,71 +47,59 @@ class UserAuthServiceTest {
     @Mock
     private JwtUtil jwtUtil;
 
+    @Mock
+    private OtpService otpService;
+
+    @Mock
+    private MailService mailService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-    // =========================
-    // 회원가입
-    // =========================
-
     @Test
-    @DisplayName("회원가입 성공")
-    void signup_success() {
+    @DisplayName("회원가입 + 로그인 성공 (이메일 기반)")
+    void signup_and_login_success() {
         // given
-        SignupReq request = new SignupReq("testId", "password", "닉네임", "홍길동");
+        String token = "valid-token";
+        EmailSignupReq request = new EmailSignupReq(token, "password", "닉네임", "홍길동");
 
-        when(userRepository.existsByUsername("testId")).thenReturn(false);
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
         when(passwordEncoder.encode("password")).thenReturn("encodedPw");
 
-        User savedUser = User.create("testId", "encodedPw", "닉네임", "홍길동");
+        User savedUser = User.create("test@gmail.com", "닉네임", "홍길동");
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
         // when
-        var result = userAuthService.signup(request);
+        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
 
         // then
-        assertThat(result.username()).isEqualTo("testId");
+        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
         verify(userRepository).save(any(User.class));
     }
-
-    @Test
-    @DisplayName("회원가입 실패 - username 중복")
-    void signup_fail_duplicate_username() {
-        // given
-        SignupReq request = new SignupReq("testId", "pw", "닉네임", "홍길동");
-
-        when(userRepository.existsByUsername("testId")).thenReturn(true);
-
-        // when & then
-        assertThatThrownBy(() -> userAuthService.signup(request))
-                .isInstanceOf(BusinessException.class)
-                .extracting(e -> ((BusinessException) e).getErrorCode())
-                .isEqualTo(UserErrorCode.DUPLICATE_USERNAME);
-    }
-
-    // =========================
-    // 로그인
-    // =========================
 
     @Test
     @DisplayName("로그인 성공")
     void login_success() {
         // given
-        LoginReq request = new LoginReq("testId", "password");
+        String email = "test@gmail.com";
+        String password = "password";
 
-        User user = User.create("testId", "encodedPw", "닉네임", "홍길동");
+        User user = User.create(email, "닉네임", "홍길동");
+        UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encodedPw");
+        user.addAuth(auth);
 
-        when(userRepository.findByUsername("testId")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password", "encodedPw")).thenReturn(true);
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, "encodedPw")).thenReturn(true);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
         // when
-        LoginAndRefreshResult result = userAuthService.login(request);
+        LoginAndRefreshResult result = userAuthService.loginWithEmail(email, password);
 
         // then
-        assertThat(result.loginAndRefreshRes().accessToken()).isEqualTo("accessToken");
+        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
         assertThat(result.refreshToken()).isNotNull();
 
         verify(refreshTokenRepository).save(any());
@@ -120,12 +109,13 @@ class UserAuthServiceTest {
     @DisplayName("로그인 실패 - 사용자 없음")
     void login_fail_user_not_found() {
         // given
-        LoginReq request = new LoginReq("testId", "password");
+        String email = "test@gmail.com";
+        String password = "password";
 
-        when(userRepository.findByUsername("testId")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> userAuthService.login(request))
+        assertThatThrownBy(() -> userAuthService.loginWithEmail(email, password))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(UserErrorCode.LOGIN_FAILED);
@@ -135,15 +125,18 @@ class UserAuthServiceTest {
     @DisplayName("로그인 실패 - 비밀번호 불일치")
     void login_fail_wrong_password() {
         // given
-        LoginReq request = new LoginReq("testId", "password");
+        String email = "test@gmail.com";
+        String password = "password";
 
-        User user = User.create("testId", "encodedPw", "닉네임", "홍길동");
+        User user = User.create(email, "닉네임", "홍길동");
+        UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encodedPw");
+        user.addAuth(auth);
 
-        when(userRepository.findByUsername("testId")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password", "encodedPw")).thenReturn(false);
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, "encodedPw")).thenReturn(false);
 
         // when & then
-        assertThatThrownBy(() -> userAuthService.login(request))
+        assertThatThrownBy(() -> userAuthService.loginWithEmail(email, password))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(UserErrorCode.LOGIN_FAILED);

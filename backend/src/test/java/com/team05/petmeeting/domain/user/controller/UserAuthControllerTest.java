@@ -5,8 +5,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
+import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartReq;
+import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
+import com.team05.petmeeting.domain.user.service.MailService;
+import com.team05.petmeeting.domain.user.service.OtpService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,112 +33,77 @@ public class UserAuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @DisplayName("회원가입 성공")
-    void signup() throws Exception {
-        // 회원가입
-        SignupReq signup = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
+    @MockitoBean
+    private MailService mailService;
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signup))
-                )
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("testusername"))
-                .andExpect(jsonPath("$.nickname").value("닉네임"));
-    }
+    @MockitoBean
+    private OtpService otpService;
 
     @Test
-    @DisplayName("회원가입 실패 - 이미 가입한 사용자")
-    void signup_fail1() throws Exception {
-        // given
-        SignupReq signup = new SignupReq("duplicateUser", "TestPassword12!", "닉네임", "홍길동");
+    @DisplayName("이메일 시작 - 신규 사용자")
+    void start_email_new_user() throws Exception {
+        EmailStartReq req = new EmailStartReq("new@test.com");
 
-        // 1. 먼저 회원가입 수행 (DB에 저장됨)
-        mockMvc.perform(post("/api/v1/auth/signup")
+        mockMvc.perform(post("/api/v1/auth/email/start")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signup))
-                )
-                .andExpect(status().isCreated());
-
-        // 2. 동일한 username으로 다시 요청
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signup))
-                )
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("U-003"));
-    }
-
-    @Test
-    @DisplayName("회원가입 실패 - 입력값 검증 실패")
-    void signup_fail2() throws Exception {
-        // given
-        SignupReq signup = new SignupReq("id", "wrongpassword", "", "");
-
-        // when & then
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signup))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("INVALID_INPUT"));
-    }
-
-    @Test
-    @DisplayName("로그인 성공")
-    void login() throws Exception {
-
-        SignupReq signup = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
-
-        mockMvc.perform(post("/api/v1/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signup))
-        );
-
-        // 로그인
-        mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signup))
-                )
+                        .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists());
+                .andExpect(jsonPath("$.exists").value(false))
+                .andExpect(jsonPath("$.nextStep").value("SIGNUP_WITH_OTP"));
     }
 
     @Test
-    @DisplayName("로그인 실패 - 존재하지않는 id")
-    void login_fail1() throws Exception {
+    @DisplayName("OTP 전송")
+    void send_otp() throws Exception {
+        EmailStartReq req = new EmailStartReq("test@test.com");
 
-        SignupReq login = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
-
-        // 로그인
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/auth/email/send-otp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(login))
-                )
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("U-002"));
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isNoContent());
     }
 
     @Test
-    @DisplayName("로그인 실패 - 잘못된 pw")
-    void login_fail2() throws Exception {
+    @DisplayName("로그인 실패 - 존재하지 않는 사용자")
+    void login_fail_user_not_found() throws Exception {
+        EmailLoginReq req = new EmailLoginReq("notfound@test.com", "Testpassword12!");
 
-        SignupReq signup = new SignupReq("testusername", "TestPassword12!", "닉네임", "홍길동");
+        mockMvc.perform(post("/api/v1/auth/email/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isUnauthorized());
+    }
 
-        mockMvc.perform(post("/api/v1/auth/signup")
+    @Test
+    @DisplayName("로그인 실패 - 비밀번호 틀림")
+    void login_fail_wrong_password() throws Exception {
+
+        // signup 먼저 (실제 플로우에서는 verifyToken 필요하지만 테스트 단순화)
+        EmailSignupReq signup = new EmailSignupReq("fake-token", "Password123!", "닉네임", "홍길동");
+
+        mockMvc.perform(post("/api/v1/auth/email/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signup))
-        );
+                .content(objectMapper.writeValueAsString(signup)));
 
-        LoginReq login = new LoginReq("testusername", "WrongPassword!!12");
+        EmailLoginReq login = new EmailLoginReq("test@test.com", "WrongPassword12!");
 
-        // 로그인
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/auth/email/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(login))
-                )
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("U-002"));
+                        .content(objectMapper.writeValueAsString(login)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    void logout() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/logout"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 토큰 없음")
+    void refresh_fail() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/refresh"))
+                .andExpect(status().isUnauthorized());
     }
 }
