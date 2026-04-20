@@ -31,11 +31,15 @@ public class Campaign extends BaseEntity {
     @Version
     private Long version;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public Campaign(Shelter shelter, String title, int targetAmount) {
         this.shelter = shelter;
         this.title = title;
         this.targetAmount = targetAmount;
+    }
+
+    public static Campaign create(Shelter shelter, String title, int targetAmount) {
+        return new Campaign(shelter, title, targetAmount);
     }
 
     public void addAmount(int amount) {

@@ -60,8 +60,8 @@ public class Shelter {
     @OneToMany(mappedBy = "shelter", fetch = FetchType.LAZY)
     private List<Campaign> campaigns = new ArrayList<>();
 
-    @Builder
-    public Shelter(String careRegNo, String careNm,
+    @Builder (access = AccessLevel.PRIVATE)
+    private Shelter(String careRegNo, String careNm,
                    String careTel, String careAddr,
                    String careOwnerNm, String orgNm, LocalDateTime updTm) {
         this.careRegNo = careRegNo;
@@ -71,6 +71,18 @@ public class Shelter {
         this.careOwnerNm = careOwnerNm;
         this.orgNm = orgNm;
         this.updTm = updTm;
+    }
+
+    public static Shelter create(ShelterCommand cmd) {
+        return new Shelter(
+                cmd.careRegNo(),
+                cmd.careNm(),
+                cmd.careTel(),
+                cmd.careAddr(),
+                cmd.careOwnerNm(),
+                cmd.orgNm(),
+                cmd.updTm()
+        );
     }
 
     public void updateFrom(ShelterCommand cmd) {

@@ -2,7 +2,9 @@ package com.team05.petmeeting.domain.shelter.service;
 
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
+import com.team05.petmeeting.domain.shelter.errorCode.ShelterErrorCode;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
+import com.team05.petmeeting.global.exception.BusinessException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,15 +43,7 @@ public class ShelterService {
                     return existing;
                 } )
             .orElseGet(() -> shelterRepository.save(
-                    new Shelter(
-                            cmd.careRegNo(),
-                            cmd.careNm(),
-                            cmd.careTel(),
-                            cmd.careAddr(),
-                            cmd.careOwnerNm(),
-                            cmd.orgNm(),
-                            cmd.updTm()
-                            )
+                    Shelter.create(cmd)
             ));
     }
 
@@ -74,19 +68,15 @@ public class ShelterService {
                     existing.updateFrom(cmd);
                 }
             } else {
-                Shelter newShelter = new Shelter(
-                        cmd.careRegNo(),
-                        cmd.careNm(),
-                        cmd.careTel(),
-                        cmd.careAddr(),
-                        cmd.careOwnerNm(),
-                        cmd.orgNm(),
-                        cmd.updTm()
-                );
+                Shelter newShelter = Shelter.create(cmd);
                 shelterRepository.save(newShelter);
                 map.put(cmd.careRegNo(), newShelter);
             }
         }
     }
 
+    public Shelter findById(String id) {
+        return shelterRepository.findById(id)
+                .orElseThrow( () -> new BusinessException(ShelterErrorCode.SHELTER_NOT_FOUND));
+    }
 }
