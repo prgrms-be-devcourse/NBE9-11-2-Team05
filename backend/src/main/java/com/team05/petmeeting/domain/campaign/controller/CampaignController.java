@@ -17,7 +17,7 @@ public class CampaignController {
     private final CampaignService campaignService;
 
     @Operation(summary="보호소 캠페인 생성")
-    @PostMapping("/shelters/{shelterId}/campaigns")
+    @PostMapping("/shelters/{shelterId}/campaign")
     public ResponseEntity<CampaignCreateRes> createCampaign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long shelterId,
