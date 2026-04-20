@@ -46,3 +46,11 @@ animal:
 jwt:
   secret: ${JWT_SECRET}
   expireMillis: ${JWT_EXPIREMILLIS}
+
+# Meta Ads API 설정
+meta:
+  ads:
+    access-token: ${META_ACCESS_TOKEN}
+    ad-account-id: ${META_AD_ACCOUNT_ID}
+    page-id: ${META_PAGE_ID}
+    api-version: v19.0
