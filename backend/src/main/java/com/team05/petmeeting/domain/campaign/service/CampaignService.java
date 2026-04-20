@@ -1,8 +1,9 @@
 package com.team05.petmeeting.domain.campaign.service;
 
+import com.team05.petmeeting.domain.campaign.dto.CampaignCreateReq;
 import com.team05.petmeeting.domain.campaign.dto.CampaignCreateRes;
 import com.team05.petmeeting.domain.campaign.dto.CampaignDetailRes;
-import com.team05.petmeeting.domain.campaign.dto.CampaignReq;
+import com.team05.petmeeting.domain.campaign.dto.CampaignRes;
 import com.team05.petmeeting.domain.campaign.entity.Campaign;
 import com.team05.petmeeting.domain.campaign.enums.CampaignStatus;
 import com.team05.petmeeting.domain.campaign.errorCode.CampaignErrorCode;
@@ -14,6 +15,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final ShelterService shelterService;
 
-    public CampaignCreateRes createCampaign(String shelterId, Long userId, CampaignReq req){
+    public CampaignCreateRes createCampaign(String shelterId, Long userId, CampaignCreateReq req){
         Shelter shelter = shelterService.findById(shelterId);
         if (!shelter.isManagedBy(userId)) {
             throw new BusinessException(CampaignErrorCode.UNAUTHORIZED_SHELTER);
@@ -59,5 +62,10 @@ public class CampaignService {
             throw new BusinessException(CampaignErrorCode.UNAUTHORIZED_SHELTER);
         }
         return campaign;
+    }
+
+    public CampaignRes getAllCampaigns() {
+        List<Campaign> campaigns = campaignRepository.findAll();
+        return CampaignRes.of(campaigns.size(), campaigns);
     }
 }

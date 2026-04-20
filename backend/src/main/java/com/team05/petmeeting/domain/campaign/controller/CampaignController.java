@@ -16,12 +16,19 @@ import org.springframework.web.bind.annotation.*;
 public class CampaignController {
     private final CampaignService campaignService;
 
+    @Operation(summary="현재 진행 캠페인 전체 조회")
+    @GetMapping("/campaigns")
+    public ResponseEntity<CampaignRes> getCampaigns(){
+        CampaignRes res = campaignService.getAllCampaigns();
+        return ResponseEntity.ok(res);
+    }
+
     @Operation(summary="보호소 캠페인 생성")
     @PostMapping("/shelters/{shelterId}/campaign")
     public ResponseEntity<CampaignCreateRes> createCampaign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String shelterId,
-            @Valid @RequestBody CampaignReq req
+            @Valid @RequestBody CampaignCreateReq req
             ){
         CampaignCreateRes res = campaignService.createCampaign(shelterId, userDetails.getUserId(), req);
         return ResponseEntity.ok(res);

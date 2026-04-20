@@ -1,7 +1,7 @@
 package com.team05.petmeeting.domain.campaign.service;
 
 import com.team05.petmeeting.domain.animal.service.AnimalExternalService;
-import com.team05.petmeeting.domain.campaign.dto.CampaignReq;
+import com.team05.petmeeting.domain.campaign.dto.CampaignCreateReq;
 import com.team05.petmeeting.domain.campaign.entity.Campaign;
 import com.team05.petmeeting.domain.campaign.enums.CampaignStatus;
 import com.team05.petmeeting.domain.campaign.repository.CampaignRepository;
@@ -51,7 +51,7 @@ public class CampaignServiceTest {
         shelter.assignUser(user);
 
         // when
-        campaignService.createCampaign("123", user.getId(), new CampaignReq("사료 후원", 1000000));
+        campaignService.createCampaign("123", user.getId(), new CampaignCreateReq("사료 후원", 1000000));
 
         // then
         Campaign result = campaignRepository

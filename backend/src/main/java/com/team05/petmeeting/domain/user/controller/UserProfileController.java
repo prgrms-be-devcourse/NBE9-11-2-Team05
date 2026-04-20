@@ -1,8 +1,10 @@
 package com.team05.petmeeting.domain.user.controller;
 
+import com.team05.petmeeting.domain.donation.service.DonationService;
 import com.team05.petmeeting.domain.user.dto.profile.*;
 import com.team05.petmeeting.domain.user.service.UserProfileService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
+    private final DonationService donationService;
 
     // username 변경
     @PatchMapping("/username")
@@ -128,4 +131,15 @@ public class UserProfileController {
         UserSummaryRes res = userProfileService.getUserSummary(userId);
         return ResponseEntity.ok(res);
     }
+
+    @Operation(summary="사용자 후원 목록 조회")
+    @GetMapping("/donations")
+    public ResponseEntity<UserDonationRes> getDonations(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long userId = userDetails.getUserId();
+        UserDonationRes res = donationService.getMyDonations(userId);
+        return ResponseEntity.ok(res);
+    }
+
 }
