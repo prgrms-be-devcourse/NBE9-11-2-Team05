@@ -29,7 +29,7 @@ public class MailService {
             Context context = new Context();
             context.setVariable("code", code);
 
-            String html = templateEngine.process("signupotp", context);
+            String html = templateEngine.process("mail/signupotp", context);
 
             helper.setText(html, true);
             helper.setFrom("no-reply@petmeeting.com", "PetMeeting");

@@ -25,10 +25,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -143,7 +145,7 @@ public class UserAuthService {
     }
 
     public void logout(HttpServletRequest request) {
-
+        log.info("------------------------- logout start -------------------------");
         extractRefreshToken(request) // Cookie로부터 refreshToken 추출
                 .ifPresent(token -> {
                     UUID uuid = UUID.fromString(token);
