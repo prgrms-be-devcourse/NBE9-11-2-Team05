@@ -105,6 +105,11 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
                 커뮤니티
               </Button>
             </Link>
+            <Link href="/campaign">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground font-medium px-1.5 md:px-4">
+                캠페인
+              </Button>
+            </Link>
           </nav>
 
           {/* Search & Actions */}

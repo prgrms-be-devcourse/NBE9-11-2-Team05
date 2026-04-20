@@ -17,9 +17,11 @@ public class Campaign extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_reg_no")
-    Shelter shelter;
+    private Shelter shelter;
 
     private String title;
+
+    private String description;
 
     private int targetAmount;
 
@@ -32,14 +34,15 @@ public class Campaign extends BaseEntity {
     private Long version;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public Campaign(Shelter shelter, String title, int targetAmount) {
+    public Campaign(Shelter shelter, String title, String description, int targetAmount) {
         this.shelter = shelter;
         this.title = title;
+        this.description = description;
         this.targetAmount = targetAmount;
     }
 
-    public static Campaign create(Shelter shelter, String title, int targetAmount) {
-        return new Campaign(shelter, title, targetAmount);
+    public static Campaign create(Shelter shelter, String title, String description, int targetAmount) {
+        return new Campaign(shelter, title, description, targetAmount);
     }
 
     public void addAmount(int amount) {

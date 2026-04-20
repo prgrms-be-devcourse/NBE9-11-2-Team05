@@ -18,6 +18,7 @@ public record CampaignRes (
     private record CampaignItem(
         Long id,
         String title,
+        String description,
         int targetAmount,
         int currentAmount,
         CampaignStatus status,
@@ -27,6 +28,7 @@ public record CampaignRes (
             return new CampaignItem(
                     campaign.getId(),
                     campaign.getTitle(),
+                    campaign.getDescription(),
                     campaign.getTargetAmount(),
                     campaign.getCurrentAmount(),
                     campaign.getStatus(),
