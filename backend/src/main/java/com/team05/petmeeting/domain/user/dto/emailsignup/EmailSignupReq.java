@@ -1,18 +1,14 @@
-package com.team05.petmeeting.domain.user.dto.signup;
+package com.team05.petmeeting.domain.user.dto.emailsignup;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.UUID;
 
-public record SignupReq(
-
-        @NotBlank(message = "id는 필수 입력값입니다.")
-        @Size(min = 5, max = 20, message = "id는 5~20자 사이여야 합니다.")
-        @Pattern(
-                regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-={}\\[\\]:;\"'<>,.?/]{5,20}$",
-                message = "id는 영문, 숫자, 특수문자만 사용할 수 있습니다."
-        )
-        String username,
+public record EmailSignupReq(
+        @NotBlank(message = "토큰은 필수 입력값입니다.")
+        @UUID(message = "잘못된 토큰 형식입니다.")
+        String verificationToken,
 
         @NotBlank(message = "password는 필수 입력값입니다.")
         @Size(min = 8, max = 16, message = "password는 8~16자 사이여야 합니다.")
@@ -22,10 +18,10 @@ public record SignupReq(
         )
         String password,
 
-        @NotBlank(message = "nickname은 필수 입력값입니다.")
+        @NotBlank(message = "닉네임은 필수 입력값입니다.")
         String nickname,
 
-        @NotBlank(message = "realname은 필수 입력값입니다.")
+        @NotBlank(message = "실명은 필수 입력값입니다.")
         String realname
 ) {
 }
