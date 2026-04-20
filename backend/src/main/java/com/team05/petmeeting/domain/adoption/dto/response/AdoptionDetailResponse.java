@@ -16,14 +16,49 @@ public class AdoptionDetailResponse {
     private String applyTel;
     private AnimalInfo animalInfo;
 
+    public AdoptionDetailResponse(
+            Long applicationId,
+            AdoptionStatus status,
+            String applyReason,
+            LocalDateTime createdAt,
+            LocalDateTime reviewedAt,
+            String rejectionReason,
+            String applyTel,
+            AnimalInfo animalInfo
+    ) {
+        this.applicationId = applicationId;
+        this.status = status;
+        this.applyReason = applyReason;
+        this.createdAt = createdAt;
+        this.reviewedAt = reviewedAt;
+        this.rejectionReason = rejectionReason;
+        this.applyTel = applyTel;
+        this.animalInfo = animalInfo;
+    }
+
     @Getter
-    public static class AnimalInfo{
+    public static class AnimalInfo {
         private String desertionNo;
-        private String username;
         private String specialMark; // 사진 URL
         private String careNm; // 보호소 이름
         private String careOwerNm; // 보호소 담당자
         private String careTel; // 보호소 전화번호
         private String careAddr; // 보호소 주소
+
+        public AnimalInfo(
+                String desertionNo,
+                String specialMark,
+                String careNm,
+                String careOwerNm,
+                String careTel,
+                String careAddr
+        ) {
+            this.desertionNo = desertionNo;
+            this.specialMark = specialMark;
+            this.careNm = careNm;
+            this.careOwerNm = careOwerNm;
+            this.careTel = careTel;
+            this.careAddr = careAddr;
+        }
     }
 }
