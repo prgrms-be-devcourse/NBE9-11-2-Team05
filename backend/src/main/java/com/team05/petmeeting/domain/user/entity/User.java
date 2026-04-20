@@ -53,6 +53,22 @@ public class User extends BaseEntity {
     )
     private List<UserAuth> userAuths = new ArrayList<>();
 
+    public static User create(
+            String email,
+            String nickname,
+            String realname
+    ) {
+        User user = new User();
+        user.email = email;
+        user.nickname = nickname;
+        user.profileImageUrl = "";
+        user.realname = realname;
+        user.role = Role.USER;
+        user.dailyHeartCount = 0;
+        user.lastHeartResetDate = LocalDate.now();
+        return user;
+    }
+
     public void addAuth(UserAuth userAuth) {
         userAuth.setUser(this);
         userAuths.add(userAuth);
@@ -69,22 +85,6 @@ public class User extends BaseEntity {
     // 응원사용
     public void useDailyCheer() {
         this.dailyHeartCount++;
-    }
-
-    public static User create(
-            String email,
-            String nickname,
-            String realname
-    ) {
-        User user = new User();
-        user.email = email;
-        user.nickname = nickname;
-        user.profileImageUrl = "";
-        user.realname = realname;
-        user.role = Role.USER;
-        user.dailyHeartCount = 0;
-        user.lastHeartResetDate = LocalDate.now();
-        return user;
     }
 
     public void updateProfileImageUrl(String profileImageUrl) {

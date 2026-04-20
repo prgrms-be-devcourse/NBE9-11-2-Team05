@@ -2,6 +2,16 @@ package com.team05.petmeeting.domain.user.controller;
 
 import com.team05.petmeeting.domain.donation.service.DonationService;
 import com.team05.petmeeting.domain.user.dto.profile.*;
+import com.team05.petmeeting.domain.user.dto.profile.MyProfileDetailRes;
+import com.team05.petmeeting.domain.user.dto.profile.NicknameReq;
+import com.team05.petmeeting.domain.user.dto.profile.PasswordReq;
+import com.team05.petmeeting.domain.user.dto.profile.ProfileImgReq;
+import com.team05.petmeeting.domain.user.dto.profile.UserAnimalCommentRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserCheerAnimalRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserFeedCommentRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserFeedRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserSummaryRes;
 import com.team05.petmeeting.domain.user.service.UserProfileService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/me")
@@ -20,17 +34,6 @@ public class UserProfileController {
 
     private final UserProfileService userProfileService;
     private final DonationService donationService;
-
-    // username 변경
-    @PatchMapping("/username")
-    public ResponseEntity<UserProfileRes> username(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody UsernameReq req
-    ) {
-        Long userId = userDetails.getUserId();
-        UserProfileRes res = userProfileService.modifyUsername(userId, req.newUsername());
-        return ResponseEntity.ok(res);
-    }
 
     // 닉네임 변경
     @PatchMapping("/nickname")

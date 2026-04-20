@@ -56,4 +56,8 @@ public class UserAuth extends BaseEntity {
 
         return userAuth;
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
