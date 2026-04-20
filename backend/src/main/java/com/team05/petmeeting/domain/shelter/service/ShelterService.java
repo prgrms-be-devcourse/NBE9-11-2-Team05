@@ -1,6 +1,7 @@
 package com.team05.petmeeting.domain.shelter.service;
 
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
+import com.team05.petmeeting.domain.shelter.dto.ShelterRes;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.shelter.errorCode.ShelterErrorCode;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
@@ -79,4 +80,11 @@ public class ShelterService {
         return shelterRepository.findById(id)
                 .orElseThrow( () -> new BusinessException(ShelterErrorCode.SHELTER_NOT_FOUND));
     }
+
+    public ShelterRes getShelter(String shelterId) {
+        return shelterRepository.findById(shelterId)
+                .map(ShelterRes::from)
+                .orElseThrow( () -> new BusinessException(ShelterErrorCode.SHELTER_NOT_FOUND));
+    }
+
 }

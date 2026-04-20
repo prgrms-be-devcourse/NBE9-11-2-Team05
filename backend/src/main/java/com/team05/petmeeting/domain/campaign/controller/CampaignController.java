@@ -16,14 +16,21 @@ import org.springframework.web.bind.annotation.*;
 public class CampaignController {
     private final CampaignService campaignService;
 
+    @Operation(summary="현재 진행 캠페인 전체 조회")
+    @GetMapping("/campaigns")
+    public ResponseEntity<CampaignRes> getCampaigns(){
+        CampaignRes res = campaignService.getAllCampaigns();
+        return ResponseEntity.ok(res);
+    }
+
     @Operation(summary="보호소 캠페인 생성")
-    @PostMapping("/shelters/{shelterId}/campaigns")
+    @PostMapping("/shelters/{shelterId}/campaign")
     public ResponseEntity<CampaignCreateRes> createCampaign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long shelterId,
-            @Valid @RequestBody CampaignReq req
+            @PathVariable String shelterId,
+            @Valid @RequestBody CampaignCreateReq req
             ){
-        CampaignCreateRes res = campaignService.createCampaign(req);
+        CampaignCreateRes res = campaignService.createCampaign(shelterId, userDetails.getUserId(), req);
         return ResponseEntity.ok(res);
     }
 
@@ -40,26 +47,10 @@ public class CampaignController {
     @PatchMapping("/campaigns/{campaignId}/status")
     public ResponseEntity<Void> closeCampaign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long campaignId,
-            @Valid @RequestBody CampaignCloseReq req
+            @PathVariable Long campaignId
     ){
-        campaignService.closeCampaign(campaignId);
+        campaignService.closeCampaign(userDetails.getUserId(), campaignId);
         return ResponseEntity.noContent().build();
     }
-
-    /*
-    // 보호소의 현재 진행 캠페인 조회
-    GET /shelters/{shelterId}/campaign
-
-    // 캠페인 생성 (SHELTER_ADMIN)
-    POST /shelters/{shelterId}/campaigns
-
-    // 캠페인 상세 조회
-    GET /campaigns/{campaignId}
-
-    // 캠페인 상태 변경
-    PATCH /campaigns/{campaignId}/status
-
-    * */
 
 }

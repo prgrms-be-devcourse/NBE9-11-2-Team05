@@ -7,11 +7,11 @@ import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Setter
+@Getter
 @Table(name="donations")
 @NoArgsConstructor(access= AccessLevel.PROTECTED)
 public class Donation extends BaseEntity {

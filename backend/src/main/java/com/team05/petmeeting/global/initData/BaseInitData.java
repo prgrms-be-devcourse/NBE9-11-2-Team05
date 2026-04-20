@@ -2,6 +2,8 @@ package com.team05.petmeeting.global.initData;
 
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.animal.service.AnimalSyncService;
+import com.team05.petmeeting.domain.campaign.dto.CampaignCreateReq;
+import com.team05.petmeeting.domain.campaign.service.CampaignService;
 import com.team05.petmeeting.domain.comment.dto.CommentReq;
 import com.team05.petmeeting.domain.comment.service.CommentService;
 import com.team05.petmeeting.domain.feed.dto.FeedReq;
@@ -14,6 +16,7 @@ import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.shelter.service.ShelterService;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
+import com.team05.petmeeting.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -42,6 +45,8 @@ public class BaseInitData {
     private final ShelterService shelterService;
     private final AnimalRepository animalRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CampaignService campaignService;
+    private final UserService userService;
 
 
     @Bean
@@ -49,6 +54,7 @@ public class BaseInitData {
         return args -> {
             self.work1();
             self.work2();
+            self.work3();
         };
     }
 
@@ -78,5 +84,8 @@ public class BaseInitData {
     public void work3() {
         if (shelterRepository.count() > 0) { return; }
             Shelter shelter = shelterService.createOrUpdateShelter(new ShelterCommand("343447202600001", "음성군 동물보호센터", "043-877-3081", "충청북도 음성군 삼성면 대금로 715-5", "음성군수", "충청북도 음성군", LocalDateTime.now()));
+            User user = userService.findById(1L);
+            shelter.assignUser(user);
+            campaignService.createCampaign(shelter.getCareRegNo(), user.getId(), new CampaignCreateReq("예시 캠페인", 1000000));
     }
 }

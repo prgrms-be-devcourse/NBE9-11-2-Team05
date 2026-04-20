@@ -1,4 +1,7 @@
 package com.team05.petmeeting.domain.donation.dto;
 
-public class PrepareRes {
+public record PrepareRes (
+    String merchantUid,
+    int amount
+){
 }
