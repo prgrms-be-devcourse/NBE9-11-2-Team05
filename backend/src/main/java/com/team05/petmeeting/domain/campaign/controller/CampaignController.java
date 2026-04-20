@@ -43,23 +43,8 @@ public class CampaignController {
             @PathVariable Long campaignId,
             @Valid @RequestBody CampaignCloseReq req
     ){
-        campaignService.closeCampaign(campaignId);
+        campaignService.closeCampaign(userDetails.getUserId(), campaignId);
         return ResponseEntity.noContent().build();
     }
-
-    /*
-    // 보호소의 현재 진행 캠페인 조회
-    GET /shelters/{shelterId}/campaign
-
-    // 캠페인 생성 (SHELTER_ADMIN)
-    POST /shelters/{shelterId}/campaigns
-
-    // 캠페인 상세 조회
-    GET /campaigns/{campaignId}
-
-    // 캠페인 상태 변경
-    PATCH /campaigns/{campaignId}/status
-
-    * */
 
 }

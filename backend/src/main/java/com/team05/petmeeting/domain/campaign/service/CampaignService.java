@@ -52,8 +52,12 @@ public class CampaignService {
         campaign.close();
     }
 
-    private Campaign getCampaignOrThrow(Long id) {
-        return campaignRepository.findById(id)
+    private Campaign getCampaignOrThrow(Long userId, Long campaignId) {
+        Campaign campaign = campaignRepository.findById(campaignId)
                 .orElseThrow(() -> new BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND));
+        if (!campaign.getShelter().isManagedBy(userId)) {
+            throw new BusinessException(CampaignErrorCode.UNAUTHORIZED_SHELTER);
+        }
+        return campaign;
     }
 }
