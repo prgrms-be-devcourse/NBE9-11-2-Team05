@@ -1,4 +1,7 @@
 package com.team05.petmeeting.domain.naming.repository;
 
-public interface NamingRepository {
+import com.team05.petmeeting.domain.naming.entity.AnimalNameCandidate;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AnimalNameCandidateRepository extends JpaRepository<AnimalNameCandidate, Long> {
 }
