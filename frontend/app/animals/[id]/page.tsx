@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2 } from "lucide-react"
+import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2, PawPrint } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -428,6 +428,24 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                         오늘 남은 하트 {remainingToday}개
                       </p>
                     )}
+                  </div>
+
+                  <div className="rounded-2xl border border-primary/15 bg-background/80 p-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground">입양을 고민 중이신가요?</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          동물 상세를 확인하셨다면 바로 신청서를 작성해보세요.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        className="shrink-0 rounded-xl bg-primary px-4 text-primary-foreground shadow-sm hover:bg-primary/90"
+                      >
+                        <PawPrint className="mr-2 h-4 w-4" />
+                        입양 신청
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
