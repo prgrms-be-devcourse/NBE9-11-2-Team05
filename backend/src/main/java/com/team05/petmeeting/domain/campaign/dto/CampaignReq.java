@@ -1,4 +1,8 @@
 package com.team05.petmeeting.domain.campaign.dto;
 
-public class CampaignReq {
+public record CampaignReq (
+        String shelterId,
+        String title,
+        int amount
+){
 }
