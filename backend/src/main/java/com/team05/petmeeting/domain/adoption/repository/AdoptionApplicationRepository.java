@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface AdoptionApplicationRepository extends JpaRepository<AdoptionApplication, Long> {
-    List<AdoptionApplication> findByUser_Id(Long user_Id);
+    List<AdoptionApplication> findByUser_Id(Long userId);
     Optional<AdoptionApplication> findByIdAndUser_Id(Long applicationId, Long userId);
+    boolean existsByUser_IdAndAnimal_Id(Long userId, Long animalId);
 }
