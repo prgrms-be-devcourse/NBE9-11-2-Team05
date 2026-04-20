@@ -40,8 +40,7 @@ public class CampaignController {
     @PatchMapping("/campaigns/{campaignId}/status")
     public ResponseEntity<Void> closeCampaign(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long campaignId,
-            @Valid @RequestBody CampaignCloseReq req
+            @PathVariable Long campaignId
     ){
         campaignService.closeCampaign(userDetails.getUserId(), campaignId);
         return ResponseEntity.noContent().build();
