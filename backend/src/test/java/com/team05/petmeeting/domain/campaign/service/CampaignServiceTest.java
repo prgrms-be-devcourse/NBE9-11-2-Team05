@@ -40,7 +40,7 @@ public class CampaignServiceTest {
     @DisplayName("캠페인 생성 성공")
     public void createCampaign() {
         // given - User 먼저 만들어야 해요
-        User user = userRepository.save(User.create("test@test.com", "password", "nickname", "realname"));
+        User user = userRepository.save(User.create("test@test.com", "nickname", "realname"));
 
         // Shelter 만들고 user 할당
         ShelterCommand cmd = new ShelterCommand(
@@ -51,7 +51,7 @@ public class CampaignServiceTest {
         shelter.assignUser(user);
 
         // when
-        campaignService.createCampaign("123", user.getId(), new CampaignCreateReq("사료 후원", 1000000));
+        campaignService.createCampaign("123", user.getId(), new CampaignCreateReq("사료 후원", "사료 후원 설명", 1000000));
 
         // then
         Campaign result = campaignRepository
