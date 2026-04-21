@@ -36,7 +36,7 @@ public class AnimalNameCandidate extends BaseEntity { // 이름 후보 (user_id 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User proposer; // 최초 작명자
+    private User user; // 최초 작명자
 
     public AnimalNameCandidate(Animal animal, User proposer, String proposedName) {
         this.animal = animal;
