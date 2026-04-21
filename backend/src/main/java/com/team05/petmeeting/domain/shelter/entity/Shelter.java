@@ -1,6 +1,7 @@
 package com.team05.petmeeting.domain.shelter.entity;
 
 import com.team05.petmeeting.domain.campaign.entity.Campaign;
+import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
 import com.team05.petmeeting.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,29 +25,29 @@ public class Shelter {
 
     @Id
     @Column(name = "care_reg_no")
-    String careRegNo;  // primary key, from 외부 api
+    private String careRegNo;  // primary key, from 외부 api
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
-    User user;
+    @JoinColumn(name="user_id", nullable = true)
+    private User user;
 
     @Column(name = "care_nm")
-    String careNm;
+    private String careNm;
 
     @Column(name="care_tel")
-    String careTel;
+    private String careTel;
 
     @Column(name = "care_addr")
-    String careAddr;
+    private String careAddr;
 
     @Column(name = "care_owner_nm")
-    String careOwnerNm;
+    private String careOwnerNm;
 
     @Column(name = "org_nm")
-    String orgNm;
+    private String orgNm;
 
-    @Column(name = "upd_at")
-    LocalDateTime updAt;  // 외부 api 업데이트 시간
+    @Column(name = "upd_tm")
+    private LocalDateTime updTm;  // 외부 api 업데이트 시간
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -59,17 +60,45 @@ public class Shelter {
     @OneToMany(mappedBy = "shelter", fetch = FetchType.LAZY)
     private List<Campaign> campaigns = new ArrayList<>();
 
-    @Builder
-    public Shelter(String careRegNo, User user, String careNm,
+    @Builder (access = AccessLevel.PRIVATE)
+    private Shelter(String careRegNo, String careNm,
                    String careTel, String careAddr,
-                   String careOwnerNm, String orgNm, LocalDateTime updAt) {
+                   String careOwnerNm, String orgNm, LocalDateTime updTm) {
         this.careRegNo = careRegNo;
-        this.user = user;
         this.careNm = careNm;
         this.careTel = careTel;
         this.careAddr = careAddr;
         this.careOwnerNm = careOwnerNm;
         this.orgNm = orgNm;
-        this.updAt = updAt;
+        this.updTm = updTm;
+    }
+
+    public static Shelter create(ShelterCommand cmd) {
+        return new Shelter(
+                cmd.careRegNo(),
+                cmd.careNm(),
+                cmd.careTel(),
+                cmd.careAddr(),
+                cmd.careOwnerNm(),
+                cmd.orgNm(),
+                cmd.updTm()
+        );
+    }
+
+    public void updateFrom(ShelterCommand cmd) {
+        this.careNm = cmd.careNm();
+        this.careTel = cmd.careTel();
+        this.careAddr = cmd.careAddr();
+        this.careOwnerNm = cmd.careOwnerNm();
+        this.orgNm = cmd.orgNm();
+        this.updTm = cmd.updTm();
+    }
+
+    public void assignUser(User user){
+        this.user = user;
+    }
+
+    public boolean isManagedBy(Long userId){
+        return this.user != null && this.user.getId().equals(userId);
     }
 }

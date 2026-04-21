@@ -6,10 +6,10 @@ import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
+@Getter
 @Entity
 @Table(name="campaigns")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,9 +17,11 @@ public class Campaign extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_reg_no")
-    Shelter shelter;
+    private Shelter shelter;
 
     private String title;
+
+    private String description;
 
     private int targetAmount;
 
@@ -31,11 +33,16 @@ public class Campaign extends BaseEntity {
     @Version
     private Long version;
 
-    @Builder
-    public Campaign(Shelter shelter, String title, int targetAmount) {
+    @Builder(access = AccessLevel.PRIVATE)
+    public Campaign(Shelter shelter, String title, String description, int targetAmount) {
         this.shelter = shelter;
         this.title = title;
+        this.description = description;
         this.targetAmount = targetAmount;
+    }
+
+    public static Campaign create(Shelter shelter, String title, String description, int targetAmount) {
+        return new Campaign(shelter, title, description, targetAmount);
     }
 
     public void addAmount(int amount) {

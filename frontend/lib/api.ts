@@ -2,11 +2,25 @@
 // Update this BASE_URL to point to your Spring Boot server
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
 
+/** Spring 서버 루트 (OAuth2 등 /api/v1 바깥 경로용) */
+export function getApiServerOrigin(): string {
+  return API_BASE_URL.replace(/\/api\/v1\/?$/, "")
+}
+
+export function oauthAuthorizationUrl(provider: "google" | "naver"): string {
+  return `${getApiServerOrigin()}/oauth2/authorization/${provider}`
+}
+
 // API Endpoints
 export const API_ENDPOINTS = {
   // Auth
   login: `${API_BASE_URL}/auth/login`,
   register: `${API_BASE_URL}/auth/signup`,
+  emailStart: `${API_BASE_URL}/auth/email/start`,
+  emailSendOtp: `${API_BASE_URL}/auth/email/send-otp`,
+  emailVerify: `${API_BASE_URL}/auth/email/verify`,
+  emailSignup: `${API_BASE_URL}/auth/email/signup`,
+  emailLogin: `${API_BASE_URL}/auth/email/login`,
   refresh: `${API_BASE_URL}/auth/refresh`,
   logout: `${API_BASE_URL}/auth/logout`,
   withdraw: `${API_BASE_URL}/auth/withdraw`,
@@ -50,6 +64,13 @@ export const API_ENDPOINTS = {
 
   // Animal Sync
   animalSync: `${API_BASE_URL}/animals/sync`,
+
+  // Campaigns
+  campaigns: `${API_BASE_URL}/campaigns`,
+  shelterCampaign: (shelterId: string) => `${API_BASE_URL}/shelters/${shelterId}/campaign`,
+
+  // Shelters
+  shelterDetail: (shelterId: string) => `${API_BASE_URL}/shelters/${shelterId}`,
 }
 
 type ApiResult<T> = { data: T | null; error: string | null; errorCode?: string; status?: number }
@@ -141,6 +162,8 @@ export async function apiRequest<T>(
       initialResponse.errorCode === "S-001" &&
       url !== API_ENDPOINTS.login &&
       url !== API_ENDPOINTS.register &&
+      url !== API_ENDPOINTS.emailLogin &&
+      url !== API_ENDPOINTS.emailSignup &&
       url !== API_ENDPOINTS.refresh
 
     if (shouldTryRefresh) {
@@ -160,6 +183,7 @@ export async function apiRequest<T>(
 export interface User {
   id: number
   username: string
+  email?: string
   name: string
   role?: string
   nickname?: string
@@ -349,18 +373,34 @@ export interface FeedDetail {
 }
 
 export interface Feed {
-  feedId: number;
-  userId: number;
-  nickname?: string;
-  profileImageUrl?: string;
-  category: string;
-  title: string;
-  content: string;
-  imageUrl?: string;
-  likeCount: number;
-  commentCount: number;
-  createdAt: string;
   updatedAt: string;
+}
+
+export interface Campaign {
+  id: number;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  status: "ACTIVE" | string;
+  shelterId?: string;
+}
+
+export interface CampaignsResponse {
+  totalCampaigns: number;
+  campaigns: Campaign[];
+}
+
+export interface ShelterCampaignResponse {
+  campaignCount: number;
+  campaigns: Campaign[];
+}
+
+export interface Shelter {
+  shelterId: string;
+  careNm: string;
+  careTel: string;
+  careAddr: string;
+  orgNm: string;
 }
 
 export interface MyFeedComment {
@@ -422,4 +462,18 @@ export const toggleFeedLike = async (feedId: number) => {
     `${API_ENDPOINTS.feedDetail(feedId)}/likes`,
     { method: "POST" }
   );
+};
+
+// Campaigns
+export const getCampaigns = async () => {
+  return await apiRequest<CampaignsResponse>(API_ENDPOINTS.campaigns);
+};
+
+export const getShelterCampaign = async (shelterId: string) => {
+  return await apiRequest<ShelterCampaignResponse>(API_ENDPOINTS.shelterCampaign(shelterId));
+};
+
+// Shelters
+export const getShelterDetail = async (shelterId: string) => {
+  return await apiRequest<Shelter>(API_ENDPOINTS.shelterDetail(shelterId));
 };

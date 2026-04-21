@@ -22,6 +22,23 @@ spring:
 
     show-sql: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  
   main:
     banner-mode: console
 
@@ -41,6 +58,13 @@ animal:
     base-url: ${ANIMAL_API_BASE_URL}
     service-key: ${ANIMAL_API_SERVICE_KEY}
     return-type: ${ANIMAL_API_RETURN_TYPE:json}
+    timeout-ms: ${ANIMAL_API_TIMEOUT_MS:5000}
+  sync:
+    initial:
+      num-of-rows: ${ANIMAL_SYNC_INITIAL_NUM_OF_ROWS:500}
+    update:
+      num-of-rows: ${ANIMAL_SYNC_UPDATE_NUM_OF_ROWS:500}
+      delay-ms: ${ANIMAL_SYNC_UPDATE_DELAY_MS:300}
 
 # jwt access token 관련 설정
 jwt:
@@ -50,7 +74,14 @@ jwt:
 # Meta Ads API 설정
 meta:
   ads:
-    access-token: ${META_ACCESS_TOKEN}
-    ad-account-id: ${META_AD_ACCOUNT_ID}
     page-id: ${META_PAGE_ID}
-    api-version: v19.0
+
+# Instagram API 설정
+instagram:
+  user-id: ${INSTAGRAM_USER_ID}
+  access-token: ${INSTAGRAM_ACCESS_TOKEN}
+
+# Claude API 설정
+claude:
+  api:
+    key: ${CLAUDE_API_KEY}

@@ -3,14 +3,24 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2 } from "lucide-react"
+import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2, PawPrint } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import {
+  API_BASE_URL,
   API_ENDPOINTS,
   apiRequest,
   normalizeAnimalTemperatureDisplay,
@@ -92,6 +102,10 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   const [remainingToday, setRemainingToday] = useState<number | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAdoptionDialogOpen, setIsAdoptionDialogOpen] = useState(false)
+  const [applyReason, setApplyReason] = useState("")
+  const [applyTel, setApplyTel] = useState("")
+  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false)
 
   const extractRemainingToday = (
     payload: { [key: string]: any } | string | number | null
@@ -203,6 +217,51 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     )
     setIsAnimating(true)
     setTimeout(() => setIsAnimating(false), 300)
+  }
+
+  const handleOpenAdoptionDialog = () => {
+    if (!user) {
+      alert("로그인이 필요합니다")
+      return
+    }
+
+    setIsAdoptionDialogOpen(true)
+  }
+
+  const handleSubmitAdoptionApplication = async () => {
+    if (!animal) return
+
+    if (!applyReason.trim()) {
+      alert("입양 신청 사유를 입력해주세요.")
+      return
+    }
+
+    if (!applyTel.trim()) {
+      alert("연락처를 입력해주세요.")
+      return
+    }
+
+    setIsSubmittingApplication(true)
+
+    const { error } = await apiRequest(`${API_BASE_URL}/adoptions/${animal.animalId}`, {
+      method: "POST",
+      body: JSON.stringify({
+        applyReason,
+        applyTel,
+      }),
+    })
+
+    setIsSubmittingApplication(false)
+
+    if (error) {
+      alert(error)
+      return
+    }
+
+    alert("입양 신청이 접수되었습니다.")
+    setIsAdoptionDialogOpen(false)
+    setApplyReason("")
+    setApplyTel("")
   }
 
   const fetchComments = async () => {
@@ -429,6 +488,25 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                       </p>
                     )}
                   </div>
+
+                  <div className="rounded-2xl border border-primary/15 bg-background/80 p-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground">입양을 고민 중이신가요?</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          동물 상세를 확인하셨다면 바로 신청서를 작성해보세요.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleOpenAdoptionDialog}
+                        className="shrink-0 rounded-xl bg-primary px-4 text-primary-foreground shadow-sm hover:bg-primary/90"
+                      >
+                        <PawPrint className="mr-2 h-4 w-4" />
+                        입양 신청
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -568,6 +646,89 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
           </CardContent>
         </Card>
       </main>
+
+      <Dialog open={isAdoptionDialogOpen} onOpenChange={setIsAdoptionDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-0 p-0 shadow-2xl">
+          <div className="overflow-hidden rounded-2xl bg-background">
+            <DialogHeader className="border-b border-border/60 bg-primary/5 px-6 py-5">
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <PawPrint className="h-5 w-5 text-primary" />
+                입양 신청서 작성
+              </DialogTitle>
+              <DialogDescription className="pt-1 text-sm leading-6">
+                {animal?.breed}에 대한 입양 신청 내용을 작성해주세요.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-5 px-6 py-5">
+              <div className="rounded-2xl bg-secondary/40 p-4">
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                  신청 대상
+                </p>
+                <p className="mt-2 text-base font-semibold text-foreground">
+                  {animal?.breed}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {animal?.shelterName || "보호소 정보 없음"}
+                </p>
+                <div className="mt-4 border-t border-border/50 pt-4">
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    신청자
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-foreground">
+                    {user?.name || "이름 정보 없음"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="applyReason" className="text-sm font-medium text-foreground">
+                  신청 사유
+                </label>
+                <Textarea
+                  id="applyReason"
+                  value={applyReason}
+                  onChange={(e) => setApplyReason(e.target.value)}
+                  placeholder="입양을 결심한 이유와 돌봄 계획을 작성해주세요."
+                  className="min-h-32 rounded-xl border-0 bg-secondary/50 px-4 py-3 shadow-none focus-visible:ring-2"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="applyTel" className="text-sm font-medium text-foreground">
+                  연락처
+                </label>
+                <Input
+                  id="applyTel"
+                  value={applyTel}
+                  onChange={(e) => setApplyTel(e.target.value)}
+                  placeholder="예: 010-1234-5678"
+                  className="h-12 rounded-xl border-0 bg-secondary/50 shadow-none"
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="border-t border-border/60 bg-background px-6 py-4 sm:justify-between">
+              <Button
+                type="button"
+                variant="ghost"
+                className="rounded-xl"
+                onClick={() => setIsAdoptionDialogOpen(false)}
+              >
+                닫기
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSubmitAdoptionApplication}
+                disabled={isSubmittingApplication}
+                className="rounded-xl bg-primary px-5 text-primary-foreground hover:bg-primary/90"
+              >
+                {isSubmittingApplication ? "접수 중..." : "신청서 제출"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

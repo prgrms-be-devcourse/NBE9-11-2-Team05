@@ -2,13 +2,15 @@ package com.team05.petmeeting.domain.user.service;
 
 import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
 
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResponse;
+import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes.NextStep;
+import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
-import com.team05.petmeeting.domain.user.dto.login.LoginReq;
-import com.team05.petmeeting.domain.user.dto.signup.SignupReq;
-import com.team05.petmeeting.domain.user.dto.signup.SignupRes;
 import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
+import com.team05.petmeeting.domain.user.provider.Provider;
 import com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken;
 import com.team05.petmeeting.domain.user.refreshtoken.repository.RefreshTokenRepository;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
@@ -23,78 +25,127 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class UserAuthService {
 
-    private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final MailService mailService;
+    private final OtpService otpService;
 
-    public SignupRes signup(SignupReq request) {
-        // username 중복 체크
-        if (userRepository.existsByUsername(request.username())) {
-            throw new BusinessException(UserErrorCode.DUPLICATE_USERNAME);
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    @Transactional(readOnly = true)
+    public EmailStartRes startEmailFlow(String email) {
+
+        return userRepository.findByEmailWithAuths(email)
+                .map(user -> user.getUserAuths().stream()
+                        .anyMatch(auth -> auth.getProvider() == Provider.LOCAL)
+                        ? new EmailStartRes(true, NextStep.LOGIN_PASSWORD)
+                        : new EmailStartRes(true, NextStep.SOCIAL_LOGIN_ONLY)
+                )
+                .orElseGet(() -> {
+                    return new EmailStartRes(false, NextStep.SIGNUP_WITH_OTP);
+                });
+    }
+
+    public void sendSignupOtp(String email) {
+
+        // rate limit 체크
+        otpService.checkCooldown(email);
+
+        String code = otpService.saveSignupOtp(email);
+
+        mailService.sendMail(email, code);
+    }
+
+    public String verifyOtp(String email, String code) {
+
+        Optional<String> savedCode = otpService.getSignupOtp(email);
+
+        // 1. OTP 없음 (만료 or 없음)
+        if (savedCode.isEmpty()) {
+            throw new BusinessException(UserErrorCode.EXPIRED_OTP);
+        }
+
+        // 2. 코드 불일치
+        if (!savedCode.get().equals(code)) {
+            otpService.increaseAttempt(email);
+
+            if (otpService.isExceededAttempts(email)) {
+                otpService.clearOtp(email);
+                throw new BusinessException(UserErrorCode.TOO_MANY_OTP_ATTEMPTS);
+            }
+
+            throw new BusinessException(UserErrorCode.INVALID_OTP);
+        }
+
+        // 3. 성공
+        otpService.clearOtp(email);
+        return otpService.markVerifiedWithToken(email);
+    }
+
+    public LoginAndRefreshResult signupAndLoginWithEmail(EmailSignupReq request) {
+
+        // verification token으로 email 조회
+        String email = otpService.getEmailByVerifyToken(request.verificationToken())
+                .orElseThrow(() -> new BusinessException(UserErrorCode.INVALID_VERIFICATION_TOKEN));
+
+        // 이미 가입된 이메일인지 체크
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new BusinessException(UserErrorCode.ALREADY_REGISTERED_EMAIL);
         }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.password());
 
-        // 엔티티 생성
+        // User 생성
         User user = User.create(
-                request.username(),
-                encodedPassword,
+                email,
                 request.nickname(),
                 request.realname()
         );
 
-        // 저장
+        // UserAuth 추가 (LOCAL)
+        user.addAuth(
+                UserAuth.create(Provider.LOCAL, email, encodedPassword)
+        );
+
         User savedUser = userRepository.save(user);
 
-        // 응답 생성
-        return new SignupRes(
-                savedUser.getId(),
-                savedUser.getUsername(),
-                savedUser.getNickname()
-        );
+        // 6. verification token 제거 (재사용 방지)
+        otpService.clearVerifiedByToken(request.verificationToken());
+
+        return issueToken(savedUser);
     }
 
-    public LoginAndRefreshResult login(LoginReq loginReq) {
+    public LoginAndRefreshResult loginWithEmail(String email, String password) {
+        User user = userRepository.findByEmailWithAuths(email)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.LOGIN_FAILED));
 
-        // 사용자 조회
-        User user = userRepository.findByUsername(loginReq.username())
-                .orElseThrow(
-                        () -> new BusinessException(UserErrorCode.LOGIN_FAILED)
-                );
+        UserAuth auth = user.getUserAuths().stream()
+                .filter(a -> a.getProvider() == Provider.LOCAL)
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(UserErrorCode.LOGIN_FAILED));
 
-        // 비밀번호 검증
-        if (!passwordEncoder.matches(loginReq.password(), user.getPassword())) {
+        if (!passwordEncoder.matches(password, auth.getPassword())) {
             throw new BusinessException(UserErrorCode.LOGIN_FAILED);
         }
 
-        // jwt access token 생성
-        String accessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole()));
-
-        // refresh 토큰 생성 및 db 저장 -> redis 변경 검토
-        UUID uuid = UUID.randomUUID();
-        RefreshToken saved = RefreshToken.create(user, uuid);
-        refreshTokenRepository.save(saved);
-
-        // dto 반환
-        return new LoginAndRefreshResult(
-                uuid.toString(),
-                new LoginAndRefreshResponse("Bearer", accessToken)
-        );
+        return issueToken(user);
     }
 
     public void logout(HttpServletRequest request) {
-
+        log.info("------------------------- logout start -------------------------");
         extractRefreshToken(request) // Cookie로부터 refreshToken 추출
                 .ifPresent(token -> {
                     UUID uuid = UUID.fromString(token);
@@ -122,7 +173,7 @@ public class UserAuthService {
         User user = savedToken.getUser();
 
         // 3. access token 재발급
-        String newAccessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole()));
+        String newAccessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole().name()));
 
         // 4. refresh token rotate
         refreshTokenRepository.delete(savedToken);
@@ -133,7 +184,7 @@ public class UserAuthService {
 
         return new LoginAndRefreshResult(
                 uuid.toString(),
-                new LoginAndRefreshResponse("Bearer", newAccessToken)
+                new AccessTokenRes("Bearer", newAccessToken)
         );
     }
 
@@ -148,7 +199,24 @@ public class UserAuthService {
         // 2. 유저 삭제
         userRepository.delete(user);
 
-        // soft delete 추후 고려
+        // todo: soft delete 추후 고려
+    }
+
+    private LoginAndRefreshResult issueToken(User user) {
+
+        // jwt access token 생성
+        String accessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole().name()));
+
+        // refresh 토큰 생성 및 db 저장 -> redis 변경 검토
+        UUID uuid = UUID.randomUUID();
+        RefreshToken saved = RefreshToken.create(user, uuid);
+        refreshTokenRepository.save(saved);
+
+        // dto 반환
+        return new LoginAndRefreshResult(
+                uuid.toString(),
+                new AccessTokenRes("Bearer", accessToken)
+        );
     }
 
     private Optional<String> extractRefreshToken(HttpServletRequest request) {

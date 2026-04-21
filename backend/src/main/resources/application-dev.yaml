@@ -13,3 +13,20 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+animal:
+  api:
+    base-url: ${ANIMAL_API_BASE_URL}
+    service-key: ${ANIMAL_API_SERVICE_KEY}
+    return-type: ${ANIMAL_API_RETURN_TYPE:json}
+    timeout-ms: ${ANIMAL_API_TIMEOUT_MS:5000}
+  sync:
+    initial:
+      num-of-rows: ${ANIMAL_SYNC_INITIAL_NUM_OF_ROWS:500}
+    update:
+      num-of-rows: ${ANIMAL_SYNC_UPDATE_NUM_OF_ROWS:500}
+      delay-ms: ${ANIMAL_SYNC_UPDATE_DELAY_MS:300}
+
+logging:
+  level:
+    com.team05.petmeeting.domain.animal: INFO

@@ -6,11 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "meta.ads")
-public class MetaAdsProperties {
-    //토큰, 계정ID 등 설정값 관리
+@ConfigurationProperties(prefix = "instagram")
+public class InstagramProperties {
+    private String userId;
     private String accessToken;
-    private String adAccountId;
-    private String pageId;
-    private String apiVersion;
 }

@@ -2,6 +2,7 @@ package com.team05.petmeeting.domain.animal.entity;
 
 import com.team05.petmeeting.domain.animal.dto.external.AnimalItem;
 import com.team05.petmeeting.domain.comment.entity.AnimalComment;
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,37 +24,37 @@ public class Animal extends BaseEntity {
     @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
     private String desertionNo; // 유기번호
 
-    @Column(name = "process_state", nullable = false, length = 30)
+    @Column(name = "process_state", nullable = true, length = 30)
     private String processState; // 상태 (보호중, 입양가능, 입양대기, 파양, 종결 등)
 
     @Column(name = "state_group", nullable = false)
     private Integer stateGroup; // 0: 보호중, 1: 종료
 
-    @Column(name = "notice_no", nullable = false, length = 50)
+    @Column(name = "notice_no", nullable = true, length = 50)
     private String noticeNo; // 공고번호
 
-    @Column(name = "notice_edt", nullable = false)
+    @Column(name = "notice_edt", nullable = true)
     private LocalDate noticeEdt; // 공고 종료일
 
     @Column(name = "happen_place", nullable = true, length = 255)
     private String happenPlace; // 발견 장소
 
-    @Column(name = "up_kind_nm", nullable = false, length = 30)
+    @Column(name = "up_kind_nm", nullable = true, length = 30)
     private String upKindNm; // 종 (개, 고양이 등)
 
-    @Column(name = "kind_full_name", nullable = false, length = 100)
+    @Column(name = "kind_full_name", nullable = true, length = 100)
     private String kindFullNm; // 품종 (예: 믹스견, 시바견 등)
 
-    @Column(name = "color_cd", nullable = false, length = 100)
+    @Column(name = "color_cd", nullable = true, length = 100)
     private String colorCd; // 색상
 
-    @Column(name = "age", nullable = false)
+    @Column(name = "age", nullable = true)
     private String age; // 나이
 
-    @Column(name = "weight", nullable = false, length = 30)
+    @Column(name = "weight", nullable = true, length = 30)
     private String weight; // 몸무게 (예: 5kg, 10kg 등)
 
-    @Column(name = "sex_cd", nullable = false, length = 10)
+    @Column(name = "sex_cd", nullable = true, length = 10)
     private String sexCd; // 성별
 
     @Column(name = "popfile1", nullable = true, length = 500)
@@ -65,16 +66,16 @@ public class Animal extends BaseEntity {
     @Column(name = "special_mark", nullable = true, length = 500)
     private String specialMark; // 사진 URL
 
-    @Column(name = "care_nm")
+    @Column(name = "care_nm", nullable = true)
     private String careNm; // 보호소 이름
 
     @Column(name = "care_ower_nm", nullable = true, length = 100)
     private String careOwerNm; // 보호소 담당자
 
-    @Column(name = "care_tel")
+    @Column(name = "care_tel", nullable = true)
     private String careTel; // 보호소 전화번호
 
-    @Column(name = "care_addr")
+    @Column(name = "care_addr", nullable = true)
     private String careAddr; // 보호소 주소
 
     @Column(name = "total_cheer_count", nullable = false)
@@ -86,26 +87,54 @@ public class Animal extends BaseEntity {
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
 
+    @ManyToOne
+    private Shelter shelter;
+
     private Integer determineStateGroup(String processState) {
-        // processState 는 not null
-        return processState.startsWith("종료") ? 1 : 0;
+        if (processState != null && processState.contains("보호")) {
+            return 0;
+        }
+        return 1;
     }
 
-    public void updateProcessState(AnimalItem item) {
+    public void updateFrom(AnimalItem item) {
         this.processState = item.getProcessState();
-        // 상태 문자열이 변경될 때 그룹 번호도 함께 갱신
         this.stateGroup = determineStateGroup(item.getProcessState());
+        this.noticeNo = item.getNoticeNo();
+        this.noticeEdt = parseNoticeEdt(item.getNoticeEdt());
+        this.happenPlace = item.getHappenPlace();
+        this.upKindNm = item.getUpKindNm();
+        this.kindFullNm = item.getKindFullNm();
+        this.colorCd = item.getColorCd();
+        this.age = item.getAge();
+        this.weight = item.getWeight();
+        this.sexCd = item.getSexCd();
+        this.popfile1 = item.getPopfile1();
+        this.popfile2 = item.getPopfile2();
+        this.specialMark = item.getSpecialMark();
+        this.careNm = item.getCareNm();
+        this.careOwerNm = item.getCareOwerNm();
+        this.careTel = item.getCareTel();
+        this.careAddr = item.getCareAddr();
         this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
     }
 
-    public boolean needsProcessStateUpdate(AnimalItem item) {
+    public boolean needsUpdateFrom(AnimalItem item) {
         LocalDateTime incomingUpdatedAt = parseUpdTm(item.getUpdTm());
 
         if (this.apiUpdatedAt != null && incomingUpdatedAt != null) {
             return incomingUpdatedAt.isAfter(this.apiUpdatedAt);
         }
 
-        return !Objects.equals(this.processState, item.getProcessState());
+        return !Objects.equals(this.processState, item.getProcessState())
+                || !Objects.equals(this.noticeNo, item.getNoticeNo())
+                || !Objects.equals(this.happenPlace, item.getHappenPlace())
+                || !Objects.equals(this.specialMark, item.getSpecialMark())
+                || !Objects.equals(this.careNm, item.getCareNm());
+    }
+
+    public void assignShelter(Shelter shelter) {
+        this.shelter = shelter;
     }
 
     private static LocalDateTime parseUpdTm(String updTm) {
@@ -191,6 +220,10 @@ public class Animal extends BaseEntity {
     }
 
     private static LocalDate parseNoticeEdt(String noticeEdt) {
+        if (noticeEdt == null || noticeEdt.isBlank()) {
+            return null;
+        }
+
         return LocalDate.parse(noticeEdt, DateTimeFormatter.BASIC_ISO_DATE);
     }
 

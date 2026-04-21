@@ -105,6 +105,11 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
                 커뮤니티
               </Button>
             </Link>
+            <Link href="/campaign">
+              <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground font-medium px-1.5 md:px-4">
+                캠페인
+              </Button>
+            </Link>
           </nav>
 
           {/* Search & Actions */}
@@ -152,7 +157,6 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
                   <DropdownMenuContent align="end" className="w-48">
                     <div className="px-2 py-1.5">
                       <p className="text-sm font-medium text-foreground">{user.nickname || user.name}</p>
-                      <p className="text-xs text-muted-foreground">@{user.username}</p>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
@@ -173,18 +177,14 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
                 </DropdownMenu>
               </>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link href="/login">
-                  <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-muted-foreground font-medium px-1.5 md:px-4">
-                    로그인
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button size="sm" className="flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl whitespace-nowrap px-2 md:px-4 text-xs sm:text-sm h-8 md:h-9">
-                    회원가입
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/login">
+                <Button
+                  size="sm"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-2 sm:px-3 text-[11px] sm:text-sm h-8 md:h-9 whitespace-nowrap"
+                >
+                  로그인&amp;회원가입
+                </Button>
+              </Link>
             )}
           </div>
         </div>
