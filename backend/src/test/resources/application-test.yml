@@ -22,3 +22,5 @@ animal:
     base-url: https://test.example.com
     service-key: test-key
     return-type: json
+
+CLAUDE_API_KEY: dummy-claude-api-key
