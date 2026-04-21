@@ -31,6 +31,13 @@ public class NamingService {
     private final AnimalRepository animalRepository;
 
     public NameProposalRes proposeName(Long animalId, Long userId, String proposedName) {
+        // 동물 존재 여부
+        Animal animal = animalRepository.findById(animalId).orElseThrow(
+                () -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND));
+
+        // 이미 종료된 동물인지 검증
+        validateAnimalStatus(animal);
+
         // 금칙어 검증
         if(badWordService.isBadWord(proposedName)){
             throw new BusinessException(NamingErrorCode.BAD_WORD_INCLUDED);
@@ -47,11 +54,9 @@ public class NamingService {
             return new NameProposalRes(candidateId, proposedName);
         }
 
-        // 신규 제안 등록
         User proposer = userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
-        Animal animal = animalRepository.findById(animalId).orElseThrow(
-                () -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND));
+
 
         AnimalNameCandidate newCandidate = new AnimalNameCandidate(animal, proposer, proposedName);
         AnimalNameCandidate savedCandidate = candidateRepository.save(newCandidate);
@@ -65,6 +70,9 @@ public class NamingService {
     public void vote(Long candidateId, Long userId) {
         AnimalNameCandidate candidate = candidateRepository.findById(candidateId).orElseThrow(
                 () -> new BusinessException(NamingErrorCode.CANDIDATE_NOT_FOUND));
+
+        // 투표하려는 후보가 속한 동물이 여전히 '보호중'인지 체크
+        validateAnimalStatus(candidate.getAnimal());
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
@@ -81,4 +89,11 @@ public class NamingService {
         // 후보 테이블의 투표수 증가
         candidate.addVoteCount();
     }
+
+    private void validateAnimalStatus(Animal animal) {
+        if (animal.getStateGroup() == 1) {
+            throw new BusinessException(NamingErrorCode.ALREADY_COMPLETED_ANIMAL);
+        }
+    }
+
 }
