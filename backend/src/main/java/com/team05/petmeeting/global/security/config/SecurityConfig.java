@@ -57,8 +57,7 @@ public class SecurityConfig {
                         // 미인가 접근 허용
 //                        .requestMatchers("/**").permitAll()  // 테스트용
                         .requestMatchers(
-                                "/api/v1/auth/signup", // 회원가입
-                                "/api/v1/auth/login",  // 로그인
+                                "/api/v1/auth/email/**",
                                 "/api/v1/auth/logout", // 로그아웃
                                 "/api/v1/auth/refresh", // 토큰 재발급
                                 "/swagger-ui/**",      // swagger
@@ -71,13 +70,17 @@ public class SecurityConfig {
                                 "/api/v1/animals/**",
                                 "/api/v1/animals/*/hearts",
                                 "/api/v1/feeds",
-                                "/api/v1/feeds/**"
+                                "/api/v1/feeds/**",
+                                "/api/v1/shelters/*/campaign",
+                                "/api/v1/campaigns",
+                                "/api/v1/shelters/*"
                         ).permitAll()
 
                         // 외부 API 적재용 엔드포인트 임시 공개
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/animals/sync",
-                                "/api/v1/animals/sync/all"
+                                "/api/v1/animals/sync/initial",
+                                "/api/v1/animals/sync/update"
                         ).permitAll()
 
                         .requestMatchers("/api/v1/me/**").permitAll()

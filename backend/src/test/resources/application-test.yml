@@ -8,6 +8,11 @@ spring:
     hibernate:
       ddl-auto: create-drop
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
   secret: test-secret-key-must-be-at-least-32-characters-long
   expireMillis: 1800000

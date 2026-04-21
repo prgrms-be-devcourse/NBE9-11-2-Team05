@@ -2,14 +2,20 @@ package com.team05.petmeeting.domain.user.entity;
 
 import com.team05.petmeeting.domain.user.role.Role;
 import com.team05.petmeeting.global.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -18,10 +24,7 @@ import java.time.LocalDate;
 public class User extends BaseEntity {
 
     @Column(nullable = false, unique = true)
-    private String username;
-
-    @Column(nullable = false)
-    private String password;
+    private String email;
 
     @Column(nullable = false)
     private String nickname;
@@ -33,13 +36,43 @@ public class User extends BaseEntity {
     private String profileImageUrl;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(nullable = false)
     private int dailyHeartCount;
 
     @Column(nullable = false)
     private LocalDate lastHeartResetDate;
+
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<UserAuth> userAuths = new ArrayList<>();
+
+    public static User create(
+            String email,
+            String nickname,
+            String realname
+    ) {
+        User user = new User();
+        user.email = email;
+        user.nickname = nickname;
+        user.profileImageUrl = "";
+        user.realname = realname;
+        user.role = Role.USER;
+        user.dailyHeartCount = 0;
+        user.lastHeartResetDate = LocalDate.now();
+        return user;
+    }
+
+    public void addAuth(UserAuth userAuth) {
+        userAuth.setUser(this);
+        userAuths.add(userAuth);
+    }
 
     // 매일 자정마다 응원 횟수 초기화
     public void resetDailyHeartCountIfNeeded() {
@@ -54,38 +87,12 @@ public class User extends BaseEntity {
         this.dailyHeartCount++;
     }
 
-    public static User create(
-            String username,
-            String password,
-            String nickname,
-            String realname
-    ) {
-        User user = new User();
-        user.username = username;
-        user.password = password;
-        user.nickname = nickname;
-        user.profileImageUrl = "";
-        user.realname = realname;
-        user.role = Role.USER.name();
-        user.dailyHeartCount = 0;
-        user.lastHeartResetDate = LocalDate.now();
-        return user;
-    }
-
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public void updatePassword(String encodedPassword) {
-        this.password = encodedPassword;
-    }
-
-    public void updateUsername(String newUsername) {
-        this.username = newUsername;
     }
 
 }

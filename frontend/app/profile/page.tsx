@@ -108,14 +108,23 @@ export default function ProfilePage() {
 
       // Fetch user profile info
       const profileResponse = await apiRequest<{
-        username: string, profileImageUrl?: string, nickname?: string, name: string, createdAt: string
+        profileImageUrl?: string
+        nickname: string
+        email: string
+        name: string
+        createdAt: string
       }>(API_ENDPOINTS.myProfile)
 
       if (profileResponse.data) {
-        if (!user.createdAt || user.nickname !== profileResponse.data.nickname || user.username !== profileResponse.data.username) {
+        if (
+          !user.createdAt ||
+          user.nickname !== profileResponse.data.nickname ||
+          user.email !== profileResponse.data.email ||
+          user.name !== profileResponse.data.name
+        ) {
           updateUser({
-            username: profileResponse.data.username,
             nickname: profileResponse.data.nickname,
+            email: profileResponse.data.email,
             name: profileResponse.data.name,
             createdAt: profileResponse.data.createdAt
           })
@@ -219,7 +228,6 @@ export default function ProfilePage() {
               <div className="flex-1 w-full">
                 <div className="hidden sm:block">
                   <h1 className="text-2xl font-bold text-foreground">{user.nickname || user.name}</h1>
-                  <p className="text-muted-foreground">@{user.username}</p>
                 </div>
 
                 {/* Stats Grid */}
@@ -304,8 +312,8 @@ export default function ProfilePage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">아이디</p>
-                    <p className="font-medium">{user.username}</p>
+                    <p className="text-sm text-muted-foreground">이메일</p>
+                    <p className="font-medium">{user.email || "-"}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">이름</p>

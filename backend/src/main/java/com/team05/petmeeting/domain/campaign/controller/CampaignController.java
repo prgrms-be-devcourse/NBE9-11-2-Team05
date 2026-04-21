@@ -34,7 +34,7 @@ public class CampaignController {
         return ResponseEntity.ok(res);
     }
 
-    @Operation(summary="보호소 현재 진행 캠페인 조회")
+    @Operation(summary="보호소 현재 진행 캠페인 전체 조회")
     @GetMapping("/shelters/{shelterId}/campaign")
     public ResponseEntity<CampaignDetailRes> getCampaign(
             @PathVariable String shelterId
