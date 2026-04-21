@@ -81,7 +81,8 @@ instagram:
   user-id: ${INSTAGRAM_USER_ID}
   access-token: ${INSTAGRAM_ACCESS_TOKEN}
 
-# Claude API 설정
-claude:
+# GEMINI_API 설정
+gemini:
   api:
-    key: ${CLAUDE_API_KEY}
+    key: ${GEMINI_API_KEY}
+url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent

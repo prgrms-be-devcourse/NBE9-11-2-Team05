@@ -80,7 +80,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/animals/sync",
                                 "/api/v1/animals/sync/initial",
-                                "/api/v1/animals/sync/update"
+                                "/api/v1/animals/sync/update",
+                                "/api/v1/ads/run"
                         ).permitAll()
 
                         .requestMatchers("/api/v1/me/**").permitAll()
