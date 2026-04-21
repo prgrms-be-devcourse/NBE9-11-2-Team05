@@ -57,8 +57,7 @@ public class SecurityConfig {
                         // 미인가 접근 허용
 //                        .requestMatchers("/**").permitAll()  // 테스트용
                         .requestMatchers(
-                                "/api/v1/auth/signup", // 회원가입
-                                "/api/v1/auth/login",  // 로그인
+                                "/api/v1/auth/email/**",
                                 "/api/v1/auth/logout", // 로그아웃
                                 "/api/v1/auth/refresh", // 토큰 재발급
                                 "/swagger-ui/**",      // swagger

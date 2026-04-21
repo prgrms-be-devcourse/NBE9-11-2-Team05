@@ -8,6 +8,11 @@ interface AuthContextType {
   isLoading: boolean
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (username: string, password: string, nickname: string, realname: string) => Promise<{ success: boolean; error?: string }>
+  /** 이메일 로그인/가입 등에서 받은 accessToken으로 세션 저장 */
+  establishSessionFromAccessToken: (
+    accessToken: string,
+    fallbackIdentifier: string
+  ) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<{ success: boolean; error?: string }>
   updateUser: (updates: Partial<User>) => void
 }
@@ -44,6 +49,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
+  const establishSessionFromAccessToken = async (accessToken: string, fallbackIdentifier: string) => {
+    try {
+      const payload = decodeJWT(accessToken)
+      const extractedId = Number(payload?.sub) || Number(payload?.userId)
+
+      if (!extractedId) {
+        console.error("JWT 페이로드에서 사용자 ID를 찾을 수 없습니다:", payload)
+        return { success: false, error: "사용자 정보를 파악할 수 없는 토큰입니다." }
+      }
+
+      let loggedInUser: User = {
+        id: extractedId,
+        username: fallbackIdentifier,
+        name: fallbackIdentifier,
+        role: payload?.role,
+      }
+
+      if (payload?.role) {
+        loggedInUser.role = payload.role
+      }
+
+      localStorage.setItem("auth_token", accessToken)
+
+      const profileInfo = await apiRequest<any>(API_ENDPOINTS.myProfile)
+      if (profileInfo.data) {
+        loggedInUser = { ...loggedInUser, ...profileInfo.data }
+      }
+
+      setUser(loggedInUser)
+      localStorage.setItem("user", JSON.stringify(loggedInUser))
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "로그인에 실패했습니다." }
+    }
+  }
+
   const login = async (username: string, password: string) => {
     try {
       const { data, error, status } = await apiRequest<{ tokenType: string; accessToken: string }>(
@@ -61,39 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: error || "로그인에 실패했습니다." }
       }
 
-      // JWT 디코딩하여 userId, role 추출
-      const payload = decodeJWT(data.accessToken)
-      const extractedId = Number(payload?.sub) || Number(payload?.userId)
-
-      if (!extractedId) {
-        console.error("JWT 페이로드에서 사용자 ID를 찾을 수 없습니다:", payload)
-        return { success: false, error: "사용자 정보를 파악할 수 없는 토큰입니다." }
-      }
-
-      let loggedInUser: User = {
-        id: extractedId,
-        username,
-        name: username,
-        role: payload?.role
-      }
-
-      // 혹시라도 토큰에서 꺼낸 권한 등을 user 객체에 병합하고 싶다면:
-      if (payload?.role) {
-        loggedInUser.role = payload.role;
-      }
-
-      // 토큰 세팅
-      localStorage.setItem("auth_token", data.accessToken)
-
-      // 진짜 유저 정보(name, nickname 등) 즉시 동기화
-      const profileInfo = await apiRequest<any>(API_ENDPOINTS.myProfile)
-      if (profileInfo.data) {
-        loggedInUser = { ...loggedInUser, ...profileInfo.data }
-      }
-
-      setUser(loggedInUser)
-      localStorage.setItem("user", JSON.stringify(loggedInUser))
-      return { success: true }
+      return establishSessionFromAccessToken(data.accessToken, username)
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "로그인에 실패했습니다." }
     }
@@ -149,7 +158,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, login, register, establishSessionFromAccessToken, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   )

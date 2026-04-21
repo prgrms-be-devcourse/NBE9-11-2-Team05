@@ -7,18 +7,25 @@ import com.team05.petmeeting.domain.comment.repository.AnimalCommentRepository;
 import com.team05.petmeeting.domain.comment.repository.FeedCommentRepository;
 import com.team05.petmeeting.domain.feed.entity.Feed;
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
-import com.team05.petmeeting.domain.user.dto.profile.*;
+import com.team05.petmeeting.domain.user.dto.profile.MyProfileDetailRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserAnimalCommentRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserCheerAnimalRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserFeedCommentRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserFeedRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserSummaryRes;
 import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
+import com.team05.petmeeting.domain.user.provider.Provider;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.exception.BusinessException;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -51,21 +58,21 @@ public class UserProfileService {
     public void modifyPassword(Long userId, @NotBlank(message = "현재 비밀번호를 입력해주세요.") String currentPassword,
                                @NotBlank(message = "새 비밀번호를 입력해주세요.") String newPassword) {
         User user = getUserById(userId);
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        UserAuth userAuth = user.getUserAuths().stream()
+                .filter(auth -> auth.getProvider().equals(Provider.LOCAL))
+                .findFirst()
+                .orElseThrow(
+                        () -> new BusinessException(UserErrorCode.LOCAL_NOT_FOUND)
+                );
+        if (!passwordEncoder.matches(currentPassword, userAuth.getPassword())) {
             throw new BusinessException(UserErrorCode.INVALID_PASSWORD);
         }
-        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+        if (passwordEncoder.matches(newPassword, userAuth.getPassword())) {
             throw new BusinessException(UserErrorCode.SAME_AS_OLD_PASSWORD);
         }
         String encodedPassword = passwordEncoder.encode(newPassword);
-        user.updatePassword(encodedPassword);
+        userAuth.updatePassword(encodedPassword);
 
-    }
-
-    public UserProfileRes modifyUsername(Long userId, String newUsername) {
-        User user = getUserById(userId);
-        user.updateUsername(newUsername);
-        return UserProfileRes.from(user);
     }
 
     public MyProfileDetailRes getMyProfileDetails(Long userId) {
