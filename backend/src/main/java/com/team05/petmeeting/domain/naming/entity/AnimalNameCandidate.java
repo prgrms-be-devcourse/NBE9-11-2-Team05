@@ -36,7 +36,15 @@ public class AnimalNameCandidate extends BaseEntity { // 이름 후보 (user_id 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // 최초 작명자
+    private User proposer; // 최초 작명자
+
+    public AnimalNameCandidate(Animal animal, User proposer, String proposedName) {
+        this.animal = animal;
+        this.proposedName = proposedName;
+        this.proposer = proposer;
+        this.voteCount = 0; // 초기값 명시
+        this.isConfirmed = false;
+    }
 
     // 득표수 증가 메서드
     public void addVoteCount() {
