@@ -37,7 +37,7 @@ public class AdoptionService {
                         animal.getDesertionNo(),
                         animal.getKindFullNm(),
                         animal.getCareNm(),
-                        animal.getCareOwerNm()
+                        animal.getCareOwnerNm()
                 );
 
         return new AdoptionApplyResponse(
@@ -65,7 +65,7 @@ public class AdoptionService {
                         animal.getDesertionNo(),
                         animal.getSpecialMark(),
                         animal.getCareNm(),
-                        animal.getCareOwerNm(),
+                        animal.getCareOwnerNm(),
                         animal.getCareTel(),
                         animal.getCareAddr()
                 );

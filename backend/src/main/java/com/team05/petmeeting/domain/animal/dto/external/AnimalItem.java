@@ -23,7 +23,7 @@ public class AnimalItem {
     private String popfile2;
 
     private String specialMark;
-    private String careOwerNm;
+    private String careOwnerNm;
     private String careNm;
     private String careAddr;
     private String careTel;

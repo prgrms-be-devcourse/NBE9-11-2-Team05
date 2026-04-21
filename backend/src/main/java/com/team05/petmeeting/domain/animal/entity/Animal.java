@@ -70,8 +70,8 @@ public class Animal extends BaseEntity {
     @Column(name = "care_nm", nullable = true)
     private String careNm; // 보호소 이름
 
-    @Column(name = "care_ower_nm", nullable = true, length = 100)
-    private String careOwerNm; // 보호소 담당자
+    @Column(name = "care_owner_nm", nullable = true, length = 100)
+    private String careOwnerNm; // 보호소 담당자
 
     @Column(name = "care_tel", nullable = true)
     private String careTel; // 보호소 전화번호
@@ -121,7 +121,7 @@ public class Animal extends BaseEntity {
         this.popfile2 = item.getPopfile2();
         this.specialMark = item.getSpecialMark();
         this.careNm = item.getCareNm();
-        this.careOwerNm = item.getCareOwerNm();
+        this.careOwnerNm = item.getCareOwnerNm();
         this.careTel = item.getCareTel();
         this.careAddr = item.getCareAddr();
         this.apiUpdatedAt = parseUpdTm(item.getUpdTm());
@@ -171,7 +171,7 @@ public class Animal extends BaseEntity {
             String popfile1,
             String popfile2,
             String specialMark,
-            String careOwerNm,
+            String careOwnerNm,
             String careNm,
             String careTel,
             String careAddr,
@@ -192,7 +192,7 @@ public class Animal extends BaseEntity {
         this.popfile1 = popfile1;
         this.popfile2 = popfile2;
         this.specialMark = specialMark;
-        this.careOwerNm = careOwerNm;
+        this.careOwnerNm = careOwnerNm;
         this.careNm = careNm;
         this.careTel = careTel;
         this.careAddr = careAddr;
@@ -216,7 +216,7 @@ public class Animal extends BaseEntity {
                 item.getPopfile1(),
                 item.getPopfile2(),
                 item.getSpecialMark(),
-                item.getCareOwerNm(),
+                item.getCareOwnerNm(),
                 item.getCareNm(),
                 item.getCareTel(),
                 item.getCareAddr(),

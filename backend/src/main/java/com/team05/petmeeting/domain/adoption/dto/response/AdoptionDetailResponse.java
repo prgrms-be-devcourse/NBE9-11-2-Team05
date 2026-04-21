@@ -41,7 +41,7 @@ public class AdoptionDetailResponse {
         private String desertionNo;
         private String specialMark; // 사진 URL
         private String careNm; // 보호소 이름
-        private String careOwerNm; // 보호소 담당자
+        private String careOwnerNm; // 보호소 담당자
         private String careTel; // 보호소 전화번호
         private String careAddr; // 보호소 주소
 
@@ -49,14 +49,14 @@ public class AdoptionDetailResponse {
                 String desertionNo,
                 String specialMark,
                 String careNm,
-                String careOwerNm,
+                String careOwnerNm,
                 String careTel,
                 String careAddr
         ) {
             this.desertionNo = desertionNo;
             this.specialMark = specialMark;
             this.careNm = careNm;
-            this.careOwerNm = careOwerNm;
+            this.careOwnerNm = careOwnerNm;
             this.careTel = careTel;
             this.careAddr = careAddr;
         }

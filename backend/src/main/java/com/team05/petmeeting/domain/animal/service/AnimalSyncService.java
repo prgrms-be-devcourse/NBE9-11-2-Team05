@@ -269,7 +269,7 @@ public class AnimalSyncService {
                         item.getCareNm(),
                         item.getCareTel(),
                         item.getCareAddr(),
-                        item.getCareOwerNm(),
+                        item.getCareOwnerNm(),
                         item.getOrgNm(),
                         LocalDateTime.parse(item.getUpdTm(), formatter)
                 ))

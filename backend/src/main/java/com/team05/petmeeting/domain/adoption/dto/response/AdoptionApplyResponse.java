@@ -20,13 +20,13 @@ public class AdoptionApplyResponse {
         private String desertionNo;
         private String kindFullNm;
         private String careNm; // 보호소 이름
-        private String careOwerNm;
+        private String careOwnerNm;
 
-        public AnimalInfo(String desertionNo, String kindFullNm, String careNm, String careOwerNm) {
+        public AnimalInfo(String desertionNo, String kindFullNm, String careNm, String careOwnerNm) {
             this.desertionNo = desertionNo;
             this.kindFullNm = kindFullNm;
             this.careNm = careNm;
-            this.careOwerNm = careOwerNm;
+            this.careOwnerNm = careOwnerNm;
         }
     }
 }
