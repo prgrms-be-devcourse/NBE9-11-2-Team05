@@ -79,7 +79,8 @@ public class SecurityConfig {
                         // 외부 API 적재용 엔드포인트 임시 공개
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/animals/sync",
-                                "/api/v1/animals/sync/all"
+                                "/api/v1/animals/sync/initial",
+                                "/api/v1/animals/sync/update"
                         ).permitAll()
 
                         .requestMatchers("/api/v1/me/**").permitAll()

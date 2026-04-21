@@ -7,12 +7,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 // JpaRepository 기본 기능 + Custom 기능 모두 보유
 public interface AnimalRepository extends JpaRepository<Animal, Long>, AnimalRepositoryCustom {
     // 유기번호로 조회
     Optional<Animal> findByDesertionNo(String desertionNo);
+
+    List<Animal> findAllByDesertionNoIn(Collection<String> desertionNos);
 
     boolean existsByDesertionNo(String desertionNo);
 
