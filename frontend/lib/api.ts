@@ -2,11 +2,25 @@
 // Update this BASE_URL to point to your Spring Boot server
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
 
+/** Spring 서버 루트 (OAuth2 등 /api/v1 바깥 경로용) */
+export function getApiServerOrigin(): string {
+  return API_BASE_URL.replace(/\/api\/v1\/?$/, "")
+}
+
+export function oauthAuthorizationUrl(provider: "google" | "naver"): string {
+  return `${getApiServerOrigin()}/oauth2/authorization/${provider}`
+}
+
 // API Endpoints
 export const API_ENDPOINTS = {
   // Auth
   login: `${API_BASE_URL}/auth/login`,
   register: `${API_BASE_URL}/auth/signup`,
+  emailStart: `${API_BASE_URL}/auth/email/start`,
+  emailSendOtp: `${API_BASE_URL}/auth/email/send-otp`,
+  emailVerify: `${API_BASE_URL}/auth/email/verify`,
+  emailSignup: `${API_BASE_URL}/auth/email/signup`,
+  emailLogin: `${API_BASE_URL}/auth/email/login`,
   refresh: `${API_BASE_URL}/auth/refresh`,
   logout: `${API_BASE_URL}/auth/logout`,
   withdraw: `${API_BASE_URL}/auth/withdraw`,
@@ -148,6 +162,8 @@ export async function apiRequest<T>(
       initialResponse.errorCode === "S-001" &&
       url !== API_ENDPOINTS.login &&
       url !== API_ENDPOINTS.register &&
+      url !== API_ENDPOINTS.emailLogin &&
+      url !== API_ENDPOINTS.emailSignup &&
       url !== API_ENDPOINTS.refresh
 
     if (shouldTryRefresh) {
@@ -167,6 +183,7 @@ export async function apiRequest<T>(
 export interface User {
   id: number
   username: string
+  email?: string
   name: string
   role?: string
   nickname?: string
