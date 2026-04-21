@@ -5,8 +5,7 @@ import com.team05.petmeeting.domain.comment.entity.AnimalComment;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +18,8 @@ import java.util.Objects;
 @Getter
 @Table(name = "animals")
 @NoArgsConstructor
+@Builder //
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더를 위해 모든 필드 생성자 필요
 public class Animal extends BaseEntity {
 
     @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
@@ -84,6 +85,9 @@ public class Animal extends BaseEntity {
     @Column(name = "api_updated_at")
     private LocalDateTime apiUpdatedAt;
 
+    @Column(name = "name", nullable = true)
+    private String name;
+
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
 
@@ -95,6 +99,10 @@ public class Animal extends BaseEntity {
             return 0;
         }
         return 1;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
     }
 
     public void updateFrom(AnimalItem item) {

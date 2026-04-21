@@ -66,10 +66,4 @@ tasks.withType<JavaCompile> {
     options.generatedSourceOutputDirectory.set(file("build/generated"))
 }
 
-sourceSets {
-    main {
-        java {
-            srcDirs("build/generated")
-        }
-    }
-}
+

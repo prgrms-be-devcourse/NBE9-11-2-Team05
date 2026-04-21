@@ -4,6 +4,7 @@ import com.team05.petmeeting.domain.animal.dto.AnimalRes;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.service.AnimalService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/animals")
+@Tag(name = "AnimalController", description = "동물 조회 API")
 @RequiredArgsConstructor
 public class AnimalController {
 
