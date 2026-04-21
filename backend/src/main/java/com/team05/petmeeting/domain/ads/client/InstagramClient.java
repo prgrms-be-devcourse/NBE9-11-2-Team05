@@ -19,21 +19,15 @@ public class InstagramClient {
 
     // 1단계: 미디어 컨테이너 생성
     public String createMediaContainer(String imageUrl, String caption) {
-        String url = BASE_URL + "/" + properties.getUserId() + "/media";
-
-        String encodedCaption = URLEncoder.encode(caption, StandardCharsets.UTF_8);
-        String encodedImageUrl = URLEncoder.encode(imageUrl, StandardCharsets.UTF_8);
-
-        String body = "image_url=" + encodedImageUrl
-                + "&caption=" + encodedCaption
+        String url = BASE_URL + "/" + properties.getUserId() + "/media"
+                + "?image_url=" + imageUrl  // URLEncoder 제거
+                + "&caption=" + caption
                 + "&access_token=" + properties.getAccessToken();
 
         try {
             return RestClient.create()
                     .post()
                     .uri(url)
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .body(body)
                     .retrieve()
                     .body(String.class);
         } catch (RestClientResponseException e) {
