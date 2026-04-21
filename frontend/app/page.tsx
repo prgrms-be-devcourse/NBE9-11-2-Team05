@@ -20,35 +20,15 @@ import {
 const MAX_DAILY_HEARTS = 5
 
 // Top 3 Ranking Data
-const top3Animals = [
-  {
-    id: "top1",
-    animalId: 101,
-    rank: 1,
-    name: "구름이",
-    imageUrl: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&h=600&fit=crop",
-    cheerTemperature: 97,
-    maxCheerTemperature: 100,
-  },
-  {
-    id: "top2",
-    animalId: 102,
-    rank: 2,
-    name: "초코",
-    imageUrl: "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&h=600&fit=crop",
-    cheerTemperature: 92,
-    maxCheerTemperature: 100,
-  },
-  {
-    id: "top3",
-    animalId: 103,
-    rank: 3,
-    name: "나비",
-    imageUrl: "https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&h=600&fit=crop",
-    cheerTemperature: 88,
-    maxCheerTemperature: 100,
-  },
-]
+type Top3Animal = {
+  id: string
+  animalId: number
+  rank: number
+  name: string
+  imageUrl: string
+  cheerTemperature: number
+  maxCheerTemperature: number
+}
 
 type FeedItem = {
   id: string
@@ -172,6 +152,25 @@ export default function SocialFeedPage() {
   const [selectedSpecies, setSelectedSpecies] = useState("전체")
   const [selectedStatus, setSelectedStatus] = useState("보호중")
   const [sortOption, setSortOption] = useState<SortOption>("noticeEndDate")
+  const [top3Animals, setTop3Animals] = useState<Top3Animal[]>([])
+
+  const fetchTop3Animals = async () => {
+    const { data } = await apiRequest<unknown>(
+      `${API_ENDPOINTS.animals}?sort=totalCheerCount,DESC&size=3`
+    )
+    const list = parseAnimalList(data)
+    const mapped = list.map((animal, index) => ({
+      id: `top${index + 1}`,
+      animalId: Number(animal.animalId),
+      rank: index + 1,
+      name: animal.kindFullNm || animal.upKindNm || "품종 미상",
+      imageUrl: normalizeImageUrl(animal.popfile1),
+      cheerTemperature: mapTemperature(animal.temperature),
+      maxCheerTemperature: 100,
+    }))
+    setTop3Animals(mapped)
+  }
+
 
   const extractRemainingToday = (
     payload: { [key: string]: any } | string | number | null
@@ -297,6 +296,10 @@ export default function SocialFeedPage() {
   useEffect(() => {
     setCurrentPage(1)
   }, [selectedRegion, selectedSpecies, selectedStatus, sortOption])
+
+  useEffect(() => {
+    fetchTop3Animals()
+  }, [])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
