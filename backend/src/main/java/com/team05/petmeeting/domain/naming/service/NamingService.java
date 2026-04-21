@@ -133,6 +133,7 @@ public class NamingService {
     public void deleteBadWord(Long badwordId) {
         BadWord badWord = badWordService.findById(badwordId);
         badWordService.delete(badWord);
+        badWordService.deleteBadWord(badWord.getWord()); // Redis 동기화
     }
 
     private void validateAnimalStatus(Animal animal) {

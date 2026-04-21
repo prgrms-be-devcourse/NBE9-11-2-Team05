@@ -41,7 +41,7 @@ public class AnimalNameCandidate extends BaseEntity { // 이름 후보 (user_id 
     public AnimalNameCandidate(Animal animal, User proposer, String proposedName) {
         this.animal = animal;
         this.proposedName = proposedName;
-        this.proposer = proposer;
+        this.user = proposer;
         this.voteCount = 0; // 초기값 명시
         this.isConfirmed = false;
     }

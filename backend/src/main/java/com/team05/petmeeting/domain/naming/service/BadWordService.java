@@ -34,6 +34,11 @@ public class BadWordService { // Redis 기반 금칙어 검증 로직
         stringRedisTemplate.opsForSet().add(BAD_WORD_KEY, word);
     }
 
+    public void deleteBadWord(String word) {
+        // Redis의 Set에서 해당 금칙어 삭제 (O(1))
+        stringRedisTemplate.opsForSet().remove(BAD_WORD_KEY, word);
+    }
+
     public BadWord findById(Long id) {
         return badWordRepository.findById(id).orElseThrow(
                 () -> new BusinessException(NamingErrorCode.BAD_WORD_NOT_FOUND));
