@@ -103,6 +103,9 @@ public class NamingService {
 
         // 권한 검증 (관리자의 보호소 ID와 동물의 보호소 ID 일치 여부)
         // todo: User-Shelter 연관관계에 따라 구현
+        // if (!manager.getShelter().getId().equals(animal.getShelter().getId())) {
+        //     throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
+        // }
 
         // 이름 확정 처리
         candidate.confirmName(); // isConfirmed = true
@@ -133,8 +136,13 @@ public class NamingService {
     }
 
     private void validateAnimalStatus(Animal animal) {
+        // 상태가 '보호중'인 경우에만 가능
         if (animal.getStateGroup() == 1) {
             throw new BusinessException(NamingErrorCode.ALREADY_COMPLETED_ANIMAL);
+        }
+        // 이미 이름이 확정되었는지 체크
+        if (animal.getName() != null) {
+            throw new BusinessException(NamingErrorCode.ALREADY_HAS_NAME);
         }
     }
 

@@ -14,8 +14,9 @@ public enum NamingErrorCode implements ErrorCode {
     ALREADY_VOTED(HttpStatus.CONFLICT, "N-002", "이미 이 동물의 이름 투표에 참여하셨습니다."),
     CANDIDATE_NOT_FOUND(HttpStatus.NOT_FOUND, "N-003", "존재하지 않는 이름 후보입니다."),
     VOTING_CLOSED(HttpStatus.BAD_REQUEST, "N-004", "이미 이름이 확정되어 투표가 종료되었습니다."),
-    ALREADY_COMPLETED_ANIMAL(HttpStatus.BAD_REQUEST, "N-005", "보호가 종료된 동물입니다."),
-    BAD_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "N-006", "존재하지 않는 금칙어입니다."),
+    ALREADY_HAS_NAME(HttpStatus.BAD_REQUEST, "N-005", "이미 이름이 확정된 동물입니다."),
+    ALREADY_COMPLETED_ANIMAL(HttpStatus.BAD_REQUEST, "N-006", "보호가 종료된 동물입니다."),
+    BAD_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "N-007", "존재하지 않는 금칙어입니다."),
 
     ;
 
