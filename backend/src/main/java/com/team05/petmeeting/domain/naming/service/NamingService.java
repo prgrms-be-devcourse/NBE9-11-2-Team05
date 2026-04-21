@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class NamingService {
 
     private final AnimalNameCandidateRepository candidateRepository;
@@ -29,7 +30,6 @@ public class NamingService {
     private final UserRepository userRepository;
     private final AnimalRepository animalRepository;
 
-    @Transactional
     public NameProposalRes proposeName(Long animalId, Long userId, String proposedName) {
         // 금칙어 검증
         if(badWordService.isBadWord(proposedName)){
@@ -62,7 +62,6 @@ public class NamingService {
         return new NameProposalRes(savedCandidate.getId(), proposedName);
     }
 
-    @Transactional
     public void vote(Long candidateId, Long userId) {
         AnimalNameCandidate candidate = candidateRepository.findById(candidateId).orElseThrow(
                 () -> new BusinessException(NamingErrorCode.CANDIDATE_NOT_FOUND));

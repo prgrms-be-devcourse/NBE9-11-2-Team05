@@ -1,4 +1,7 @@
 package com.team05.petmeeting.domain.naming.repository;
 
-public interface BadWordRepository {
+import com.team05.petmeeting.domain.naming.entity.BadWord;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BadWordRepository extends JpaRepository<BadWord, Long> {
 }
