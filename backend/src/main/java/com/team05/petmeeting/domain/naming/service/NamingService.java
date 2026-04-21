@@ -5,6 +5,7 @@ import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.naming.dto.BadWordAddRes;
 import com.team05.petmeeting.domain.naming.dto.BadWordListRes;
+import com.team05.petmeeting.domain.naming.dto.NameCandidateRes;
 import com.team05.petmeeting.domain.naming.dto.NameProposalRes;
 import com.team05.petmeeting.domain.naming.entity.AnimalNameCandidate;
 import com.team05.petmeeting.domain.naming.entity.BadWord;
@@ -33,6 +34,10 @@ public class NamingService {
     private final BadWordService badWordService; // Redis 기반 금칙어 검증 서비스
     private final UserRepository userRepository;
     private final AnimalRepository animalRepository;
+
+    public NameCandidateRes getCandidates(Long animalId, Long userId) {
+        return candidateRepository.getCandidates(animalId, userId);
+    }
 
     public NameProposalRes proposeName(Long animalId, Long userId, String proposedName) {
         // 동물 존재 여부

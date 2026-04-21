@@ -54,6 +54,7 @@ public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
                         animalNameCandidate.voteCount.desc(), // 1순위: 득표수 많은 순
                         animalNameCandidate.createdAt.asc()   // 2순위: 먼저 등록된 순 (동점자 처리)
                 )
+                .limit(3) // 상위 3개만 조회
                 .fetch();
 
         return new NameCandidateRes(
