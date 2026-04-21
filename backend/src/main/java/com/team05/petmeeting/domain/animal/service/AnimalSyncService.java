@@ -12,10 +12,9 @@ import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.shelter.service.ShelterService;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,10 +25,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class AnimalSyncService {
     private static final LocalDate INITIAL_SYNC_START_DATE = LocalDate.of(2008, 1, 1);
     private static final long UPDATE_SYNC_DELAY_MS = 300L;
@@ -42,6 +42,31 @@ public class AnimalSyncService {
     private final SyncStateRepository syncStateRepository;
     private final ShelterRepository shelterRepository;
     private final ShelterService shelterService;
+    private final MeterRegistry meterRegistry;
+
+    // TEMP: 적재 진행 상황을 프로메테우스로 보기 위한 임시 메트릭 상태값들
+    private final AtomicInteger syncRunning = new AtomicInteger(0);
+    private final AtomicInteger syncPhase = new AtomicInteger(0);
+    private final AtomicInteger syncCurrentPage = new AtomicInteger(0);
+    private final AtomicLong syncTotalAnimalsInDb = new AtomicLong(0);
+    private final AtomicLong syncLastBatchSaved = new AtomicLong(0);
+
+    public AnimalSyncService(
+            AnimalExternalService animalExternalService,
+            AnimalRepository animalRepository,
+            SyncStateRepository syncStateRepository,
+            ShelterRepository shelterRepository,
+            ShelterService shelterService,
+            MeterRegistry meterRegistry
+    ) {
+        this.animalExternalService = animalExternalService;
+        this.animalRepository = animalRepository;
+        this.syncStateRepository = syncStateRepository;
+        this.shelterRepository = shelterRepository;
+        this.shelterService = shelterService;
+        this.meterRegistry = meterRegistry;
+        registerTemporarySyncMetrics();
+    }
 
     private record SyncPageResult(
             String message,
@@ -51,9 +76,17 @@ public class AnimalSyncService {
     }
 
     // 특정 페이지를 한 번 조회해 동물 데이터를 저장한다.
-    @Transactional
     public AnimalSyncResponse fetchAndSaveAnimals(int pageNo, int numOfRows) {
-        SyncPageResult result = fetchAndInsertAnimals(pageNo, numOfRows, null, null, Integer.MAX_VALUE);
+        startTemporarySyncMetrics(1);
+        syncCurrentPage.set(pageNo);
+        SyncPageResult result;
+        try {
+            result = fetchAndInsertAnimals(pageNo, numOfRows, null, null, Integer.MAX_VALUE);
+            syncLastBatchSaved.set(result.savedCount());
+            refreshTotalAnimalsInDbMetric();
+        } finally {
+            finishTemporarySyncMetrics();
+        }
         log.info(
                 "Animal sync completed: pageNo={}, numOfRows={}, savedCount={}, elapsedMs={}",
                 pageNo,
@@ -65,11 +98,16 @@ public class AnimalSyncService {
     }
 
     // 2008년 1월부터 현재까지 월 단위로 나눠 최초 적재를 수행한다.
-    @Transactional
     public AnimalSyncResponse runInitialMonthlySync(int numOfRows) {
         Instant startedAt = Instant.now();
-        int savedCount = fetchAndSaveMonthlyAnimalsFrom2008(numOfRows, Integer.MAX_VALUE);
-        updateSyncState(AnimalSyncType.INITIAL);
+        int savedCount;
+        startTemporarySyncMetrics(2);
+        try {
+            savedCount = fetchAndSaveMonthlyAnimalsFrom2008(numOfRows, Integer.MAX_VALUE);
+            updateSyncState(AnimalSyncType.INITIAL);
+        } finally {
+            finishTemporarySyncMetrics();
+        }
 
         long elapsedMs = elapsedMs(startedAt);
         log.info(
@@ -84,13 +122,18 @@ public class AnimalSyncService {
     }
 
     // 마지막 업데이트 시점 이후 수정된 데이터를 다시 반영한다.
-    @Transactional
     public AnimalSyncResponse runUpdateSync(int numOfRows) {
         Instant startedAt = Instant.now();
         LocalDate bgupd = getUpdateStartDate();
         LocalDate enupd = LocalDate.now();
-        int savedCount = fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
-        updateSyncState(AnimalSyncType.UPDATE);
+        int savedCount;
+        startTemporarySyncMetrics(3);
+        try {
+            savedCount = fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
+            updateSyncState(AnimalSyncType.UPDATE);
+        } finally {
+            finishTemporarySyncMetrics();
+        }
 
         long elapsedMs = elapsedMs(startedAt);
         log.info(
@@ -105,7 +148,6 @@ public class AnimalSyncService {
     }
 
     // 최초 적재 범위를 월별로 순회하면서 저장 건수를 누적한다.
-    @Transactional
     public int fetchAndSaveMonthlyAnimalsFrom2008(int numOfRows, int maxSaveCount) {
         LocalDate today = LocalDate.now();
         LocalDate currentMonthStart = INITIAL_SYNC_START_DATE.withDayOfMonth(1);
@@ -130,12 +172,12 @@ public class AnimalSyncService {
     }
 
     // 수정일 기준 조회 결과를 페이지 단위로 끝까지 저장하거나 갱신한다.
-    @Transactional
     public int fetchAndSaveAnimalsByUpdatedDate(LocalDate bgupd, LocalDate enupd, int numOfRows) {
         int pageNo = 1;
         int totalSavedCount = 0;
 
         while (true) {
+            syncCurrentPage.set(pageNo);
             AnimalApiResponse response = animalExternalService.fetchAnimalsByUpdatedDate(pageNo, numOfRows, bgupd, enupd);
             List<AnimalItem> items = extractItems(response);
 
@@ -143,7 +185,10 @@ public class AnimalSyncService {
                 break;
             }
 
-            totalSavedCount += saveOrUpdateAnimals(items);
+            int savedCount = saveOrUpdateAnimals(items);
+            syncLastBatchSaved.set(savedCount);
+            refreshTotalAnimalsInDbMetric();
+            totalSavedCount += savedCount;
             pageNo++;
             waitForNextUpdatePage();
         }
@@ -177,11 +222,14 @@ public class AnimalSyncService {
         int totalSavedCount = 0;
 
         while (totalSavedCount < maxSaveCount) {
+            syncCurrentPage.set(pageNo);
             SyncPageResult result = fetchAndInsertAnimals(pageNo, numOfRows, bgnde, endde, maxSaveCount - totalSavedCount);
             if (result.savedCount() == 0) {
                 break;
             }
 
+            syncLastBatchSaved.set(result.savedCount());
+            refreshTotalAnimalsInDbMetric();
             totalSavedCount += result.savedCount();
             pageNo++;
         }
@@ -236,6 +284,7 @@ public class AnimalSyncService {
                                 animal.updateFrom(item);
                                 // 기존 동물도 최신 보호소 정보에 맞춰 다시 연결한다.
                                 assignShelter(animal, item);
+                                animalRepository.save(animal);
                             },
                             () -> {
                                 // 새 동물 저장 시에도 보호소 FK를 함께 채운다.
@@ -254,6 +303,8 @@ public class AnimalSyncService {
     private void syncShelters(List<AnimalItem> items) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
         List<ShelterCommand> shelterCmds = items.stream()
+                .filter(item -> item.getCareRegNo() != null && !item.getCareRegNo().isBlank())
+                .filter(item -> item.getUpdTm() != null && !item.getUpdTm().isBlank())
                 .map(item -> new ShelterCommand(
                         item.getCareRegNo(),
                         item.getCareNm(),
@@ -330,5 +381,36 @@ public class AnimalSyncService {
     // 시작 시각부터 현재까지 걸린 시간을 밀리초로 계산한다.
     private long elapsedMs(Instant startedAt) {
         return Duration.between(startedAt, Instant.now()).toMillis();
+    }
+
+    // TEMP: /actuator/prometheus 에서 적재 상태를 확인하기 위한 임시 gauge 등록
+    private void registerTemporarySyncMetrics() {
+        meterRegistry.gauge("animal_sync_temp_running", syncRunning);
+        meterRegistry.gauge("animal_sync_temp_phase", syncPhase);
+        meterRegistry.gauge("animal_sync_temp_current_page", syncCurrentPage);
+        meterRegistry.gauge("animal_sync_temp_total_animals_in_db", syncTotalAnimalsInDb);
+        meterRegistry.gauge("animal_sync_temp_last_batch_saved", syncLastBatchSaved);
+    }
+
+    // TEMP: phase 값은 1=single, 2=initial, 3=update 로 본다.
+    private void startTemporarySyncMetrics(int phase) {
+        syncRunning.set(1);
+        syncPhase.set(phase);
+        syncCurrentPage.set(0);
+        refreshTotalAnimalsInDbMetric();
+        syncLastBatchSaved.set(0);
+    }
+
+    // TEMP: 적재 종료 후에는 현재 진행 상태 값을 다시 비운다.
+    private void finishTemporarySyncMetrics() {
+        syncRunning.set(0);
+        syncPhase.set(0);
+        syncCurrentPage.set(0);
+        refreshTotalAnimalsInDbMetric();
+    }
+
+    // TEMP: 프로메테우스에 노출할 총 동물 수는 실제 DB count 기준으로 맞춘다.
+    private void refreshTotalAnimalsInDbMetric() {
+        syncTotalAnimalsInDb.set(animalRepository.count());
     }
 }
