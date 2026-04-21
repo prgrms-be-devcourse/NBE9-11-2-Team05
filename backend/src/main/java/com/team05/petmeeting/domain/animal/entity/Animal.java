@@ -84,6 +84,9 @@ public class Animal extends BaseEntity {
     @Column(name = "api_updated_at")
     private LocalDateTime apiUpdatedAt;
 
+    @Column(name = "name", nullable = true)
+    private String name;
+
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnimalComment> comments = new ArrayList<>();
 
@@ -95,6 +98,10 @@ public class Animal extends BaseEntity {
             return 0;
         }
         return 1;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
     }
 
     public void updateFrom(AnimalItem item) {

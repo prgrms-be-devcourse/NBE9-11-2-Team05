@@ -3,8 +3,11 @@ package com.team05.petmeeting.domain.naming.service;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
+import com.team05.petmeeting.domain.naming.dto.BadWordAddRes;
+import com.team05.petmeeting.domain.naming.dto.BadWordListRes;
 import com.team05.petmeeting.domain.naming.dto.NameProposalRes;
 import com.team05.petmeeting.domain.naming.entity.AnimalNameCandidate;
+import com.team05.petmeeting.domain.naming.entity.BadWord;
 import com.team05.petmeeting.domain.naming.entity.NameVoteHistory;
 import com.team05.petmeeting.domain.naming.errorCode.NamingErrorCode;
 import com.team05.petmeeting.domain.naming.repository.AnimalNameCandidateRepository;
@@ -17,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,7 +43,7 @@ public class NamingService {
         validateAnimalStatus(animal);
 
         // 금칙어 검증
-        if(badWordService.isBadWord(proposedName)){
+        if (badWordService.isBadWord(proposedName)) {
             throw new BusinessException(NamingErrorCode.BAD_WORD_INCLUDED);
         }
 
@@ -88,6 +92,44 @@ public class NamingService {
 
         // 후보 테이블의 투표수 증가
         candidate.addVoteCount();
+    }
+
+    public void confirmName(Long candidateId, Long managerId) {
+        AnimalNameCandidate candidate = candidateRepository.findById(candidateId).orElseThrow(
+                () -> new BusinessException(NamingErrorCode.CANDIDATE_NOT_FOUND));
+
+        // 상태 검증
+        validateAnimalStatus(candidate.getAnimal());
+
+        // 권한 검증 (관리자의 보호소 ID와 동물의 보호소 ID 일치 여부)
+        // todo: User-Shelter 연관관계에 따라 구현
+
+        // 이름 확정 처리
+        candidate.confirmName(); // isConfirmed = true
+        candidate.getAnimal().updateName(candidate.getProposedName()); // 동물 엔터티 이름 반영
+    }
+
+    // 금칙어 관리 (BadWordService를 거쳐 DB와 Redis 동시 처리)
+    public BadWordListRes getBadWords() {
+        List<BadWord> badWords = badWordService.findAll();
+        List<BadWordListRes.BadWordDto> dtos = badWords.stream()
+                .map(bw -> new BadWordListRes.BadWordDto(bw.getId(), bw.getWord(), bw.getCreatedAt().toString()))
+                .toList();
+        return new BadWordListRes(dtos, dtos.size());
+    }
+
+    @Transactional
+    public BadWordAddRes addBadWord(String word) {
+        BadWord badWord = new BadWord(word);
+        badWordService.save(badWord);
+        badWordService.addBadWord(word); // Redis에도 추가
+        return new BadWordAddRes(badWord.getId(), badWord.getWord(), badWord.getCreatedAt());
+    }
+
+    @Transactional
+    public void deleteBadWord(Long badwordId) {
+        BadWord badWord = badWordService.findById(badwordId);
+        badWordService.delete(badWord);
     }
 
     private void validateAnimalStatus(Animal animal) {
