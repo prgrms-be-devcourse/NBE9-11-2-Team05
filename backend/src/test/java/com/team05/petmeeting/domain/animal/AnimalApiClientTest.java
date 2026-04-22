@@ -1,4 +1,4 @@
-package com.team05.petmeeting.animal;
+package com.team05.petmeeting.domain.animal;
 
 import com.team05.petmeeting.domain.animal.client.AnimalApiClient;
 import com.team05.petmeeting.domain.animal.config.AnimalApiProperties;
