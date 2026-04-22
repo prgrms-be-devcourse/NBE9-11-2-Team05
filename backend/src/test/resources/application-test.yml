@@ -51,11 +51,11 @@ gemini:
 cloud:
   aws:
     credentials:
-      access-key: test-access-key
-      secret-key: test-secret-key
+      access-key: dummy-key
+      secret-key: dummy-secret
     region:
       static: ap-northeast-2
     s3:
-      bucket: test-bucket
+      bucket: test-bucket-name  # <--- 이 부분이 이번 에러의 원인입니다!
     stack:
       auto: false

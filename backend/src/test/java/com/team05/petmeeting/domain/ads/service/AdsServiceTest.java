@@ -1,11 +1,11 @@
-package com.team05.petmeeting.ads;
+package com.team05.petmeeting.domain.ads.service;
 
-import com.team05.petmeeting.domain.ads.service.AdsService;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "meta.ads.page-id=test-page-id",
         "meta.ads.api-version=v19.0"
 })
+@ActiveProfiles("test")
 public class AdsServiceTest {
 
     @Autowired
