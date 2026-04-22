@@ -4,10 +4,7 @@ import com.team05.petmeeting.domain.comment.dto.CommentReq;
 import com.team05.petmeeting.domain.comment.dto.FeedCommentListRes;
 import com.team05.petmeeting.domain.comment.dto.FeedCommentRes;
 import com.team05.petmeeting.domain.comment.service.CommentService;
-import com.team05.petmeeting.domain.feed.dto.FeedLikeRes;
-import com.team05.petmeeting.domain.feed.dto.FeedListRes;
-import com.team05.petmeeting.domain.feed.dto.FeedReq;
-import com.team05.petmeeting.domain.feed.dto.FeedRes;
+import com.team05.petmeeting.domain.feed.dto.*;
 import com.team05.petmeeting.domain.feed.enums.FeedCategory;
 import com.team05.petmeeting.domain.feed.service.FeedLikeService;
 import com.team05.petmeeting.domain.feed.service.FeedService;
@@ -151,4 +148,12 @@ public class FeedController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(summary = "입양 후기 작성용 동물 목록 조회")
+    @GetMapping("/adoptable-animals")
+    public ResponseEntity<List<AdoptedAnimalRes>> getAdoptedAnimals(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        List<AdoptedAnimalRes> res = feedService.getAdoptedAnimals(userDetails.getUserId());
+        return ResponseEntity.ok(res);
+    }
 }

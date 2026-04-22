@@ -1,8 +1,11 @@
 package com.team05.petmeeting.domain.feed.service;
 
+import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
+import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
+import com.team05.petmeeting.domain.feed.dto.AdoptedAnimalRes;
 import com.team05.petmeeting.domain.feed.dto.FeedListRes;
 import com.team05.petmeeting.domain.feed.dto.FeedReq;
 import com.team05.petmeeting.domain.feed.dto.FeedRes;
@@ -20,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ public class FeedService {
     private final FeedRepository feedRepository;
     private final FeedLikeRepository feedLikeRepository;
     private final AnimalRepository animalRepository;
+    private final AdoptionApplicationRepository adoptionApplicationRepository;
 
     @Transactional
     public FeedRes write(FeedReq request, User user) {
@@ -39,7 +45,20 @@ public class FeedService {
         if (request.animalId() != null) {
             animal = animalRepository.findById(request.animalId())
                     .orElseThrow(() -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND));
+
+            // 입양후기 카테고리면 승인된 입양인지 검증
+            if (request.category() == FeedCategory.ADOPTION_REVIEW) {
+                boolean isApproved = adoptionApplicationRepository
+                        .findByUser_IdAndStatus(user.getId(), AdoptionStatus.Approved)
+                        .stream()
+                        .anyMatch(app -> app.getAnimal().getId().equals(request.animalId()));
+
+                if (!isApproved) {
+                    throw new BusinessException(FeedErrorCode.NOT_ADOPTED_ANIMAL);
+                }
+            }
         }
+
         Feed feed = new Feed(user, request.category(), request.title(), request.content(), request.imageUrl(), animal);
         feedRepository.save(feed);
         return new FeedRes(feed, 0);
@@ -80,5 +99,14 @@ public class FeedService {
 
     public long count() {
         return feedRepository.count();
+    }
+
+
+    public List<AdoptedAnimalRes> getAdoptedAnimals(Long userId) {
+        return adoptionApplicationRepository
+                .findByUser_IdAndStatus(userId, AdoptionStatus.Approved)
+                .stream()
+                .map(app -> AdoptedAnimalRes.from(app.getAnimal()))
+                .toList();
     }
 }
