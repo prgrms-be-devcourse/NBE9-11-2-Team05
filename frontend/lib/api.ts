@@ -41,6 +41,8 @@ export const API_ENDPOINTS = {
     `${getApiServerOrigin()}/adoptions/admin/shelters/${encodeURIComponent(careRegNo)}/applications/${applicationId}`,
   reviewAdminShelterApplication: (careRegNo: string, applicationId: number) =>
     `${getApiServerOrigin()}/adoptions/admin/shelters/${encodeURIComponent(careRegNo)}/applications/${applicationId}/review`,
+  applyAdoption: (animalId: number) =>
+    `${getApiServerOrigin()}/adoptions/${animalId}`,
   // Animals
   animals: `${API_BASE_URL}/animals`,
   animalDetail: (id: number) => `${API_BASE_URL}/animals/${id}`,
@@ -175,7 +177,7 @@ export async function apiRequest<T>(
     const initialResponse = await executeRequest<T>(url, options)
     const shouldTryRefresh =
       initialResponse.status === 401 &&
-      initialResponse.errorCode === "S-001" &&
+      (initialResponse.errorCode === "S-001" || initialResponse.errorCode === "U-001") &&
       url !== API_ENDPOINTS.login &&
       url !== API_ENDPOINTS.register &&
       url !== API_ENDPOINTS.emailLogin &&
