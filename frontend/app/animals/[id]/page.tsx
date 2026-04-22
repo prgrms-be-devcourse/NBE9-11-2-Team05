@@ -21,7 +21,6 @@ import { Header } from "@/components/header"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import {
-  API_BASE_URL,
   API_ENDPOINTS,
   getNameCandidates,
   apiRequest,
@@ -265,7 +264,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
 
     setIsSubmittingApplication(true)
 
-    const { error } = await apiRequest(`${API_BASE_URL}/adoptions/${animal.animalId}`, {
+    const { error } = await apiRequest(API_ENDPOINTS.applyAdoption(animal.animalId), {
       method: "POST",
       body: JSON.stringify({
         applyReason,

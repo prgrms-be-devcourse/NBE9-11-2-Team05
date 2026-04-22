@@ -32,8 +32,15 @@ import {
   reviewAdminShelterApplication,
 } from "@/lib/api"
 
-const DEFAULT_SHELTER_CARE_REG_NO = "331371202400001"
-const DEFAULT_SHELTER_MANAGER_EMAIL = "goeunji@petmeeting.test"
+const ADMIN_SHELTERS_BY_EMAIL: Record<string, { careRegNo: string; managerName: string }> = {
+  "kim.minjun@petmeeting.local": { careRegNo: "345479202100001", managerName: "김민준" },
+  "lee.seoyeon@petmeeting.local": { careRegNo: "345471201800002", managerName: "이서연" },
+  "park.jihun@petmeeting.local": { careRegNo: "341390201300001", managerName: "박지훈" },
+  "choi.hayoon@petmeeting.local": { careRegNo: "346489202000001", managerName: "최하윤" },
+  "jung.doyun@petmeeting.local": { careRegNo: "345467201000001", managerName: "정도윤" },
+  "kang.subin@petmeeting.local": { careRegNo: "346485202600001", managerName: "강수빈" },
+  "yoon.jiho@petmeeting.local": { careRegNo: "348540200900001", managerName: "윤지호" },
+}
 
 const statusLabels: Record<AdoptionStatus, string> = {
   Processing: "검토중",
@@ -56,7 +63,7 @@ export default function AdminPage() {
   const [isLoadingNames, setIsLoadingNames] = useState(false)
   const [confirmingCandidateId, setConfirmingCandidateId] = useState<number | null>(null)
 
-  const [careRegNo, setCareRegNo] = useState(DEFAULT_SHELTER_CARE_REG_NO)
+  const [careRegNo, setCareRegNo] = useState("")
   const [shelterName, setShelterName] = useState<string | null>(null)
   const [applications, setApplications] = useState<AdminAdoptionApplication[]>([])
   const [applicationError, setApplicationError] = useState<string | null>(null)
@@ -70,6 +77,8 @@ export default function AdminPage() {
   )
 
   const trimmedCareRegNo = careRegNo.trim()
+  const adminIdentifier = (user?.username || user?.email || "").trim().toLowerCase()
+  const assignedShelter = adminIdentifier ? ADMIN_SHELTERS_BY_EMAIL[adminIdentifier] : undefined
 
   const loadNameCandidates = async () => {
     if (!trimmedCareRegNo) {
@@ -175,15 +184,18 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authLoading && isAdmin) {
-      setCareRegNo(DEFAULT_SHELTER_CARE_REG_NO)
+      setShelterName(null)
+      setApplications([])
+      setNameCandidates([])
+      setCareRegNo(assignedShelter?.careRegNo ?? "")
     }
-  }, [authLoading, isAdmin])
+  }, [authLoading, isAdmin, assignedShelter?.careRegNo])
 
   useEffect(() => {
-    if (!authLoading && isAdmin && trimmedCareRegNo) {
+    if (!authLoading && isAdmin && assignedShelter && trimmedCareRegNo) {
       loadApplications()
     }
-  }, [authLoading, isAdmin, trimmedCareRegNo])
+  }, [authLoading, isAdmin, assignedShelter, trimmedCareRegNo])
 
   if (authLoading) return null
 
@@ -260,15 +272,15 @@ export default function AdminPage() {
           <CardHeader>
             <CardTitle>담당 보호소</CardTitle>
             <CardDescription>
-              {user.email === DEFAULT_SHELTER_MANAGER_EMAIL
-                ? "고은지 보호소 관리자 계정에 연결된 보호소입니다."
-                : "현재 보호소 관리자 계정에 연결된 보호소입니다."}
+              {assignedShelter
+                ? `${assignedShelter.managerName} 보호소 관리자 계정에 연결된 보호소입니다.`
+                : "현재 계정에 연결된 보호소 정보를 찾을 수 없습니다."}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">보호소 등록번호</p>
-              <p className="mt-1 font-medium text-foreground">{trimmedCareRegNo}</p>
+              <p className="mt-1 font-medium text-foreground">{trimmedCareRegNo || "미지정"}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">보호소명</p>
