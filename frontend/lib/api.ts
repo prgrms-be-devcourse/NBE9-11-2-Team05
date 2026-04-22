@@ -32,7 +32,15 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/naming/animals/${animalId}/propose`,
   voteNamingCandidate: (candidateId: number) =>
     `${API_BASE_URL}/naming/candidates/${candidateId}/vote`,
-adminReadyNamingCandidates: `${API_BASE_URL}/naming/admin/candidates/ready`,
+  adminReadyNamingCandidates: `${API_BASE_URL}/naming/admin/candidates/ready`,
+  confirmNamingCandidate: (candidateId: number) =>
+    `${API_BASE_URL}/naming/candidates/${candidateId}/confirm`,
+  adminShelterApplications: (careRegNo: string) =>
+    `${getApiServerOrigin()}/adoptions/admin/shelters/${encodeURIComponent(careRegNo)}/applications`,
+  adminShelterApplicationDetail: (careRegNo: string, applicationId: number) =>
+    `${getApiServerOrigin()}/adoptions/admin/shelters/${encodeURIComponent(careRegNo)}/applications/${applicationId}`,
+  reviewAdminShelterApplication: (careRegNo: string, applicationId: number) =>
+    `${getApiServerOrigin()}/adoptions/admin/shelters/${encodeURIComponent(careRegNo)}/applications/${applicationId}/review`,
   // Animals
   animals: `${API_BASE_URL}/animals`,
   animalDetail: (id: number) => `${API_BASE_URL}/animals/${id}`,
@@ -194,6 +202,7 @@ export interface User {
   email?: string
   name: string
   role?: string
+  roles?: string[]
   nickname?: string
   profileImageUrl?: string
   createdAt?: string
@@ -202,10 +211,34 @@ export interface User {
 export interface JwtPayload {
   userId: number
   role?: string
+  roles?: string[]
   sub?: string
   exp?: number
   iat?: number
   [key: string]: any
+}
+
+export function normalizeRole(role?: string | null): string | undefined {
+  if (!role) return undefined
+  const normalized = role.trim().toUpperCase()
+  if (!normalized) return undefined
+  return normalized.startsWith("ROLE_") ? normalized.slice(5) : normalized
+}
+
+export function extractPrimaryRole(payload?: Pick<JwtPayload, "role" | "roles"> | null): string | undefined {
+  const directRole = normalizeRole(payload?.role)
+  if (directRole) return directRole
+
+  const roles = Array.isArray(payload?.roles) ? payload.roles : []
+  return roles.map(normalizeRole).find(Boolean)
+}
+
+export function isAdminUser(user?: Pick<User, "role" | "roles"> | null): boolean {
+  const directRole = normalizeRole(user?.role)
+  if (directRole === "ADMIN") return true
+
+  const roles = Array.isArray(user?.roles) ? user.roles : []
+  return roles.some((role) => normalizeRole(role) === "ADMIN")
 }
 
 /** 동물 목록/상세/응원 API와 동일: 0~1 비율이면 0~100으로, 그 외는 0~100으로 클램프 */
@@ -523,10 +556,18 @@ export const voteName = async (candidateId: number) => {
   })
 }
 
+export const confirmNamingCandidate = async (candidateId: number) => {
+  return await apiRequest<void>(API_ENDPOINTS.confirmNamingCandidate(candidateId), {
+    method: "PATCH",
+  })
+}
+
 export interface AdminNameCandidate {
   animalId: number
   animalName: string | null
   desertionNo: string
+  careRegNo?: string
+  careNm?: string
   kindFullNm: string
   candidateId: number
   proposedName: string
@@ -557,7 +598,107 @@ export interface AdminAdoptionApplication {
 }
 
 export const getAdminReadyNamingCandidates = async () => {
-  return await apiRequest<AdminNameCandidate[]>(
-    API_ENDPOINTS.adminReadyNamingCandidates
+  const animalsResponse = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?size=100`)
+
+  if (animalsResponse.error) {
+    return {
+      data: null,
+      error: animalsResponse.error,
+      errorCode: animalsResponse.errorCode,
+      status: animalsResponse.status,
+    }
+  }
+
+  const animalCandidates = parseAnimalListForAdminNaming(animalsResponse.data)
+  const candidateResponses = await Promise.all(
+    animalCandidates.map(async (animal) => {
+      const response = await getNameCandidates(animal.animalId)
+      return { animal, response }
+    })
+  )
+
+  const candidates = candidateResponses.flatMap(({ animal, response }) => {
+    if (!response.data?.candidateDtoList) return []
+    if (response.data.animalName) return []
+
+    return response.data.candidateDtoList.map((candidate) => ({
+      animalId: animal.animalId,
+      animalName: response.data?.animalName ?? null,
+      desertionNo: animal.desertionNo,
+      careRegNo: animal.careRegNo,
+      careNm: animal.careNm,
+      kindFullNm: animal.kindFullNm,
+      candidateId: candidate.candidateId,
+      proposedName: candidate.proposedName,
+      proposerNickname: candidate.proposerNickname,
+      voteCount: candidate.voteCount,
+    }))
+  })
+
+  candidates.sort((a, b) => b.voteCount - a.voteCount)
+
+  return { data: candidates, error: null, status: 200 }
+}
+
+function parseAnimalListForAdminNaming(payload: unknown): Array<{
+  animalId: number
+  desertionNo: string
+  careRegNo?: string
+  careNm?: string
+  kindFullNm: string
+}> {
+  if (!payload) return []
+
+  const list = Array.isArray(payload)
+    ? payload
+    : typeof payload === "object"
+      ? Array.isArray((payload as Record<string, unknown>).content)
+        ? ((payload as Record<string, unknown>).content as unknown[])
+        : Array.isArray((payload as Record<string, unknown>).animals)
+          ? ((payload as Record<string, unknown>).animals as unknown[])
+          : []
+      : []
+
+  return list
+    .map((item) => {
+      if (!item || typeof item !== "object") return null
+      const animal = item as Record<string, unknown>
+      const animalId = Number(animal.animalId ?? animal.id)
+      if (!Number.isFinite(animalId)) return null
+
+      return {
+        animalId,
+        desertionNo: String(animal.desertionNo ?? animal.noticeNo ?? ""),
+        careRegNo: typeof animal.careRegNo === "string" ? animal.careRegNo : undefined,
+        careNm: typeof animal.careNm === "string" ? animal.careNm : undefined,
+        kindFullNm: String(animal.kindFullNm ?? animal.kindFillName ?? animal.breed ?? animal.kind ?? "품종 정보 없음"),
+      }
+    })
+    .filter((animal): animal is { animalId: number; desertionNo: string; careRegNo?: string; careNm?: string; kindFullNm: string } => animal !== null)
+}
+
+export const getAdminShelterApplications = async (careRegNo: string) => {
+  return await apiRequest<AdminAdoptionApplication[]>(
+    API_ENDPOINTS.adminShelterApplications(careRegNo)
+  )
+}
+
+export const getAdminShelterApplicationDetail = async (careRegNo: string, applicationId: number) => {
+  return await apiRequest<AdminAdoptionApplication>(
+    API_ENDPOINTS.adminShelterApplicationDetail(careRegNo, applicationId)
+  )
+}
+
+export const reviewAdminShelterApplication = async (
+  careRegNo: string,
+  applicationId: number,
+  payload: { status: AdoptionStatus; rejectionReason?: string | null }
+) => {
+  return await apiRequest<AdminAdoptionApplication>(
+    API_ENDPOINTS.reviewAdminShelterApplication(careRegNo, applicationId),
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }
   )
 }

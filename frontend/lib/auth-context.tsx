@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { API_ENDPOINTS, apiRequest, User, decodeJWT } from "./api"
+import { API_ENDPOINTS, apiRequest, User, decodeJWT, extractPrimaryRole } from "./api"
 
 interface AuthContextType {
   user: User | null
@@ -31,12 +31,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser && storedToken) {
       try {
         const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
+        const payload = decodeJWT(storedToken)
+        const roleFromToken = extractPrimaryRole(payload)
+        const restoredUser = {
+          ...parsedUser,
+          role: roleFromToken || parsedUser.role,
+          roles: payload?.roles || parsedUser.roles,
+        }
+        setUser(restoredUser)
 
         // Background sync with API to refresh name/nickname instantly on reload
         apiRequest<any>(API_ENDPOINTS.myProfile).then((res) => {
           if (res.data) {
-            const syncedUser = { ...parsedUser, ...res.data }
+            const syncedUser = { ...restoredUser, ...res.data }
             setUser(syncedUser)
             localStorage.setItem("user", JSON.stringify(syncedUser))
           }
@@ -53,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const payload = decodeJWT(accessToken)
       const extractedId = Number(payload?.sub) || Number(payload?.userId)
+      const primaryRole = extractPrimaryRole(payload)
 
       if (!extractedId) {
         console.error("JWT 페이로드에서 사용자 ID를 찾을 수 없습니다:", payload)
@@ -63,11 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: extractedId,
         username: fallbackIdentifier,
         name: fallbackIdentifier,
-        role: payload?.role,
-      }
-
-      if (payload?.role) {
-        loggedInUser.role = payload.role
+        role: primaryRole,
+        roles: payload?.roles,
       }
 
       localStorage.setItem("auth_token", accessToken)
