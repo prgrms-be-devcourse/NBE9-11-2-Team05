@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Optional;
 
+import static com.team05.petmeeting.domain.animal.entity.QAnimal.animal;
 import static com.team05.petmeeting.domain.naming.entity.QAnimalNameCandidate.animalNameCandidate;
 import static com.team05.petmeeting.domain.naming.entity.QNameVoteHistory.nameVoteHistory;
 import static com.team05.petmeeting.domain.user.entity.QUser.user;
@@ -67,25 +68,27 @@ public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
     }
 
     @Override
-    public Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(Long animalId, int threshold) {
+    public Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(Long animalId, String careRegNo, int threshold) {
         return Optional.ofNullable(queryFactory
                 .select(Projections.constructor(NameCandidateRes.CandidateDto.class,
                         animalNameCandidate.id,
                         animalNameCandidate.proposedName,
                         animalNameCandidate.user.nickname,
                         animalNameCandidate.voteCount,
-                        Expressions.asBoolean(false) // 관리자 조회이므로 투표 여부는 무의미하여 false 처리
+                        Expressions.asBoolean(false)
                 ))
                 .from(animalNameCandidate)
+                .join(animalNameCandidate.animal, animal) // 동물 정보 조인
                 .where(
-                        animalNameCandidate.animal.id.eq(animalId),
-                        animalNameCandidate.voteCount.goe(threshold) // 1. 일정 득표수(threshold) 이상
+                        animal.id.eq(animalId),
+                        animal.shelter.careRegNo.eq(careRegNo), // [추가] 해당 보호소 동물인지 확인
+                        animalNameCandidate.voteCount.goe(threshold)
                 )
                 .orderBy(
-                        animalNameCandidate.voteCount.desc(), // 2. 득표수 내림차순
-                        animalNameCandidate.createdAt.asc()   // 3. 동점 시 먼저 생성된 순
+                        animalNameCandidate.voteCount.desc(),
+                        animalNameCandidate.createdAt.asc()
                 )
-                .limit(1) // 4. 단 1개만 추출
+                .limit(1)
                 .fetchOne());
     }
 

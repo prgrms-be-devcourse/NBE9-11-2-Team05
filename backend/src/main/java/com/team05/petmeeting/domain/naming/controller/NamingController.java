@@ -38,9 +38,10 @@ public class NamingController { // 제안/투표/후보조회 API
     @GetMapping("/admin/animals/{animalId}/qualified-candidate")
     @Operation(summary = "관리자용 후보 확인", description = "10표 이상 득표한 후보 중 최우선 순위 1개 조회")
     public ResponseEntity<NameCandidateRes> getQualifiedCandidateForAdmin(
-            @PathVariable Long animalId
+            @PathVariable Long animalId,
+            @AuthenticationPrincipal CustomUserDetails userDetails // 관리자 정보 추가
     ) {
-        NameCandidateRes response = namingService.getAdminCandidate(animalId);
+        NameCandidateRes response = namingService.getAdminCandidate(animalId, userDetails.getUserId());
         return ResponseEntity.ok(response);
     }
 
