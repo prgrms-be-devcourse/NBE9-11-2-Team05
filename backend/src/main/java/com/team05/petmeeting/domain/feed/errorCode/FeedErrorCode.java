@@ -14,11 +14,8 @@ public enum FeedErrorCode implements ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "F-003", "로그인이 필요한 서비스입니다."),
     LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "F-004", "피드는 10~1000자 범위에서 작성해야합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "F-005", "권한이 없습니다."), // 삭제, 수정
-    ANIMAL_REQUIRED(HttpStatus.BAD_REQUEST, "F-006", "입양후기는 동물 선택이 필수입니다.")
-    /* 프론트에서 따로 구분해서 받고 싶으면 나중에 확장
-     * UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "F-005", "게시글 수정 권한이 없습니다."),
-     * DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "F-006", "게시글 삭제 권한이 없습니다.");
-     * */;
+    ANIMAL_REQUIRED(HttpStatus.BAD_REQUEST, "F-006", "입양후기는 동물 선택이 필수입니다."),
+    NOT_ADOPTED_ANIMAL(HttpStatus.FORBIDDEN, "F-007", "입양 승인된 동물만 후기를 작성할 수 있습니다.");
 
     private final HttpStatus status;
     private final String code;
