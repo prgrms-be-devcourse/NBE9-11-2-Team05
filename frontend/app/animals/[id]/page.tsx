@@ -102,6 +102,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   const [animal, setAnimal] = useState<Animal | null>(null)
   const [comments, setComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState("")
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
   const [editContent, setEditContent] = useState("")
   const [totalHearts, setTotalHearts] = useState(0)
@@ -348,12 +349,14 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
       alert("로그인이 필요합니다")
       return
     }
-    if (!newComment.trim()) return
+    if (!newComment.trim() || isSubmittingComment) return
 
+    setIsSubmittingComment(true)
     const { error } = await apiRequest(API_ENDPOINTS.comments(Number(resolvedParams.id)), {
       method: "POST",
       body: JSON.stringify({ content: newComment })
     })
+    setIsSubmittingComment(false)
 
     if (error) {
       alert("댓글 작성에 실패했습니다.")
@@ -811,12 +814,17 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder={user ? "응원 댓글을 남겨주세요..." : "로그인 후 댓글을 남길 수 있습니다"}
                 className="flex-1 rounded-xl bg-secondary/50 border-0 h-11"
-                disabled={!user}
-                onKeyDown={(e) => e.key === "Enter" && handleCommentSubmit()}
+                disabled={!user || isSubmittingComment}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.repeat) {
+                    e.preventDefault()
+                    handleCommentSubmit()
+                  }
+                }}
               />
               <Button
                 onClick={handleCommentSubmit}
-                disabled={!user || !newComment.trim()}
+                disabled={!user || !newComment.trim() || isSubmittingComment}
                 className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Send className="w-4 h-4" />

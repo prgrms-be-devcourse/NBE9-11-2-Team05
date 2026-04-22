@@ -37,6 +37,7 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
   const [comments, setComments] = useState<FeedComment[]>([])
 
   const [newComment, setNewComment] = useState("")
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
   const [editContent, setEditContent] = useState("")
   const [openMenuId, setOpenMenuId] = useState<number | null>(null)
@@ -118,11 +119,13 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
   // ── 댓글 작성 ──────────────────────────────────────────────
   const handleCommentSubmit = async () => {
     if (!user) { alert("로그인이 필요합니다"); return }
-    if (!newComment.trim()) return
+    if (!newComment.trim() || isSubmittingComment) return
+    setIsSubmittingComment(true)
     const { error } = await apiRequest(API_ENDPOINTS.feedComments(Number(feedId)), {
       method: "POST",
       body: JSON.stringify({ content: newComment }),
     })
+    setIsSubmittingComment(false)
     if (error) { alert("댓글 작성에 실패했습니다."); return }
     setNewComment("")
     await refreshComments()
@@ -371,14 +374,20 @@ export default function FeedDetailPage({ params }: { params: Promise<{ feedId: s
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="댓글을 입력하세요..."
                     className="flex-1"
+                    disabled={isSubmittingComment}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
+                      if (e.key === "Enter" && !e.shiftKey && !e.repeat) {
                         e.preventDefault()
                         handleCommentSubmit()
                       }
                     }}
                   />
-                  <Button onClick={handleCommentSubmit} size="icon" className="shrink-0">
+                  <Button
+                    onClick={handleCommentSubmit}
+                    size="icon"
+                    className="shrink-0"
+                    disabled={!newComment.trim() || isSubmittingComment}
+                  >
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
