@@ -14,7 +14,9 @@ import com.team05.petmeeting.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
+import static com.team05.petmeeting.domain.animal.entity.QAnimal.animal;
 import static com.team05.petmeeting.domain.naming.entity.QAnimalNameCandidate.animalNameCandidate;
 import static com.team05.petmeeting.domain.naming.entity.QNameVoteHistory.nameVoteHistory;
 import static com.team05.petmeeting.domain.user.entity.QUser.user;
@@ -63,6 +65,31 @@ public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
                 candidateDtoList,
                 candidateDtoList.size()
         );
+    }
+
+    @Override
+    public Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(Long animalId, String careRegNo, int threshold) {
+        return Optional.ofNullable(queryFactory
+                .select(Projections.constructor(NameCandidateRes.CandidateDto.class,
+                        animalNameCandidate.id,
+                        animalNameCandidate.proposedName,
+                        animalNameCandidate.user.nickname,
+                        animalNameCandidate.voteCount,
+                        Expressions.asBoolean(false)
+                ))
+                .from(animalNameCandidate)
+                .join(animalNameCandidate.animal, animal) // 동물 정보 조인
+                .where(
+                        animal.id.eq(animalId),
+                        animal.shelter.careRegNo.eq(careRegNo), // [추가] 해당 보호소 동물인지 확인
+                        animalNameCandidate.voteCount.goe(threshold)
+                )
+                .orderBy(
+                        animalNameCandidate.voteCount.desc(),
+                        animalNameCandidate.createdAt.asc()
+                )
+                .limit(1)
+                .fetchOne());
     }
 
 

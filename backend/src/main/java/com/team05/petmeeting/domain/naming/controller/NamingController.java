@@ -23,7 +23,7 @@ public class NamingController { // 제안/투표/후보조회 API
     private final NamingService namingService;
 
     @GetMapping("/animals/{animalId}/candidates")
-    @Operation(summary = "이름 후보 조회", description = "득표순 내림차순 조회")
+    @Operation(summary = "이름 후보 조회", description = "득표순 내림차순 상위3개 조회")
     public ResponseEntity<NameCandidateRes> getNameCandidates(
             @PathVariable Long animalId,
             // 로그인 안 한 유저도 조회는 가능하므로 null 체크 필요
@@ -31,6 +31,17 @@ public class NamingController { // 제안/투표/후보조회 API
     ) {
         Long userId = (userDetails != null) ? userDetails.getUserId() : null;
         NameCandidateRes response = namingService.getCandidates(animalId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/animals/{animalId}/qualified-candidate")
+    @Operation(summary = "관리자용 후보 확인", description = "10표 이상 득표한 후보 중 최우선 순위 1개 조회")
+    public ResponseEntity<NameCandidateRes> getQualifiedCandidateForAdmin(
+            @PathVariable Long animalId,
+            @AuthenticationPrincipal CustomUserDetails userDetails // 관리자 정보 추가
+    ) {
+        NameCandidateRes response = namingService.getAdminCandidate(animalId, userDetails.getUserId());
         return ResponseEntity.ok(response);
     }
 
