@@ -13,7 +13,7 @@ import { Header } from "@/components/header"
 import { Pagination } from "@/components/pagination"
 import { useAuth } from "@/lib/auth-context"
 import { cn, formatDate } from "@/lib/utils"
-import { createFeed, updateFeed, FeedPayload, deleteFeed, FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS, getAnimals, AnimalDropdownItem, getAnimalDetail } from "@/lib/api"
+import { createFeed, updateFeed, FeedPayload, deleteFeed, FeedCategoryFilter, toggleFeedLike, getFeeds, apiRequest, API_ENDPOINTS, getAdoptableAnimals, AdoptedAnimalItem, getAnimalDetail } from "@/lib/api"
 
 interface CommunityComment {
   id: number
@@ -502,7 +502,7 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [imageUrl, setImageUrl] = useState("")
-  const [animals, setAnimals] = useState<AnimalDropdownItem[]>([])
+  const [animals, setAnimals] = useState<AdoptedAnimalItem[]>([])
   const [selectedAnimalId, setSelectedAnimalId] = useState<number | "">("")
   const [isAnimalsLoading, setIsAnimalsLoading] = useState(false)
   const [hasLoadedAnimals, setHasLoadedAnimals] = useState(false)
@@ -512,13 +512,13 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
 
     const fetchAnimals = async () => {
       setIsAnimalsLoading(true)
-      const { data, error } = await getAnimals()
+      const { data, error } = await getAdoptableAnimals()
       if (error || !data) {
         console.error("동물 목록 조회 실패:", error)
         setIsAnimalsLoading(false)
         return
       }
-      setAnimals(data?.content || [])
+      setAnimals(data || [])
       setHasLoadedAnimals(true)
       setIsAnimalsLoading(false)
     }
@@ -608,7 +608,7 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
                 </option>
                 {animals.map((a) => (
                   <option key={a.animalId} value={a.animalId}>
-                    {a.noticeNo ?? ""} · {a.kindFillName ?? ""} · {a.careNm ?? ""}
+                    {a.upKindNm ?? ""} · {a.kindFullNm ?? ""}
                   </option>
                 ))}
               </select>
@@ -656,7 +656,7 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.content)
   const [imageUrl, setImageUrl] = useState(post.imageUrl || "")
-  const [animals, setAnimals] = useState<AnimalDropdownItem[]>([])
+  const [animals, setAnimals] = useState<AdoptedAnimalItem[]>([])
   const [selectedAnimalId, setSelectedAnimalId] = useState<number | "">(post.animalId ?? "")
   const [isAnimalsLoading, setIsAnimalsLoading] = useState(false)
   const [hasLoadedAnimals, setHasLoadedAnimals] = useState(false)
@@ -666,13 +666,13 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
 
     const fetchAnimals = async () => {
       setIsAnimalsLoading(true)
-      const { data, error } = await getAnimals()
+      const { data, error } = await getAdoptableAnimals()
       if (error || !data) {
         console.error("동물 목록 조회 실패:", error)
         setIsAnimalsLoading(false)
         return
       }
-      setAnimals(data?.content || [])
+      setAnimals(data || [])
       setHasLoadedAnimals(true)
       setIsAnimalsLoading(false)
     }
@@ -756,7 +756,7 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
                 </option>
                 {animals.map((a) => (
                   <option key={a.animalId} value={a.animalId}>
-                    {a.noticeNo ?? ""} · {a.kindFillName ?? ""} · {a.careNm ?? ""}
+                    {a.upKindNm ?? ""} · {a.kindFullNm ?? ""}
                   </option>
                 ))}
               </select>
