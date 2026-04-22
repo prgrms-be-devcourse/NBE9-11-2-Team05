@@ -3,6 +3,8 @@ package com.team05.petmeeting.global.security.config;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
 import com.team05.petmeeting.global.security.handler.JwtAccessDeniedHandler;
 import com.team05.petmeeting.global.security.handler.JwtAuthenticationEntryPoint;
+import com.team05.petmeeting.global.security.oauth.CustomOAuth2UserService;
+import com.team05.petmeeting.global.security.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,9 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     // Jwt 인증 필터
     private final JwtAuthenticationFilter jwtFilter;
+    // 소셜 로그인
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,6 +56,15 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler)
+                );
+
+        // 소셜 로그인
+        http
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)
                 );
 
         // 경로별 인가 작업 : white list

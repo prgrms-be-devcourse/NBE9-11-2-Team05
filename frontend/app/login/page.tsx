@@ -540,38 +540,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {(phase === "entry" || phase === "social_only") && (
-            <>
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">또는</span>
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 rounded-xl border-[#03C75A] text-[#03C75A] hover:bg-[#03C75A]/10 font-semibold gap-2.5"
-                  onClick={() => startOAuth("naver")}
-                >
-                  <NaverBrandIcon />
-                  네이버로 시작하기
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 rounded-xl border-border bg-background font-semibold text-foreground gap-2.5"
-                  onClick={() => startOAuth("google")}
-                >
-                  <GoogleBrandIcon />
-                  구글로 시작하기
-                </Button>
-              </div>
-            </>
-          )}
 
           <div className="pt-2 text-center">
             <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
