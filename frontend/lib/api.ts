@@ -43,6 +43,11 @@ export const API_ENDPOINTS = {
     `${getApiServerOrigin()}/adoptions/admin/shelters/${encodeURIComponent(careRegNo)}/applications/${applicationId}/review`,
   applyAdoption: (animalId: number) =>
     `${getApiServerOrigin()}/adoptions/${animalId}`,
+  myAdoptions: `${getApiServerOrigin()}/adoptions/me`,
+  myAdoptionDetail: (applicationId: number) =>
+    `${getApiServerOrigin()}/adoptions/${applicationId}`,
+  cancelMyAdoption: (applicationId: number) =>
+    `${getApiServerOrigin()}/adoptions/${applicationId}`,
   // Animals
   animals: `${API_BASE_URL}/animals`,
   animalDetail: (id: number) => `${API_BASE_URL}/animals/${id}`,
@@ -599,6 +604,8 @@ export interface AdminAdoptionApplication {
   }
 }
 
+export type MyAdoptionApplication = AdminAdoptionApplication
+
 export const getAdminReadyNamingCandidates = async () => {
   const animalsResponse = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?size=100`)
 
@@ -696,6 +703,44 @@ export const getAdminShelterApplications = async (careRegNo: string) => {
   )
 
   return { ...response, data: applications }
+}
+
+export const getMyAdoptions = async () => {
+  const response = await apiRequest<MyAdoptionApplication[]>(API_ENDPOINTS.myAdoptions)
+
+  if (response.error || !response.data?.length) {
+    return response
+  }
+
+  const applications = await Promise.all(
+    response.data.map(async (application) => {
+      const detail = await getMyAdoptionDetail(application.applicationId)
+      if (!detail.data) return application
+
+      return {
+        ...application,
+        ...detail.data,
+        animalInfo: {
+          ...application.animalInfo,
+          ...detail.data.animalInfo,
+        },
+      }
+    })
+  )
+
+  return { ...response, data: applications }
+}
+
+export const getMyAdoptionDetail = async (applicationId: number) => {
+  return await apiRequest<MyAdoptionApplication>(
+    API_ENDPOINTS.myAdoptionDetail(applicationId)
+  )
+}
+
+export const cancelMyAdoption = async (applicationId: number) => {
+  return await apiRequest<void>(API_ENDPOINTS.cancelMyAdoption(applicationId), {
+    method: "DELETE",
+  })
 }
 
 export const getAdminShelterApplicationDetail = async (careRegNo: string, applicationId: number) => {

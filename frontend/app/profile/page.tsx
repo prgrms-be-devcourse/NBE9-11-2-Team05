@@ -9,11 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/lib/auth-context"
-import { apiRequest, API_ENDPOINTS } from "@/lib/api"
-import { User as UserIcon, Heart, FileText, Settings, Calendar, ThermometerSun, X, MessageSquare } from "lucide-react"
+import { apiRequest, API_ENDPOINTS, cancelMyAdoption, getMyAdoptions } from "@/lib/api"
+import { User as UserIcon, Heart, FileText, Settings, Calendar, ThermometerSun, X, MessageSquare, Phone, MapPin } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { formatDate } from "@/lib/utils"
-import { MyFeedComment, MyAnimalComment, User } from "@/lib/api"
+import { MyFeedComment, MyAnimalComment, User, MyAdoptionApplication, AdoptionStatus } from "@/lib/api"
 
 interface CheeredAnimal {
   animalId: number
@@ -52,6 +52,18 @@ const categoryLabels: Record<string, string> = {
   QUESTION: "질문",
 }
 
+const adoptionStatusLabels: Record<AdoptionStatus, string> = {
+  Processing: "검토중",
+  Approved: "승인",
+  Rejected: "거절",
+}
+
+const adoptionStatusClass: Record<AdoptionStatus, string> = {
+  Processing: "border-amber-200 bg-amber-50 text-amber-700",
+  Approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  Rejected: "border-red-200 bg-red-50 text-red-700",
+}
+
 export default function ProfilePage() {
   const router = useRouter()
   const { user, isLoading: authLoading, updateUser } = useAuth()
@@ -71,7 +83,30 @@ export default function ProfilePage() {
   const [showProfileImgModal, setShowProfileImgModal] = useState(false)
   const [myFeedComments, setMyFeedComments] = useState<MyFeedComment[]>([])
   const [myAnimalComments, setMyAnimalComments] = useState<MyAnimalComment[]>([])
+  const [myAdoptions, setMyAdoptions] = useState<MyAdoptionApplication[]>([])
+  const [adoptionError, setAdoptionError] = useState<string | null>(null)
+  const [cancelingApplicationId, setCancelingApplicationId] = useState<number | null>(null)
   const [isWithdrawing, setIsWithdrawing] = useState(false)
+
+  const handleCancelAdoption = async (applicationId: number) => {
+    if (cancelingApplicationId) return
+
+    const confirmed = window.confirm("입양 신청을 취소하시겠습니까?")
+    if (!confirmed) return
+
+    setCancelingApplicationId(applicationId)
+    const { error, status } = await cancelMyAdoption(applicationId)
+    setCancelingApplicationId(null)
+
+    if (error || status !== 204) {
+      alert(error || "입양 신청 취소에 실패했습니다.")
+      return
+    }
+
+    setMyAdoptions((current) =>
+      current.filter((application) => application.applicationId !== applicationId)
+    )
+  }
 
   const handleWithdraw = async () => {
     if (isWithdrawing) return
@@ -185,6 +220,15 @@ export default function ProfilePage() {
         setMyAnimalComments(animalCommentsResponse.data.comments)
       }
 
+      const adoptionsResponse = await getMyAdoptions()
+      if (adoptionsResponse.error) {
+        setAdoptionError(adoptionsResponse.error)
+        setMyAdoptions([])
+      } else {
+        setAdoptionError(null)
+        setMyAdoptions(adoptionsResponse.data ?? [])
+      }
+
       setIsLoading(false)
     }
 
@@ -285,6 +329,11 @@ export default function ProfilePage() {
               <TabsTrigger value="posts" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
                 <FileText className="w-4 h-4 shrink-0" />
                 <span className="hidden sm:inline text-xs sm:text-sm">작성한 글</span>
+              </TabsTrigger>
+              <TabsTrigger value="adoptions" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
+                <FileText className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline text-xs sm:text-sm">입양 신청</span>
+                <span className="sm:hidden text-xs">입양</span>
               </TabsTrigger>
               <TabsTrigger value="feed-comments" className="flex-1 gap-2 rounded-xl py-2 px-3 whitespace-nowrap">
                 <MessageSquare className="w-4 h-4 shrink-0" />
@@ -490,6 +539,118 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="adoptions">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  입양 신청 내역 ({myAdoptions.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">로딩 중...</div>
+                ) : adoptionError ? (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                    {adoptionError}
+                  </div>
+                ) : myAdoptions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                    <p className="text-muted-foreground">아직 입양 신청 내역이 없습니다</p>
+                    <Link href="/">
+                      <Button className="mt-4 rounded-xl">입양 가능한 동물 보기</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {myAdoptions.map((application) => (
+                      <div
+                        key={application.applicationId}
+                        className="rounded-2xl border border-border/70 p-4"
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="font-semibold text-foreground">
+                                {application.animalInfo.kindFullNm || application.animalInfo.desertionNo}
+                              </h3>
+                              <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${adoptionStatusClass[application.status]}`}>
+                                {adoptionStatusLabels[application.status]}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              신청번호 {application.applicationId}
+                              {application.createdAt ? ` · ${formatDate(application.createdAt)}` : ""}
+                            </p>
+                          </div>
+                          {application.status === "Processing" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-fit rounded-xl"
+                              onClick={() => handleCancelAdoption(application.applicationId)}
+                              disabled={cancelingApplicationId === application.applicationId}
+                            >
+                              {cancelingApplicationId === application.applicationId ? "취소 중..." : "신청 취소"}
+                            </Button>
+                          )}
+                        </div>
+
+                        <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                          <div className="rounded-xl bg-secondary/40 p-3">
+                            <p className="mb-1 text-xs font-medium text-muted-foreground">보호소</p>
+                            <p className="font-medium text-foreground">
+                              {application.animalInfo.careNm || "보호소 정보 없음"}
+                            </p>
+                            {application.animalInfo.careAddr && (
+                              <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
+                                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                <span>{application.animalInfo.careAddr}</span>
+                              </p>
+                            )}
+                            {application.animalInfo.careTel && (
+                              <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5 shrink-0" />
+                                <span>{application.animalInfo.careTel}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="rounded-xl bg-secondary/40 p-3">
+                            <p className="mb-1 text-xs font-medium text-muted-foreground">신청 연락처</p>
+                            <p className="font-medium text-foreground">
+                              {application.applyTel || "정보 없음"}
+                            </p>
+                            {application.reviewedAt && (
+                              <p className="mt-2 text-xs text-muted-foreground">
+                                심사일 {formatDate(application.reviewedAt)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {application.applyReason && (
+                          <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm leading-6 text-foreground">
+                            <p className="mb-1 text-xs font-medium text-muted-foreground">신청 사유</p>
+                            {application.applyReason}
+                          </div>
+                        )}
+
+                        {application.rejectionReason && (
+                          <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-700">
+                            <p className="mb-1 text-xs font-medium">거절 사유</p>
+                            {application.rejectionReason}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
