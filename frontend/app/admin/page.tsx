@@ -94,7 +94,10 @@ export default function AdminPage() {
       return
     }
 
-    const { data, error } = await getAdminReadyNamingCandidates()
+    const { data, error } = await getAdminReadyNamingCandidates({
+      careRegNo: trimmedCareRegNo,
+      careNm: resolvedShelterName,
+    })
     setIsLoadingNames(false)
 
     if (error) {
