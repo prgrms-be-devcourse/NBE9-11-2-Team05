@@ -51,4 +51,9 @@ public class AdsService {
                 .replace("\"}", "")
                 .trim();
     }
+
+    // @Scheduled(cron = "0 0 9 * * MON") // 매주 월요일 오전 9시 스프링이 직접 자동 실행하는 어노테이션, 일단 주석처리
+    public void scheduledWeeklyAds() throws InterruptedException {
+        runWeeklyAds(3);
+    }
 }
