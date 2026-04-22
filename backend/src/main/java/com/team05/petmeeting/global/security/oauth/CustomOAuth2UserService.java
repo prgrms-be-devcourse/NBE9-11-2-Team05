@@ -24,7 +24,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        OAuth2User googleUser = super.loadUser(userRequest);
+        OAuth2User googleUser = getOAuthUser(userRequest);
 
         log.info("user: {}", googleUser.getAttributes());
 
@@ -61,5 +61,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private boolean hasGoogleAuth(User user) {
         return user.getUserAuths().stream()
                 .anyMatch(auth -> auth.getProvider().equals(Provider.GOOGLE));
+    }
+
+    protected OAuth2User getOAuthUser(OAuth2UserRequest request) {
+        return super.loadUser(request);
     }
 }
