@@ -13,6 +13,14 @@ spring:
       host: localhost
       port: 6379
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-id
+            client-secret: test-secret
+
 jwt:
   secret: test-secret-key-must-be-at-least-32-characters-long
   expireMillis: 1800000
@@ -23,4 +31,31 @@ animal:
     service-key: test-key
     return-type: json
 
-CLAUDE_API_KEY: dummy-claude-api-key
+# Meta Ads API 설정
+meta:
+  ads:
+    page-id: test-page-id
+
+# Instagram API 설정
+instagram:
+  user-id: test-instagram-user-id
+  access-token: test-instagram-access-token
+
+# GEMINI_API 설정
+gemini:
+  api:
+    key: test-gemini-key
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+# AWS S3 설정
+cloud:
+  aws:
+    credentials:
+      access-key: test-access-key
+      secret-key: test-secret-key
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: test-bucket
+    stack:
+      auto: false
