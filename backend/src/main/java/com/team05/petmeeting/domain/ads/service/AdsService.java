@@ -18,9 +18,12 @@ public class AdsService {
     private final CardNewsService cardNewsService;
     private final InstagramClient instagramClient;
 
-    // Top N 동물 조회
+    // Top N 동물 조회 (보호중인 동물만)
     public List<Animal> getTopAnimals(int n) {
-        return animalRepository.findAllByOrderByTotalCheerCountDesc(PageRequest.of(0, n));
+        return animalRepository.findAllByStateGroupOrderByTotalCheerCountDesc(
+                0,  // 0 = 보호중
+                PageRequest.of(0, n)
+        );
     }
 
     // 전체 파이프라인 실행
