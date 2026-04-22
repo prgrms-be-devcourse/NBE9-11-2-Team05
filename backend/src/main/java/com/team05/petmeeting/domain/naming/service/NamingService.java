@@ -101,13 +101,22 @@ public class NamingService {
     }
 
     @Transactional(readOnly = true)
-    public NameCandidateRes getAdminCandidate(Long animalId) {
+    public NameCandidateRes getAdminCandidate(Long animalId, Long managerId) {
+        // 1. 관리자 정보 및 보호소 소속 여부 확인
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+
+        if (manager.getShelter() == null) {
+            throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
+        }
+
+        String careRegNo = manager.getShelter().getCareRegNo();
         int threshold = 10;
 
+        // 2. 해당 보호소 소속이면서 10표 넘긴 후보 조회
         Optional<NameCandidateRes.CandidateDto> topCandidateOpt =
-                candidateRepository.getTopQualifiedCandidate(animalId, threshold);
+                candidateRepository.getTopQualifiedCandidate(animalId, careRegNo, threshold);
 
-        // 데이터가 없으면 빈 리스트를 담은 객체 반환 (에러 방지)
         List<NameCandidateRes.CandidateDto> candidates = topCandidateOpt
                 .map(List::of)
                 .orElse(Collections.emptyList());
