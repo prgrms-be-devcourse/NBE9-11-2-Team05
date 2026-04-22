@@ -1,4 +1,4 @@
-package com.team05.petmeeting.feed.service;
+package com.team05.petmeeting.domain.feed.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,7 +62,6 @@ class FeedLikeServiceTest {
 
         when(feedRepository.findById(feedId)).thenReturn(Optional.of(feed));
         // 아직 좋아요 안 누른 상태
-        when(feedLikeRepository.existsByUserAndFeed(user, feed)).thenReturn(false);
         when(feedLikeRepository.countByFeed(feed)).thenReturn(1L);
         // countByFeed 이후 existsByUserAndFeed 재호출 → true (방금 추가했으니까)
         when(feedLikeRepository.existsByUserAndFeed(user, feed))

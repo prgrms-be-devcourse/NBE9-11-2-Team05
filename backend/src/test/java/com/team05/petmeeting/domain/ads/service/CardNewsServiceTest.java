@@ -1,8 +1,6 @@
-package com.team05.petmeeting.ads;
+package com.team05.petmeeting.domain.ads.service;
 
 import com.team05.petmeeting.domain.ads.dto.CardNewsResult;
-import com.team05.petmeeting.domain.ads.service.CardNewsService;
-import com.team05.petmeeting.domain.ads.service.GeminiService;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.infra.s3.S3Service;
 import org.junit.jupiter.api.DisplayName;
