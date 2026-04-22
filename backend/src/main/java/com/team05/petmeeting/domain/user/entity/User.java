@@ -1,5 +1,6 @@
 package com.team05.petmeeting.domain.user.entity;
 
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.user.role.Role;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -8,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -22,6 +25,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User extends BaseEntity {
+
+    @JoinColumn(name = "care_reg_no")
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private Shelter shelter;
 
     @Column(nullable = false, unique = true)
     private String email;
