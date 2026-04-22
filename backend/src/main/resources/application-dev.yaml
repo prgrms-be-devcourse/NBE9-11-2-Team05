@@ -1,8 +1,7 @@
 spring:
   datasource:
-    # localhost 뒤의 포트번호 = yaml에 설정한 13306
-    url: jdbc:mysql://localhost:13306/my_project_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
+    url: jdbc:mysql://43.201.154.208:3306/my_project_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: appuser
     password: "1234"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
