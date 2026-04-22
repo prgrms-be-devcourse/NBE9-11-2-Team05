@@ -69,4 +69,10 @@ public class AdoptionApplication extends BaseEntity {
         this.reviewedAt = LocalDateTime.now();
         this.rejectionReason = rejectionReason;
     }
+
+    public void markProcessing() {
+        this.status = AdoptionStatus.Processing;
+        this.reviewedAt = null;
+        this.rejectionReason = null;
+    }
 }

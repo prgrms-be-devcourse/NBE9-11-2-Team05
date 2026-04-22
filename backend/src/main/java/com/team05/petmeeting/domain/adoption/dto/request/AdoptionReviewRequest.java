@@ -1,11 +1,14 @@
 package com.team05.petmeeting.domain.adoption.dto.request;
 
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdoptionReviewRequest {
-    @Enumerated(EnumType.STRING)
     private AdoptionStatus status;
     private String rejectionReason;
 }

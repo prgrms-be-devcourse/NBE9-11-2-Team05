@@ -1,8 +1,10 @@
 package com.team05.petmeeting.domain.adoption.service;
 
+import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
+import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
@@ -37,6 +39,45 @@ public class AdoptionAdminService {
     public AdoptionDetailResponse getManagedShelterApplicationDetail(Long userId, String careRegNo, Long applicationId) {
         validateShelterManager(userId, careRegNo);
 
+        AdoptionApplication application = getShelterApplication(careRegNo, applicationId);
+
+        return toDetailResponse(application);
+    }
+
+    // careRegNo 보호소 관리자가 입양 신청 상태를 승인/거절/검토중으로 변경한다.
+    @Transactional
+    public AdoptionDetailResponse reviewApplication(
+            Long userId,
+            String careRegNo,
+            Long applicationId,
+            AdoptionReviewRequest request
+    ) {
+        validateShelterManager(userId, careRegNo);
+        AdoptionApplication application = getShelterApplication(careRegNo, applicationId);
+        AdoptionStatus status = request.getStatus();
+
+        if (status == null) {
+            throw new BusinessException(AdoptionErrorCode.INVALID_REVIEW_STATUS);
+        }
+
+        switch (status) {
+            case Approved -> application.approve();
+            case Rejected -> rejectApplication(application, request.getRejectionReason());
+            case Processing -> application.markProcessing();
+        }
+
+        return toDetailResponse(application);
+    }
+
+    private void rejectApplication(AdoptionApplication application, String rejectionReason) {
+        if (rejectionReason == null || rejectionReason.isBlank()) {
+            throw new BusinessException(AdoptionErrorCode.REJECTION_REASON_REQUIRED);
+        }
+
+        application.reject(rejectionReason);
+    }
+
+    private AdoptionApplication getShelterApplication(String careRegNo, Long applicationId) {
         AdoptionApplication application = adoptionApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new BusinessException(AdoptionErrorCode.APPLICATION_NOT_FOUND));
 
@@ -44,7 +85,7 @@ public class AdoptionAdminService {
             throw new BusinessException(AdoptionErrorCode.FORBIDDEN_SHELTER_APPLICATION);
         }
 
-        return toDetailResponse(application);
+        return application;
     }
 
     // 사용자가 careRegNo 보호소의 관리자인지 확인한다.

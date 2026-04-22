@@ -1,11 +1,14 @@
 package com.team05.petmeeting.domain.adoption.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
@@ -134,6 +137,55 @@ class AdoptionAdminControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("AD-003"))
                 .andExpect(jsonPath("$.message").value("해당 보호소의 관리자가 아닙니다."));
+    }
+
+    @Test
+    @DisplayName("보호소 관리자 입양 신청 상태 검토 성공")
+    void reviewApplication() throws Exception {
+        Long applicationId = 10L;
+        AdoptionDetailResponse response = new AdoptionDetailResponse(
+                applicationId,
+                AdoptionStatus.Approved,
+                "입양하고 싶습니다.",
+                LocalDateTime.of(2026, 4, 22, 10, 0),
+                LocalDateTime.of(2026, 4, 22, 11, 0),
+                null,
+                "010-1234-5678",
+                new AdoptionDetailResponse.AnimalInfo(
+                        "A-001",
+                        "특이사항 없음",
+                        "담당보호소",
+                        "보호소장",
+                        "010-0000-0000",
+                        "서울시"
+                )
+        );
+        given(adoptionAdminService.reviewApplication(
+                any(Long.class),
+                any(String.class),
+                any(Long.class),
+                any(AdoptionReviewRequest.class)
+        )).willReturn(response);
+
+        mockMvc.perform(patch("/adoptions/admin/shelters/{careRegNo}/applications/{applicationId}/review",
+                        CARE_REG_NO,
+                        applicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"status":"Approved","rejectionReason":null}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.applicationId").value(applicationId))
+                .andExpect(jsonPath("$.status").value("Approved"))
+                .andExpect(jsonPath("$.reviewedAt").isNotEmpty())
+                .andExpect(jsonPath("$.rejectionReason").doesNotExist());
+
+        verify(adoptionAdminService).reviewApplication(
+                any(Long.class),
+                any(String.class),
+                any(Long.class),
+                any(AdoptionReviewRequest.class)
+        );
     }
 
     private UsernamePasswordAuthenticationToken auth() {
