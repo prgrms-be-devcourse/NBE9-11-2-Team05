@@ -3,10 +3,13 @@ package com.team05.petmeeting.domain.adoption.service;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
+import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
+import com.team05.petmeeting.domain.shelter.errorCode.ShelterErrorCode;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
+import com.team05.petmeeting.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,10 +38,10 @@ public class AdoptionAdminService {
         validateShelterManager(userId, careRegNo);
 
         AdoptionApplication application = adoptionApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("입양 신청 내역이 없습니다."));
+                .orElseThrow(() -> new BusinessException(AdoptionErrorCode.APPLICATION_NOT_FOUND));
 
         if (!isShelterApplication(application, careRegNo)) {
-            throw new RuntimeException("담당 보호소의 입양 신청만 조회할 수 있습니다.");
+            throw new BusinessException(AdoptionErrorCode.FORBIDDEN_SHELTER_APPLICATION);
         }
 
         return toDetailResponse(application);
@@ -47,10 +50,10 @@ public class AdoptionAdminService {
     // 사용자가 careRegNo 보호소의 관리자인지 확인한다.
     private void validateShelterManager(Long userId, String careRegNo) {
         Shelter shelter = shelterRepository.findById(careRegNo)
-                .orElseThrow(() -> new RuntimeException("보호소를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ShelterErrorCode.SHELTER_NOT_FOUND));
 
         if (!shelter.isManagedBy(userId)) {
-            throw new RuntimeException("해당 보호소의 관리자가 아닙니다.");
+            throw new BusinessException(AdoptionErrorCode.UNAUTHORIZED_SHELTER);
         }
     }
 

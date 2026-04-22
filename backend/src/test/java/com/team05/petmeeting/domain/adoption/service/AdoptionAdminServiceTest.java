@@ -7,6 +7,7 @@ import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
+import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
@@ -14,6 +15,7 @@ import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.global.entity.BaseEntity;
+import com.team05.petmeeting.global.exception.BusinessException;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -118,8 +120,9 @@ class AdoptionAdminServiceTest {
         assertThatThrownBy(() ->
                 adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), "S-001", application.getId())
         )
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("담당 보호소의 입양 신청만 조회할 수 있습니다.");
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(AdoptionErrorCode.FORBIDDEN_SHELTER_APPLICATION);
     }
 
     @Test
@@ -136,8 +139,9 @@ class AdoptionAdminServiceTest {
         assertThatThrownBy(() ->
                 adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), "S-001", 1L)
         )
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("해당 보호소의 관리자가 아닙니다.");
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(AdoptionErrorCode.UNAUTHORIZED_SHELTER);
     }
 
     private User createUser(Long id, String email) throws Exception {

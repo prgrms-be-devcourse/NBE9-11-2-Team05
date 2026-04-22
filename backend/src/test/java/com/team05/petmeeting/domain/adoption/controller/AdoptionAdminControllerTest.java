@@ -9,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
+import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.service.AdoptionAdminService;
+import com.team05.petmeeting.global.exception.BusinessException;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import com.team05.petmeeting.global.security.util.JwtUtil;
@@ -119,6 +121,19 @@ class AdoptionAdminControllerTest {
                 .andExpect(jsonPath("$.animalInfo.careNm").value("담당보호소"));
 
         verify(adoptionAdminService).getManagedShelterApplicationDetail(USER_ID, CARE_REG_NO, applicationId);
+    }
+
+    @Test
+    @DisplayName("보호소 관리자가 아니면 에러 응답을 반환한다")
+    void getManagedShelterApplications_unauthorizedShelter() throws Exception {
+        given(adoptionAdminService.getManagedShelterApplications(USER_ID, CARE_REG_NO))
+                .willThrow(new BusinessException(AdoptionErrorCode.UNAUTHORIZED_SHELTER));
+
+        mockMvc.perform(get("/adoptions/admin/shelters/{careRegNo}/applications", CARE_REG_NO)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("AD-003"))
+                .andExpect(jsonPath("$.message").value("해당 보호소의 관리자가 아닙니다."));
     }
 
     private UsernamePasswordAuthenticationToken auth() {
