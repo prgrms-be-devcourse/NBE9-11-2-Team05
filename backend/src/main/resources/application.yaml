@@ -22,6 +22,17 @@ spring:
 
     show-sql: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH_GOOGLE_PASSWORD}
+            scope:
+              - email
+              - profile
+
   data:
     redis:
       host: ${REDIS_HOST}
