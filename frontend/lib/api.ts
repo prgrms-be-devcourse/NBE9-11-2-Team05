@@ -680,9 +680,22 @@ function parseAnimalListForAdminNaming(payload: unknown): Array<{
 }
 
 export const getAdminShelterApplications = async (careRegNo: string) => {
-  return await apiRequest<AdminAdoptionApplication[]>(
+  const response = await apiRequest<AdminAdoptionApplication[]>(
     API_ENDPOINTS.adminShelterApplications(careRegNo)
   )
+
+  if (response.error || !response.data?.length) {
+    return response
+  }
+
+  const applications = await Promise.all(
+    response.data.map(async (application) => {
+      const detail = await getAdminShelterApplicationDetail(careRegNo, application.applicationId)
+      return detail.data ?? application
+    })
+  )
+
+  return { ...response, data: applications }
 }
 
 export const getAdminShelterApplicationDetail = async (careRegNo: string, applicationId: number) => {
