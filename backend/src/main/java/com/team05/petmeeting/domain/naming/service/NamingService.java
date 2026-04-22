@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,6 +98,26 @@ public class NamingService {
 
         // 후보 테이블의 투표수 증가
         candidate.addVoteCount();
+    }
+
+    @Transactional(readOnly = true)
+    public NameCandidateRes getAdminCandidate(Long animalId) {
+        int threshold = 10;
+
+        Optional<NameCandidateRes.CandidateDto> topCandidateOpt =
+                candidateRepository.getTopQualifiedCandidate(animalId, threshold);
+
+        // 데이터가 없으면 빈 리스트를 담은 객체 반환 (에러 방지)
+        List<NameCandidateRes.CandidateDto> candidates = topCandidateOpt
+                .map(List::of)
+                .orElse(Collections.emptyList());
+
+        return new NameCandidateRes(
+                animalId,
+                null,
+                candidates,
+                candidates.size()
+        );
     }
 
     public void confirmName(Long candidateId, Long managerId) {
