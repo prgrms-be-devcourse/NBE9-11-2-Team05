@@ -1,4 +1,4 @@
-package com.team05.petmeeting.animal;
+package com.team05.petmeeting.domain.animal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+// AnimalSyncController 동기화 흐름에서 외부 동물 API 호출 파라미터와 응답 매핑을 담당하는 AnimalExternalService 검증
 class AnimalExternalServiceTest {
 
     private HttpServer server;
