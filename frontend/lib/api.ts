@@ -84,6 +84,8 @@ export const API_ENDPOINTS = {
   feedDetail: (feedId: number) => `${API_BASE_URL}/feeds/${feedId}`,
   feedComments: (feedId: number) => `${API_BASE_URL}/feeds/${feedId}/comments`,
   feedCommentDetail: (feedId: number, commentId: number) => `${API_BASE_URL}/feeds/${feedId}/comments/${commentId}`,
+  adoptableAnimals: `${API_BASE_URL}/feeds/adoptable-animals`,
+
 
   // Animal Sync
   animalSync: `${API_BASE_URL}/animals/sync`,
@@ -351,6 +353,17 @@ export const getAnimals = async () => {
   return await apiRequest<PaginatedResponse<AnimalDropdownItem>>(API_ENDPOINTS.animals)
 }
 
+export interface AdoptedAnimalItem {
+  animalId: number
+  upKindNm: string
+  kindFullNm: string
+  imageUrl: string
+}
+
+export const getAdoptableAnimals = async () => {
+  return await apiRequest<AdoptedAnimalItem[]>(API_ENDPOINTS.adoptableAnimals)
+}
+
 export const getAnimalDetail = async (animalId: number) => {
   return await apiRequest<AnimalDropdownItem>(API_ENDPOINTS.animalDetail(animalId))
 }
@@ -421,7 +434,19 @@ export interface FeedDetail {
 }
 
 export interface Feed {
-  updatedAt: string;
+  feedId: number
+  userId: number
+  nickname?: string
+  profileImageUrl?: string
+  animalId?: number
+  category?: string
+  title: string
+  content: string
+  imageUrl?: string
+  likeCount: number
+  commentCount: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Campaign {
@@ -683,7 +708,7 @@ function parseAnimalListForAdminNaming(payload: unknown): Array<{
         kindFullNm: String(animal.kindFullNm ?? animal.kindFillName ?? animal.breed ?? animal.kind ?? "품종 정보 없음"),
       }
     })
-    .filter((animal): animal is { animalId: number; desertionNo: string; careRegNo?: string; careNm?: string; kindFullNm: string } => animal !== null)
+.filter((animal): animal is NonNullable<typeof animal> => animal !== null)
 }
 
 export const getAdminShelterApplications = async (careRegNo: string) => {
