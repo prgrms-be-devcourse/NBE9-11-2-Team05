@@ -103,14 +103,19 @@ public class NamingService {
         AnimalNameCandidate candidate = candidateRepository.findById(candidateId).orElseThrow(
                 () -> new BusinessException(NamingErrorCode.CANDIDATE_NOT_FOUND));
 
+        Animal animal = candidate.getAnimal();
         // 상태 검증
-        validateAnimalStatus(candidate.getAnimal());
+        validateAnimalStatus(animal);
 
-        // 권한 검증 (관리자의 보호소 ID와 동물의 보호소 ID 일치 여부)
-        // todo: User-Shelter 연관관계에 따라 구현
-        // if (!manager.getShelter().getId().equals(animal.getShelter().getId())) {
-        //     throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
-        // }
+        // 3. 권한 검증 (팀원 구현부 연동 대비)
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+
+        // 관리자의 careRegNo 과 동물이 속한 보호소의 careRegNo 을 비교
+         if (manager.getShelter() == null ||
+                 !manager.getShelter().getCareRegNo().equals(animal.getShelter().getCareRegNo())) {
+             throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
+         }
 
         // 이름 확정 처리
         candidate.confirmName(); // isConfirmed = true

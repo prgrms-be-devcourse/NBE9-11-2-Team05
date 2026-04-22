@@ -1,4 +1,4 @@
-package com.team05.petmeeting.naming.service;
+package com.team05.petmeeting.domain.naming.service;
 
 import com.team05.petmeeting.domain.animal.dto.external.AnimalItem;
 import com.team05.petmeeting.domain.animal.entity.Animal;

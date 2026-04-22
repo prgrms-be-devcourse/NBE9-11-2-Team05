@@ -17,7 +17,7 @@ public enum NamingErrorCode implements ErrorCode {
     ALREADY_HAS_NAME(HttpStatus.BAD_REQUEST, "N-005", "이미 이름이 확정된 동물입니다."),
     ALREADY_COMPLETED_ANIMAL(HttpStatus.BAD_REQUEST, "N-006", "보호가 종료된 동물입니다."),
     BAD_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "N-007", "존재하지 않는 금칙어입니다."),
-
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "N-008", "이름 결정 권한이 없습니다."),
     ;
 
     private final HttpStatus status;

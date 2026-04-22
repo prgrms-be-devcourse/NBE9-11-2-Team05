@@ -1,4 +1,4 @@
-package com.team05.petmeeting.naming.repository;
+package com.team05.petmeeting.domain.naming.repository;
 
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;

@@ -1,4 +1,4 @@
-package com.team05.petmeeting.cheer.service;
+package com.team05.petmeeting.domain.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
