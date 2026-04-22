@@ -10,8 +10,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,11 +26,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-    @JoinColumn(name = "care_reg_no")
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
-    )
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "care_reg_no", referencedColumnName = "care_reg_no")
     private Shelter shelter;
 
     @Column(nullable = false, unique = true)
