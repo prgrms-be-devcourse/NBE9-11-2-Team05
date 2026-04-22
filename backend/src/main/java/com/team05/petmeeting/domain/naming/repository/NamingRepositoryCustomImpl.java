@@ -14,6 +14,7 @@ import com.team05.petmeeting.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.team05.petmeeting.domain.naming.entity.QAnimalNameCandidate.animalNameCandidate;
 import static com.team05.petmeeting.domain.naming.entity.QNameVoteHistory.nameVoteHistory;
@@ -63,6 +64,29 @@ public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
                 candidateDtoList,
                 candidateDtoList.size()
         );
+    }
+
+    @Override
+    public Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(Long animalId, int threshold) {
+        return Optional.ofNullable(queryFactory
+                .select(Projections.constructor(NameCandidateRes.CandidateDto.class,
+                        animalNameCandidate.id,
+                        animalNameCandidate.proposedName,
+                        animalNameCandidate.user.nickname,
+                        animalNameCandidate.voteCount,
+                        Expressions.asBoolean(false) // 관리자 조회이므로 투표 여부는 무의미하여 false 처리
+                ))
+                .from(animalNameCandidate)
+                .where(
+                        animalNameCandidate.animal.id.eq(animalId),
+                        animalNameCandidate.voteCount.goe(threshold) // 1. 일정 득표수(threshold) 이상
+                )
+                .orderBy(
+                        animalNameCandidate.voteCount.desc(), // 2. 득표수 내림차순
+                        animalNameCandidate.createdAt.asc()   // 3. 동점 시 먼저 생성된 순
+                )
+                .limit(1) // 4. 단 1개만 추출
+                .fetchOne());
     }
 
 
