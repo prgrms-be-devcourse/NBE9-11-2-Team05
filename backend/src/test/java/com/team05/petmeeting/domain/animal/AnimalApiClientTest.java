@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// AnimalSyncController 동기화 흐름에서 외부 동물 API URL과 인증 설정을 제공하는 AnimalApiClient 검증
 public class AnimalApiClientTest {
     private static final String BASE_URL = "https://apis.data.go.kr/1543061/abandonmentPublicService_v2";
 
