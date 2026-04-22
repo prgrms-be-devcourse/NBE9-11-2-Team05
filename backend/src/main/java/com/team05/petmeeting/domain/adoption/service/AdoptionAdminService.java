@@ -17,6 +17,7 @@ public class AdoptionAdminService {
 
     private final AdoptionApplicationRepository adoptionApplicationRepository;
 
+    // 로그인한 관리자가 담당하는 보호소의 입양 신청만 필터링해서 목록으로 반환한다.
     @Transactional(readOnly = true)
     public List<AdoptionApplyResponse> getManagedShelterApplications(Long userId) {
         return adoptionApplicationRepository.findAll().stream()
@@ -25,6 +26,7 @@ public class AdoptionAdminService {
                 .toList();
     }
 
+    // 입양 신청 상세 조회 전 담당 보호소 신청인지 검증한다.
     @Transactional(readOnly = true)
     public AdoptionDetailResponse getManagedShelterApplicationDetail(Long userId, Long applicationId) {
         AdoptionApplication application = adoptionApplicationRepository.findById(applicationId)
@@ -37,11 +39,13 @@ public class AdoptionAdminService {
         return toDetailResponse(application);
     }
 
+    // 신청 동물의 보호소가 로그인한 관리자의 담당 보호소인지 확인한다.
     private boolean isManagedShelterApplication(AdoptionApplication application, Long userId) {
         Shelter shelter = application.getAnimal().getShelter();
         return shelter != null && shelter.isManagedBy(userId);
     }
 
+    // 관리자 목록 조회에 필요한 최소 신청 정보로 변환한다.
     private AdoptionApplyResponse toResponse(AdoptionApplication application) {
         Animal animal = application.getAnimal();
 
@@ -59,6 +63,7 @@ public class AdoptionAdminService {
         );
     }
 
+    // 관리자 상세 조회에 필요한 신청, 연락처, 심사, 동물 정보를 함께 변환한다.
     private AdoptionDetailResponse toDetailResponse(AdoptionApplication application) {
         Animal animal = application.getAnimal();
 

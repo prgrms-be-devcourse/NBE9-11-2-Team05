@@ -38,6 +38,7 @@ class AdoptionAdminServiceTest {
     @Test
     @DisplayName("담당 보호소의 입양 신청 목록만 조회한다")
     void getManagedShelterApplications() throws Exception {
+        // given: 담당 보호소 신청과 다른 보호소 신청이 함께 존재한다.
         User manager = createUser(1L, "manager@test.com");
         User otherManager = createUser(2L, "other-manager@test.com");
         User applicant = createUser(3L, "applicant@test.com");
@@ -55,9 +56,11 @@ class AdoptionAdminServiceTest {
         when(adoptionApplicationRepository.findAll())
                 .thenReturn(List.of(managedApplication, otherApplication));
 
+        // when
         List<AdoptionApplyResponse> responses =
                 adoptionAdminService.getManagedShelterApplications(manager.getId());
 
+        // then
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getApplicationId()).isEqualTo(managedApplication.getId());
         assertThat(responses.get(0).getStatus()).isEqualTo(AdoptionStatus.Processing);
@@ -67,6 +70,7 @@ class AdoptionAdminServiceTest {
     @Test
     @DisplayName("담당 보호소의 입양 신청 상세를 조회한다")
     void getManagedShelterApplicationDetail() throws Exception {
+        // given: 관리자가 담당하는 보호소의 입양 신청이 존재한다.
         User manager = createUser(1L, "manager@test.com");
         User applicant = createUser(2L, "applicant@test.com");
         Animal animal = createAnimal("A-001", "담당보호소", createShelter("S-001", "담당보호소", manager));
@@ -74,9 +78,11 @@ class AdoptionAdminServiceTest {
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
+        // when
         AdoptionDetailResponse response =
                 adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), application.getId());
 
+        // then
         assertThat(response.getApplicationId()).isEqualTo(application.getId());
         assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Processing);
         assertThat(response.getApplyReason()).isEqualTo("입양하고 싶습니다.");
@@ -88,6 +94,7 @@ class AdoptionAdminServiceTest {
     @Test
     @DisplayName("다른 보호소의 입양 신청 상세는 조회할 수 없다")
     void getManagedShelterApplicationDetail_otherShelter() throws Exception {
+        // given: 조회 요청자와 다른 관리자가 담당하는 보호소의 신청이 존재한다.
         User manager = createUser(1L, "manager@test.com");
         User otherManager = createUser(2L, "other-manager@test.com");
         User applicant = createUser(3L, "applicant@test.com");
@@ -96,6 +103,7 @@ class AdoptionAdminServiceTest {
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
+        // when & then
         assertThatThrownBy(() ->
                 adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), application.getId())
         )

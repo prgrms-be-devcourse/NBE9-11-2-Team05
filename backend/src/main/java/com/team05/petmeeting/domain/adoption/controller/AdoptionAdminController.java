@@ -19,6 +19,7 @@ public class AdoptionAdminController {
 
     private final AdoptionAdminService adoptionAdminService;
 
+    // 보호소 관리자가 담당 보호소에 접수된 입양 신청 목록을 조회한다.
     @GetMapping
     public List<AdoptionApplyResponse> getManagedShelterApplications(
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -26,6 +27,7 @@ public class AdoptionAdminController {
         return adoptionAdminService.getManagedShelterApplications(userDetails.getUserId());
     }
 
+    // 보호소 관리자가 담당 보호소의 입양 신청 상세 정보를 조회한다.
     @GetMapping("/{applicationId}")
     public AdoptionDetailResponse getManagedShelterApplicationDetail(
             @AuthenticationPrincipal CustomUserDetails userDetails,
