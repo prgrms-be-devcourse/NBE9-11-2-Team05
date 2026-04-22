@@ -55,6 +55,67 @@ class UserAuthServiceTest {
     }
 
     @Test
+    @DisplayName("verifyOtp - 성공")
+    void verifyOtp_success() {
+        String email = "test@gmail.com";
+        String code = "123456";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.of(code));
+        when(otpService.markVerifiedWithToken(email)).thenReturn("verify-token");
+
+        String result = userAuthService.verifyOtp(email, code);
+
+        assertThat(result).isEqualTo("verify-token");
+        verify(otpService).clearOtp(email);
+    }
+
+    @Test
+    @DisplayName("verifyOtp - OTP 없음 (만료)")
+    void verifyOtp_expired() {
+        String email = "test@gmail.com";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userAuthService.verifyOtp(email, "123456"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.EXPIRED_OTP);
+    }
+
+    @Test
+    @DisplayName("verifyOtp - 코드 불일치")
+    void verifyOtp_invalid() {
+        String email = "test@gmail.com";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.isExceededAttempts(email)).thenReturn(false);
+
+        assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.INVALID_OTP);
+
+        verify(otpService).increaseAttempt(email);
+    }
+
+    @Test
+    @DisplayName("verifyOtp - 시도 횟수 초과")
+    void verifyOtp_too_many_attempts() {
+        String email = "test@gmail.com";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.isExceededAttempts(email)).thenReturn(true);
+
+        assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.TOO_MANY_OTP_ATTEMPTS);
+
+        verify(otpService).increaseAttempt(email);
+        verify(otpService).clearOtp(email);
+    }
+
+    @Test
     @DisplayName("signupAndLoginWithEmail - 성공")
     void signup_success() {
         String token = "valid-token";
@@ -87,6 +148,20 @@ class UserAuthServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(UserErrorCode.ALREADY_REGISTERED_EMAIL);
+    }
+
+    @Test
+    @DisplayName("signupAndLoginWithEmail - verification token 없음")
+    void signup_fail_invalid_verification_token() {
+        String token = "invalid-token";
+        EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
+
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.INVALID_VERIFICATION_TOKEN);
     }
 
     @Test
