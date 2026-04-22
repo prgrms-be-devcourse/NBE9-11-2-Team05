@@ -59,6 +59,10 @@ public class AdoptionAdminService {
             application.approve();
         }
 
+        if (request.getStatus() == AdoptionStatus.Reviewing) {
+            application.startReview();
+        }
+
         return toDetailResponse(application);
     }
 
