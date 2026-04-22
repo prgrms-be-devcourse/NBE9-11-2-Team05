@@ -1,36 +1,5 @@
 package com.team05.petmeeting.domain.cheer.controller;
 
-import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
-import com.team05.petmeeting.domain.cheer.dto.CheerRes;
-import com.team05.petmeeting.domain.cheer.dto.CheerStatusDto;
-import com.team05.petmeeting.domain.cheer.errorCode.CheerErrorCode;
-import com.team05.petmeeting.domain.cheer.service.CheerService;
-import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
-import com.team05.petmeeting.global.exception.BusinessException;
-import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Transactional
 public class CheerControllerTest {
 
     @Autowired
