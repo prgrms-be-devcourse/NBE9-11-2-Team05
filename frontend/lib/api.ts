@@ -33,6 +33,8 @@ export const API_ENDPOINTS = {
   voteNamingCandidate: (candidateId: number) =>
     `${API_BASE_URL}/naming/candidates/${candidateId}/vote`,
   adminReadyNamingCandidates: `${API_BASE_URL}/naming/admin/candidates/ready`,
+  adminQualifiedNamingCandidate: (animalId: number) =>
+    `${API_BASE_URL}/naming/admin/animals/${animalId}/qualified-candidate`,
   confirmNamingCandidate: (candidateId: number) =>
     `${API_BASE_URL}/naming/candidates/${candidateId}/confirm`,
   adminShelterApplications: (careRegNo: string) =>
@@ -547,6 +549,12 @@ export const getNameCandidates = async (animalId: number) => {
   )
 }
 
+export const getAdminQualifiedNamingCandidate = async (animalId: number) => {
+  return await apiRequest<NamingCandidatesResponse>(
+    API_ENDPOINTS.adminQualifiedNamingCandidate(animalId)
+  )
+}
+
 export const proposeName = async (
   animalId: number,
   payload: { proposedName: string }
@@ -582,6 +590,14 @@ export interface AdminNameCandidate {
   voteCount: number
 }
 
+interface AdminNamingAnimal {
+  animalId: number
+  desertionNo: string
+  careRegNo?: string
+  careNm?: string
+  kindFullNm: string
+}
+
 export type AdoptionStatus = "Processing" | "Approved" | "Rejected"
 
 export interface AdminAdoptionApplication {
@@ -606,7 +622,7 @@ export interface AdminAdoptionApplication {
 
 export type MyAdoptionApplication = AdminAdoptionApplication
 
-export const getAdminReadyNamingCandidates = async () => {
+export const getAdminReadyNamingCandidates = async (filters?: { careRegNo?: string; careNm?: string }) => {
   const animalsResponse = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?size=100`)
 
   if (animalsResponse.error) {
@@ -619,9 +635,20 @@ export const getAdminReadyNamingCandidates = async () => {
   }
 
   const animalCandidates = parseAnimalListForAdminNaming(animalsResponse.data)
+    .filter((animal) => {
+      if (filters?.careRegNo && animal.careRegNo) {
+        return animal.careRegNo === filters.careRegNo
+      }
+
+      if (filters?.careNm && animal.careNm) {
+        return animal.careNm === filters.careNm
+      }
+
+      return true
+    })
   const candidateResponses = await Promise.all(
     animalCandidates.map(async (animal) => {
-      const response = await getNameCandidates(animal.animalId)
+      const response = await getAdminQualifiedNamingCandidate(animal.animalId)
       return { animal, response }
     })
   )
@@ -649,13 +676,7 @@ export const getAdminReadyNamingCandidates = async () => {
   return { data: candidates, error: null, status: 200 }
 }
 
-function parseAnimalListForAdminNaming(payload: unknown): Array<{
-  animalId: number
-  desertionNo: string
-  careRegNo?: string
-  careNm?: string
-  kindFullNm: string
-}> {
+function parseAnimalListForAdminNaming(payload: unknown): AdminNamingAnimal[] {
   if (!payload) return []
 
   const list = Array.isArray(payload)
@@ -669,21 +690,20 @@ function parseAnimalListForAdminNaming(payload: unknown): Array<{
       : []
 
   return list
-    .map((item) => {
-      if (!item || typeof item !== "object") return null
+    .flatMap((item): AdminNamingAnimal[] => {
+      if (!item || typeof item !== "object") return []
       const animal = item as Record<string, unknown>
       const animalId = Number(animal.animalId ?? animal.id)
-      if (!Number.isFinite(animalId)) return null
+      if (!Number.isFinite(animalId)) return []
 
-      return {
+      return [{
         animalId,
         desertionNo: String(animal.desertionNo ?? animal.noticeNo ?? ""),
-        careRegNo: typeof animal.careRegNo === "string" ? animal.careRegNo : undefined,
-        careNm: typeof animal.careNm === "string" ? animal.careNm : undefined,
         kindFullNm: String(animal.kindFullNm ?? animal.kindFillName ?? animal.breed ?? animal.kind ?? "품종 정보 없음"),
-      }
+        ...(typeof animal.careRegNo === "string" ? { careRegNo: animal.careRegNo } : {}),
+        ...(typeof animal.careNm === "string" ? { careNm: animal.careNm } : {}),
+      }]
     })
-    .filter((animal): animal is { animalId: number; desertionNo: string; careRegNo?: string; careNm?: string; kindFullNm: string } => animal !== null)
 }
 
 export const getAdminShelterApplications = async (careRegNo: string) => {
