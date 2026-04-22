@@ -3,16 +3,20 @@ package com.team05.petmeeting.domain.adoption.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
+import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
+import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.global.entity.BaseEntity;
+import com.team05.petmeeting.global.exception.BusinessException;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +39,9 @@ class AdoptionAdminServiceTest {
     @Mock
     AdoptionApplicationRepository adoptionApplicationRepository;
 
+    @Mock
+    ShelterRepository shelterRepository;
+
     @Test
     @DisplayName("담당 보호소의 입양 신청 목록만 조회한다")
     void getManagedShelterApplications() throws Exception {
@@ -53,12 +60,14 @@ class AdoptionAdminServiceTest {
                 applicant,
                 createAnimal("A-002", "다른보호소", createShelter("S-002", "다른보호소", otherManager))
         );
-        when(adoptionApplicationRepository.findAll())
-                .thenReturn(List.of(managedApplication, otherApplication));
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(managedApplication.getAnimal().getShelter()));
+        when(adoptionApplicationRepository.findByAnimal_Shelter_CareRegNo("S-001"))
+                .thenReturn(List.of(managedApplication));
 
         // when
         List<AdoptionApplyResponse> responses =
-                adoptionAdminService.getManagedShelterApplications(manager.getId());
+                adoptionAdminService.getManagedShelterApplications(manager.getId(), "S-001");
 
         // then
         assertThat(responses).hasSize(1);
@@ -75,12 +84,14 @@ class AdoptionAdminServiceTest {
         User applicant = createUser(2L, "applicant@test.com");
         Animal animal = createAnimal("A-001", "담당보호소", createShelter("S-001", "담당보호소", manager));
         AdoptionApplication application = createApplication(1L, applicant, animal);
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(animal.getShelter()));
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
         // when
         AdoptionDetailResponse response =
-                adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), application.getId());
+                adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), "S-001", application.getId());
 
         // then
         assertThat(response.getApplicationId()).isEqualTo(application.getId());
@@ -94,21 +105,146 @@ class AdoptionAdminServiceTest {
     @Test
     @DisplayName("다른 보호소의 입양 신청 상세는 조회할 수 없다")
     void getManagedShelterApplicationDetail_otherShelter() throws Exception {
-        // given: 조회 요청자와 다른 관리자가 담당하는 보호소의 신청이 존재한다.
+        // given: 조회 요청자가 담당하는 보호소와 다른 보호소의 신청이 존재한다.
         User manager = createUser(1L, "manager@test.com");
         User otherManager = createUser(2L, "other-manager@test.com");
         User applicant = createUser(3L, "applicant@test.com");
-        Animal animal = createAnimal("A-001", "다른보호소", createShelter("S-001", "다른보호소", otherManager));
+        Shelter managedShelter = createShelter("S-001", "담당보호소", manager);
+        Animal animal = createAnimal("A-001", "다른보호소", createShelter("S-002", "다른보호소", otherManager));
         AdoptionApplication application = createApplication(1L, applicant, animal);
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(managedShelter));
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
         // when & then
         assertThatThrownBy(() ->
-                adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), application.getId())
+                adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), "S-001", application.getId())
         )
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("담당 보호소의 입양 신청만 조회할 수 있습니다.");
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(AdoptionErrorCode.FORBIDDEN_SHELTER_APPLICATION);
+    }
+
+    @Test
+    @DisplayName("해당 careRegNo 보호소 관리자가 아니면 조회할 수 없다")
+    void getManagedShelterApplicationDetail_notShelterManager() throws Exception {
+        // given: 조회 요청자와 다른 관리자가 담당하는 보호소가 존재한다.
+        User manager = createUser(1L, "manager@test.com");
+        User otherManager = createUser(2L, "other-manager@test.com");
+        Shelter otherShelter = createShelter("S-001", "다른보호소", otherManager);
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(otherShelter));
+
+        // when & then
+        assertThatThrownBy(() ->
+                adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), "S-001", 1L)
+        )
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(AdoptionErrorCode.UNAUTHORIZED_SHELTER);
+    }
+
+    @Test
+    @DisplayName("담당 보호소의 입양 신청을 승인한다")
+    void reviewApplication_approve() throws Exception {
+        User manager = createUser(1L, "manager@test.com");
+        User applicant = createUser(2L, "applicant@test.com");
+        Animal animal = createAnimal("A-001", "담당보호소", createShelter("S-001", "담당보호소", manager));
+        AdoptionApplication application = createApplication(1L, applicant, animal);
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(animal.getShelter()));
+        when(adoptionApplicationRepository.findById(application.getId()))
+                .thenReturn(Optional.of(application));
+
+        AdoptionDetailResponse response = adoptionAdminService.reviewApplication(
+                manager.getId(),
+                "S-001",
+                application.getId(),
+                new AdoptionReviewRequest(AdoptionStatus.Approved, null)
+        );
+
+        assertThat(application.getStatus()).isEqualTo(AdoptionStatus.Approved);
+        assertThat(application.getReviewedAt()).isNotNull();
+        assertThat(application.getRejectionReason()).isNull();
+        assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Approved);
+    }
+
+    @Test
+    @DisplayName("담당 보호소의 입양 신청을 거절한다")
+    void reviewApplication_reject() throws Exception {
+        User manager = createUser(1L, "manager@test.com");
+        User applicant = createUser(2L, "applicant@test.com");
+        Animal animal = createAnimal("A-001", "담당보호소", createShelter("S-001", "담당보호소", manager));
+        AdoptionApplication application = createApplication(1L, applicant, animal);
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(animal.getShelter()));
+        when(adoptionApplicationRepository.findById(application.getId()))
+                .thenReturn(Optional.of(application));
+
+        AdoptionDetailResponse response = adoptionAdminService.reviewApplication(
+                manager.getId(),
+                "S-001",
+                application.getId(),
+                new AdoptionReviewRequest(AdoptionStatus.Rejected, "조건이 맞지 않습니다.")
+        );
+
+        assertThat(application.getStatus()).isEqualTo(AdoptionStatus.Rejected);
+        assertThat(application.getReviewedAt()).isNotNull();
+        assertThat(application.getRejectionReason()).isEqualTo("조건이 맞지 않습니다.");
+        assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Rejected);
+        assertThat(response.getRejectionReason()).isEqualTo("조건이 맞지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("담당 보호소의 입양 신청을 검토중으로 변경한다")
+    void reviewApplication_markProcessing() throws Exception {
+        User manager = createUser(1L, "manager@test.com");
+        User applicant = createUser(2L, "applicant@test.com");
+        Animal animal = createAnimal("A-001", "담당보호소", createShelter("S-001", "담당보호소", manager));
+        AdoptionApplication application = createApplication(1L, applicant, animal);
+        application.reject("이전 거절 사유");
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(animal.getShelter()));
+        when(adoptionApplicationRepository.findById(application.getId()))
+                .thenReturn(Optional.of(application));
+
+        AdoptionDetailResponse response = adoptionAdminService.reviewApplication(
+                manager.getId(),
+                "S-001",
+                application.getId(),
+                new AdoptionReviewRequest(AdoptionStatus.Processing, null)
+        );
+
+        assertThat(application.getStatus()).isEqualTo(AdoptionStatus.Processing);
+        assertThat(application.getReviewedAt()).isNull();
+        assertThat(application.getRejectionReason()).isNull();
+        assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Processing);
+        assertThat(response.getReviewedAt()).isNull();
+        assertThat(response.getRejectionReason()).isNull();
+    }
+
+    @Test
+    @DisplayName("거절 사유 없이 거절할 수 없다")
+    void reviewApplication_rejectWithoutReason() throws Exception {
+        User manager = createUser(1L, "manager@test.com");
+        User applicant = createUser(2L, "applicant@test.com");
+        Animal animal = createAnimal("A-001", "담당보호소", createShelter("S-001", "담당보호소", manager));
+        AdoptionApplication application = createApplication(1L, applicant, animal);
+        when(shelterRepository.findById("S-001"))
+                .thenReturn(Optional.of(animal.getShelter()));
+        when(adoptionApplicationRepository.findById(application.getId()))
+                .thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> adoptionAdminService.reviewApplication(
+                manager.getId(),
+                "S-001",
+                application.getId(),
+                new AdoptionReviewRequest(AdoptionStatus.Rejected, " ")
+        ))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(AdoptionErrorCode.REJECTION_REASON_REQUIRED);
     }
 
     private User createUser(Long id, String email) throws Exception {
