@@ -58,15 +58,22 @@ public class AdoptionApplication extends BaseEntity {
         return new AdoptionApplication(user, animal, applyReason, applyTel);
     }
 
+    // 입양 신청 심사 상태를 승인으로 변경한다.
     public void approve() {
         this.status = AdoptionStatus.Approved;
         this.reviewedAt = LocalDateTime.now();
         this.rejectionReason = null;
     }
 
+    // 입양 신청 심사 상태를 거절로 변경한다.
     public void reject(String rejectionReason) {
         this.status = AdoptionStatus.Rejected;
         this.reviewedAt = LocalDateTime.now();
         this.rejectionReason = rejectionReason;
+    }
+
+    // 입양 신청 심사 상태를 진행중으로 변경한다.
+    public void markProcessing() {
+        this.status = AdoptionStatus.Processing;
     }
 }
