@@ -144,6 +144,7 @@ function CommunityPostCard({
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
   const [comments, setComments] = useState<any[]>([])
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [commentCount, setCommentCount] = useState(post.commentCount ?? 0)
   const [hasFetchedComments, setHasFetchedComments] = useState(false)
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
@@ -215,12 +216,14 @@ function CommunityPostCard({
       alert("로그인이 필요합니다")
       return
     }
-    if (!newComment.trim()) return
+    if (!newComment.trim() || isSubmittingComment) return
 
+    setIsSubmittingComment(true)
     const { error } = await apiRequest(API_ENDPOINTS.feedComments(post.feedId), {
       method: "POST",
       body: JSON.stringify({ content: newComment })
     })
+    setIsSubmittingComment(false)
 
     if (error) {
       alert("댓글 작성에 실패했습니다.")
@@ -432,14 +435,19 @@ function CommunityPostCard({
               <Input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCommentSubmit()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.repeat) {
+                    e.preventDefault()
+                    handleCommentSubmit()
+                  }
+                }}
                 placeholder={user ? "댓글을 입력하세요..." : "로그인 후 댓글을 남길 수 있습니다"}
                 className="flex-1 rounded-xl bg-secondary/50 border-0 h-10"
-                disabled={!user}
+                disabled={!user || isSubmittingComment}
               />
               <Button
                 onClick={handleCommentSubmit}
-                disabled={!user || !newComment.trim()}
+                disabled={!user || !newComment.trim() || isSubmittingComment}
                 size="icon"
                 className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
               >
