@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,6 +98,35 @@ public class NamingService {
 
         // 후보 테이블의 투표수 증가
         candidate.addVoteCount();
+    }
+
+    @Transactional(readOnly = true)
+    public NameCandidateRes getAdminCandidate(Long animalId, Long managerId) {
+        // 1. 관리자 정보 및 보호소 소속 여부 확인
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+
+        if (manager.getShelter() == null) {
+            throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
+        }
+
+        String careRegNo = manager.getShelter().getCareRegNo();
+        int threshold = 10;
+
+        // 2. 해당 보호소 소속이면서 10표 넘긴 후보 조회
+        Optional<NameCandidateRes.CandidateDto> topCandidateOpt =
+                candidateRepository.getTopQualifiedCandidate(animalId, careRegNo, threshold);
+
+        List<NameCandidateRes.CandidateDto> candidates = topCandidateOpt
+                .map(List::of)
+                .orElse(Collections.emptyList());
+
+        return new NameCandidateRes(
+                animalId,
+                null,
+                candidates,
+                candidates.size()
+        );
     }
 
     public void confirmName(Long candidateId, Long managerId) {
