@@ -25,6 +25,6 @@ public interface AnimalRepository extends JpaRepository<Animal, Long>, AnimalRep
             "WHERE a.id = :animalId")
     void incrementCheerCount(@Param("animalId") Long animalId);
 
-    // 응원 수 기준 상위 N개 동물 조회
-    List<Animal> findAllByOrderByTotalCheerCountDesc(Pageable pageable);
+    // 보호중인 동물만 응원 수 기준 상위 N개 조회 (stateGroup = 0)
+    List<Animal> findAllByStateGroupOrderByTotalCheerCountDesc(Integer stateGroup, Pageable pageable);
 }
