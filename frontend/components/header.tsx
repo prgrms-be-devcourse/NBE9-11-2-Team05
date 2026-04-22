@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { Search, Bell, Heart, LogOut, User } from "lucide-react"
+import { Search, Bell, Heart, LogOut, Shield, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth-context"
-import { API_ENDPOINTS, apiRequest } from "@/lib/api"
+import { API_ENDPOINTS, apiRequest, isAdminUser } from "@/lib/api"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +47,7 @@ const extractRemainingToday = (payload: unknown): number | null => {
 
 export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
   const { user, logout } = useAuth()
+  const isAdmin = isAdminUser(user)
   const effectiveMax = maxDailyHearts ?? DEFAULT_MAX_DAILY_HEARTS
   const isControlled = dailyHeartsRemaining != null && maxDailyHearts != null
   const [uncontrolledRemaining, setUncontrolledRemaining] = useState(effectiveMax)
@@ -165,6 +166,14 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
                         프로필
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="cursor-pointer">
+                          <Shield className="w-4 h-4 mr-2" />
+                          보호소 관리
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       className="text-destructive cursor-pointer"
