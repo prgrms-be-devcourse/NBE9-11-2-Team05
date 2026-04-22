@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/feeds")
+@Slf4j
 public class FeedController {
 
     private final CommentService commentService;
@@ -47,6 +49,7 @@ public class FeedController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long feedId,
             @Valid @RequestBody CommentReq commentReq) {
+        log.info("=============== 피드 댓글 작성 =================");
         FeedCommentRes res = commentService.createFeedComment(userDetails.getUserId(), feedId, commentReq);
         return ResponseEntity.ok(res);
     }
@@ -76,6 +79,7 @@ public class FeedController {
     public ResponseEntity<FeedCommentListRes> getFeedComments(
             @PathVariable Long feedId
     ) {
+        log.info("=============== 피드 댓글 조회 =================");
         List<FeedCommentRes> list = commentService.getFeedComments(feedId);
         FeedCommentListRes res = FeedCommentListRes.from(list);
         return ResponseEntity.ok(res);
