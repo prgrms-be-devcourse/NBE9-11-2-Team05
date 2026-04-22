@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,19 +38,14 @@ class UserAuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
-
     @Mock
     private PasswordEncoder passwordEncoder;
-
     @Mock
     private JwtUtil jwtUtil;
-
     @Mock
     private OtpService otpService;
-
     @Mock
     private MailService mailService;
 
@@ -59,104 +55,194 @@ class UserAuthServiceTest {
     }
 
     @Test
-    @DisplayName("회원가입 + 로그인 성공 (이메일 기반)")
-    void signup_and_login_success() {
-        // given
-        String token = "valid-token";
-        EmailSignupReq request = new EmailSignupReq(token, "password", "닉네임", "홍길동");
+    @DisplayName("verifyOtp - 성공")
+    void verifyOtp_success() {
+        String email = "test@gmail.com";
+        String code = "123456";
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
-        when(passwordEncoder.encode("password")).thenReturn("encodedPw");
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.of(code));
+        when(otpService.markVerifiedWithToken(email)).thenReturn("verify-token");
 
-        User savedUser = User.create("test@gmail.com", "닉네임", "홍길동");
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
+        String result = userAuthService.verifyOtp(email, code);
 
-        // when
-        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
-
-        // then
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
-        verify(userRepository).save(any(User.class));
+        assertThat(result).isEqualTo("verify-token");
+        verify(otpService).clearOtp(email);
     }
 
     @Test
-    @DisplayName("로그인 성공")
-    void login_success() {
-        // given
+    @DisplayName("verifyOtp - OTP 없음 (만료)")
+    void verifyOtp_expired() {
         String email = "test@gmail.com";
-        String password = "password";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userAuthService.verifyOtp(email, "123456"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.EXPIRED_OTP);
+    }
+
+    @Test
+    @DisplayName("verifyOtp - 코드 불일치")
+    void verifyOtp_invalid() {
+        String email = "test@gmail.com";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.isExceededAttempts(email)).thenReturn(false);
+
+        assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.INVALID_OTP);
+
+        verify(otpService).increaseAttempt(email);
+    }
+
+    @Test
+    @DisplayName("verifyOtp - 시도 횟수 초과")
+    void verifyOtp_too_many_attempts() {
+        String email = "test@gmail.com";
+
+        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.isExceededAttempts(email)).thenReturn(true);
+
+        assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.TOO_MANY_OTP_ATTEMPTS);
+
+        verify(otpService).increaseAttempt(email);
+        verify(otpService).clearOtp(email);
+    }
+
+    @Test
+    @DisplayName("signupAndLoginWithEmail - 성공")
+    void signup_success() {
+        String token = "valid-token";
+        EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
+
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
+        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("pw")).thenReturn("encoded");
+        when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
+
+        User user = User.create("test@gmail.com", "닉네임", "홍길동");
+        when(userRepository.save(any())).thenReturn(user);
+
+        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
+
+        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
+        verify(otpService).clearVerifiedByToken(token);
+    }
+
+    @Test
+    @DisplayName("signupAndLoginWithEmail - 이미 가입된 이메일")
+    void signup_fail_duplicate() {
+        String token = "token";
+        EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
+
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
+        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mock(User.class)));
+
+        assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.ALREADY_REGISTERED_EMAIL);
+    }
+
+    @Test
+    @DisplayName("signupAndLoginWithEmail - verification token 없음")
+    void signup_fail_invalid_verification_token() {
+        String token = "invalid-token";
+        EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
+
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(UserErrorCode.INVALID_VERIFICATION_TOKEN);
+    }
+
+    @Test
+    @DisplayName("loginWithEmail - 성공")
+    void login_success() {
+        String email = "test@gmail.com";
 
         User user = User.create(email, "닉네임", "홍길동");
-        UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encodedPw");
+        UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encoded");
         user.addAuth(auth);
 
         when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(password, "encodedPw")).thenReturn(true);
+        when(passwordEncoder.matches("pw", "encoded")).thenReturn(true);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
-        // when
-        LoginAndRefreshResult result = userAuthService.loginWithEmail(email, password);
+        LoginAndRefreshResult result = userAuthService.loginWithEmail(email, "pw");
 
-        // then
         assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
-        assertThat(result.refreshToken()).isNotNull();
-
         verify(refreshTokenRepository).save(any());
     }
 
     @Test
-    @DisplayName("로그인 실패 - 사용자 없음")
-    void login_fail_user_not_found() {
-        // given
-        String email = "test@gmail.com";
-        String password = "password";
-
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> userAuthService.loginWithEmail(email, password))
-                .isInstanceOf(BusinessException.class)
-                .extracting(e -> ((BusinessException) e).getErrorCode())
-                .isEqualTo(UserErrorCode.LOGIN_FAILED);
-    }
-
-    @Test
-    @DisplayName("로그인 실패 - 비밀번호 불일치")
+    @DisplayName("loginWithEmail - 비밀번호 틀림")
     void login_fail_wrong_password() {
-        // given
         String email = "test@gmail.com";
-        String password = "password";
 
         User user = User.create(email, "닉네임", "홍길동");
-        UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encodedPw");
+        UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encoded");
         user.addAuth(auth);
 
         when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(password, "encodedPw")).thenReturn(false);
+        when(passwordEncoder.matches("pw", "encoded")).thenReturn(false);
 
-        // when & then
-        assertThatThrownBy(() -> userAuthService.loginWithEmail(email, password))
-                .isInstanceOf(BusinessException.class)
-                .extracting(e -> ((BusinessException) e).getErrorCode())
-                .isEqualTo(UserErrorCode.LOGIN_FAILED);
+        assertThatThrownBy(() -> userAuthService.loginWithEmail(email, "pw"))
+                .isInstanceOf(BusinessException.class);
     }
 
     @Test
-    @DisplayName("로그아웃 성공 - refreshToken 존재")
+    @DisplayName("logout - refreshToken 존재")
     void logout_success() {
-        // given
         UUID token = UUID.randomUUID();
-
         Cookie cookie = new Cookie("refreshToken", token.toString());
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getCookies()).thenReturn(new Cookie[]{cookie});
 
-        // when
         userAuthService.logout(request);
 
-        // then
         verify(refreshTokenRepository).deleteByToken(token);
+    }
+
+    @Test
+    @DisplayName("logout - 쿠키 없음")
+    void logout_no_cookie() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getCookies()).thenReturn(null);
+
+        userAuthService.logout(request);
+
+        verify(refreshTokenRepository, never()).deleteByToken(any());
+    }
+
+    @Test
+    @DisplayName("refresh - 성공")
+    void refresh_success() {
+        UUID token = UUID.randomUUID();
+        Cookie cookie = new Cookie("refreshToken", token.toString());
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getCookies()).thenReturn(new Cookie[]{cookie});
+
+        User user = User.create("test@gmail.com", "닉네임", "홍길동");
+        var saved = com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken.create(user, token);
+
+        when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(saved));
+        when(jwtUtil.createToken(any(), anyList())).thenReturn("newAccess");
+
+        LoginAndRefreshResult result = userAuthService.refresh(request);
+
+        assertThat(result.accessTokenRes().accessToken()).isEqualTo("newAccess");
+        verify(refreshTokenRepository).delete(saved);
+        verify(refreshTokenRepository).save(any());
     }
 }

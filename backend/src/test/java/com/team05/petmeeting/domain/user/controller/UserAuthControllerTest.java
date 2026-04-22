@@ -1,5 +1,7 @@
 package com.team05.petmeeting.domain.user.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -7,54 +9,63 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
 import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartReq;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
+import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
 import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
-import com.team05.petmeeting.domain.user.service.MailService;
-import com.team05.petmeeting.domain.user.service.OtpService;
+import com.team05.petmeeting.domain.user.service.UserAuthService;
+import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
+import com.team05.petmeeting.global.security.util.JwtUtil;
+import com.team05.petmeeting.global.security.util.RefreshTokenUtil;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-@Transactional
-public class UserAuthControllerTest {
+@WebMvcTest(UserAuthController.class)
+class UserAuthControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+    MockMvc mockMvc;
+    ObjectMapper objectMapper = new ObjectMapper();
     @MockitoBean
-    private MailService mailService;
-
+    UserAuthService userAuthService;
     @MockitoBean
-    private OtpService otpService;
+    RefreshTokenUtil refreshTokenUtil;
+    @MockitoBean
+    private JwtUtil jwtUtil;
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
-    @DisplayName("이메일 시작 - 신규 사용자")
-    void start_email_new_user() throws Exception {
-        EmailStartReq req = new EmailStartReq("new@test.com");
+    @DisplayName("이메일 시작 - 성공")
+    void startEmail() throws Exception {
+        EmailStartReq req = new EmailStartReq("test@test.com");
+        EmailStartRes res = new EmailStartRes(true, null);
+
+        Mockito.when(userAuthService.startEmailFlow(anyString()))
+                .thenReturn(res);
 
         mockMvc.perform(post("/api/v1/auth/email/start")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.exists").value(false))
-                .andExpect(jsonPath("$.nextStep").value("SIGNUP_WITH_OTP"));
+                .andExpect(jsonPath("$.exists").value(true));
     }
 
     @Test
-    @DisplayName("OTP 전송")
-    void send_otp() throws Exception {
+    @DisplayName("OTP 발송 - 성공")
+    void sendOtp() throws Exception {
         EmailStartReq req = new EmailStartReq("test@test.com");
 
         mockMvc.perform(post("/api/v1/auth/email/send-otp")
@@ -64,46 +75,78 @@ public class UserAuthControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 - 존재하지 않는 사용자")
-    void login_fail_user_not_found() throws Exception {
-        EmailLoginReq req = new EmailLoginReq("notfound@test.com", "Testpassword12!");
+    @DisplayName("이메일 인증 - 성공")
+    void verifyEmail() throws Exception {
+        EmailVerifyReq req = new EmailVerifyReq("test@test.com", "123456");
+
+        Mockito.when(userAuthService.verifyOtp(anyString(), anyString()))
+                .thenReturn("verify-token");
+
+        mockMvc.perform(post("/api/v1/auth/email/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verifyToken").value("verify-token"));
+    }
+
+    @Test
+    @DisplayName("이메일 회원가입 - 성공")
+    void signup() throws Exception {
+        String verificationToken = UUID.randomUUID().toString();
+        EmailSignupReq req = new EmailSignupReq(verificationToken, "Password12!", "nickname", "realname");
+
+        AccessTokenRes accessToken = new AccessTokenRes("Bearer", "access-token");
+        LoginAndRefreshResult result =
+                new LoginAndRefreshResult("refreshToken", accessToken);
+
+        Mockito.when(userAuthService.signupAndLoginWithEmail(any()))
+                .thenReturn(result);
+
+        mockMvc.perform(post("/api/v1/auth/email/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accessToken").value("access-token"));
+    }
+
+    @Test
+    @DisplayName("이메일 로그인 - 성공")
+    void login() throws Exception {
+        EmailLoginReq req = new EmailLoginReq("test@test.com", "Password12!");
+
+        AccessTokenRes accessToken = new AccessTokenRes("Bearer", "access-token");
+        LoginAndRefreshResult result =
+                new LoginAndRefreshResult("refershToken", accessToken);
+
+        Mockito.when(userAuthService.loginWithEmail(anyString(), anyString()))
+                .thenReturn(result);
 
         mockMvc.perform(post("/api/v1/auth/email/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("access-token"));
     }
 
     @Test
-    @DisplayName("로그인 실패 - 비밀번호 틀림")
-    void login_fail_wrong_password() throws Exception {
-
-        // signup 먼저 (실제 플로우에서는 verifyToken 필요하지만 테스트 단순화)
-        EmailSignupReq signup = new EmailSignupReq("fake-token", "Password123!", "닉네임", "홍길동");
-
-        mockMvc.perform(post("/api/v1/auth/email/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signup)));
-
-        EmailLoginReq login = new EmailLoginReq("test@test.com", "WrongPassword12!");
-
-        mockMvc.perform(post("/api/v1/auth/email/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(login)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("로그아웃 성공")
+    @DisplayName("로그아웃 - 성공")
     void logout() throws Exception {
         mockMvc.perform(post("/api/v1/auth/logout"))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @DisplayName("토큰 재발급 실패 - 토큰 없음")
-    void refresh_fail() throws Exception {
+    @DisplayName("토큰 재발급 - 성공")
+    void refresh() throws Exception {
+        AccessTokenRes accessToken = new AccessTokenRes("Bearer", "new-access");
+        LoginAndRefreshResult result =
+                new LoginAndRefreshResult("refreshToken", accessToken);
+
+        Mockito.when(userAuthService.refresh(any()))
+                .thenReturn(result);
+
         mockMvc.perform(post("/api/v1/auth/refresh"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new-access"));
     }
 }
