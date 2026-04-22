@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2, PawPrint } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -22,11 +23,15 @@ import { cn } from "@/lib/utils"
 import {
   API_BASE_URL,
   API_ENDPOINTS,
+  getNameCandidates,
   apiRequest,
   normalizeAnimalTemperatureDisplay,
   parseAddCheerResponse,
+  proposeName,
+  voteName,
   type Animal,
   type Comment,
+  type NamingCandidatesResponse,
 } from "@/lib/api"
 
 const normalizeImageUrl = (value?: string): string => {
@@ -66,6 +71,8 @@ const normalizeAnimalDetail = (payload: unknown): Animal | null => {
 
   return {
     animalId,
+    animalName: typeof rawAnimal.animalName === "string" ? rawAnimal.animalName : null,
+    stateGroup: Number(rawAnimal.stateGroup ?? (String(rawAnimal.processState ?? "").includes("보호") ? 0 : 1)),
     noticeNo: String(rawAnimal.noticeNo ?? ""),
     kind: String(rawAnimal.upKindNm ?? rawAnimal.kind ?? ""),
     breed: String(rawAnimal.kindFullNm ?? rawAnimal.breed ?? ""),
@@ -91,6 +98,7 @@ const normalizeAnimalDetail = (payload: unknown): Animal | null => {
 
 export default function AnimalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
+  const router = useRouter()
   const { user } = useAuth()
   const [animal, setAnimal] = useState<Animal | null>(null)
   const [comments, setComments] = useState<any[]>([])
@@ -106,6 +114,11 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   const [applyReason, setApplyReason] = useState("")
   const [applyTel, setApplyTel] = useState("")
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false)
+  const [nameCandidates, setNameCandidates] = useState<NamingCandidatesResponse | null>(null)
+  const [nameProposal, setNameProposal] = useState("")
+  const [isNamingLoading, setIsNamingLoading] = useState(false)
+  const [isSubmittingName, setIsSubmittingName] = useState(false)
+  const [votingCandidateId, setVotingCandidateId] = useState<number | null>(null)
 
   const extractRemainingToday = (
     payload: { [key: string]: any } | string | number | null
@@ -155,6 +168,13 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     setRemainingToday(Math.max(0, Math.min(5, parsedRemaining)))
   }
 
+  const fetchNameCandidates = async (animalId: number) => {
+    setIsNamingLoading(true)
+    const { data } = await getNameCandidates(animalId)
+    setNameCandidates(data)
+    setIsNamingLoading(false)
+  }
+
   useEffect(() => {
     const fetchAnimalDetail = async () => {
       setIsLoading(true)
@@ -165,8 +185,10 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
         setAnimal(normalizedAnimal)
         setTotalHearts(normalizedAnimal.heartCount)
         setCurrentTemp(normalizedAnimal.temperature)
+        await fetchNameCandidates(normalizedAnimal.animalId)
       } else {
         setAnimal(null)
+        setNameCandidates(null)
       }
 
       await fetchComments()
@@ -264,6 +286,54 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     setApplyTel("")
   }
 
+  const handleNameProposalChange = (value: string) => {
+    const hangulOnly = value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣ]/g, "")
+    setNameProposal(hangulOnly.slice(0, 10))
+  }
+
+  const handleProposeName = async () => {
+    if (!animal) return
+    if (!user) {
+      router.push("/login")
+      return
+    }
+    if (!nameProposal.trim()) {
+      alert("제안할 이름을 입력해주세요.")
+      return
+    }
+
+    setIsSubmittingName(true)
+    const { error } = await proposeName(animal.animalId, { proposedName: nameProposal.trim() })
+    setIsSubmittingName(false)
+
+    if (error) {
+      alert(error)
+      return
+    }
+
+    setNameProposal("")
+    await fetchNameCandidates(animal.animalId)
+  }
+
+  const handleVoteName = async (candidateId: number) => {
+    if (!animal) return
+    if (!user) {
+      router.push("/login")
+      return
+    }
+
+    setVotingCandidateId(candidateId)
+    const { error } = await voteName(candidateId)
+    setVotingCandidateId(null)
+
+    if (error) {
+      alert(error)
+      return
+    }
+
+    await fetchNameCandidates(animal.animalId)
+  }
+
   const fetchComments = async () => {
     const { data } = await apiRequest<{ comments: any[] }>(API_ENDPOINTS.comments(Number(resolvedParams.id)))
     if (data?.comments) {
@@ -343,10 +413,106 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
     )
   }
 
-  const isProtecting = animal.processState === "보호중"
+  const isClosedAnimal = animal.stateGroup === 1
+  const isProtecting = !isClosedAnimal && animal.processState === "보호중"
+  const displayAnimalName = nameCandidates?.animalName ?? animal.animalName ?? null
+  const sortedNameCandidates = [...(nameCandidates?.candidateDtoList ?? [])].sort(
+    (left, right) => right.voteCount - left.voteCount
+  )
+  const hasVotedName = sortedNameCandidates.some((candidate) => candidate.isVoted)
   const genderLabel = animal.gender === "M" ? "수컷" : animal.gender === "F" ? "암컷" : "미상"
   const neuteredLabel = animal.neutered === "Y" ? "중성화 O" : animal.neutered === "N" ? "중성화 X" : "미상"
   const addressText = animal.shelterAddr || animal.region || "주소 정보 없음"
+  const shelterDisplayName = animal.shelterName || "보호소 정보 없음"
+  const shelterDisplayTel = animal.shelterTel || "연락처 정보 없음"
+  const shelterDisplayAddress = animal.shelterAddr || "주소 정보 없음"
+  const namingSection = (
+    <Card className="h-full border-0 bg-card shadow-sm lg:min-h-[286px]">
+      <CardContent className="flex h-full flex-col p-5 space-y-4">
+        <div className="rounded-xl bg-primary/5 px-4 py-3">
+          <p className="text-base font-bold text-foreground">
+            {displayAnimalName
+              ? `안녕, 내 이름은 ${displayAnimalName}이야!`
+              : "아직 이름이 없어요. 이름을 지어주세요!"}
+          </p>
+          {isClosedAnimal && (
+            <p className="mt-1 text-xs text-muted-foreground">보호가 종료되어 이름 제안과 투표가 마감되었습니다.</p>
+          )}
+        </div>
+
+        {!displayAnimalName && (
+          <div className="flex gap-2">
+            <Input
+              value={nameProposal}
+              onChange={(event) => handleNameProposalChange(event.target.value)}
+              placeholder="한글 10자 이내"
+              maxLength={10}
+              disabled={isClosedAnimal || isSubmittingName}
+              className="h-10 rounded-xl bg-secondary/50 border-0"
+            />
+            <Button
+              onClick={handleProposeName}
+              disabled={isClosedAnimal || isSubmittingName || !nameProposal.trim()}
+              className="h-10 shrink-0 rounded-xl bg-primary px-3 text-primary-foreground hover:bg-primary/90"
+            >
+              {isSubmittingName ? "제안 중" : "제안"}
+            </Button>
+          </div>
+        )}
+
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">이름 후보</h3>
+            <span className="text-xs text-muted-foreground">{nameCandidates?.totalCandidates ?? 0}개</span>
+          </div>
+
+          {isNamingLoading ? (
+            <div className="py-5 text-center text-xs text-muted-foreground">후보를 불러오는 중...</div>
+          ) : sortedNameCandidates.length === 0 ? (
+            <div className="py-5 text-center text-xs text-muted-foreground">아직 제안된 이름이 없습니다.</div>
+          ) : (
+            <div className="grid gap-2">
+              {sortedNameCandidates.map((candidate) => {
+                const isVoteDone = candidate.isVoted
+                return (
+                  <div
+                    key={candidate.candidateId}
+                    className={`rounded-xl border p-3 ${
+                      isVoteDone ? "border-primary bg-primary/5" : "border-border bg-background"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground">{candidate.proposedName}</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {candidate.proposerNickname || "-"} · {candidate.voteCount}표
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={isVoteDone ? "default" : "outline"}
+                        onClick={() => !user ? router.push("/login") : handleVoteName(candidate.candidateId)}
+                        disabled={isClosedAnimal || votingCandidateId === candidate.candidateId || (hasVotedName && !isVoteDone)}
+                        className={`h-8 shrink-0 rounded-xl px-3 text-xs ${isVoteDone ? "bg-primary text-primary-foreground" : ""}`}
+                      >
+                        {isVoteDone
+                          ? "투표 완료"
+                          : !user
+                            ? "로그인"
+                            : votingCandidateId === candidate.candidateId
+                              ? "투표 중"
+                              : "투표"}
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -359,9 +525,9 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
           <span className="text-sm font-medium">목록으로</span>
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-2">
           {/* Image Section */}
-          <div className="space-y-4">
+          <div className="flex h-full flex-col space-y-4">
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-secondary">
               <Image
                 src={animal.imageUrl}
@@ -395,10 +561,14 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                 공고번호: {animal.noticeNo}
               </span>
             </div>
+
+            <div className="flex flex-1 flex-col">
+              {namingSection}
+            </div>
           </div>
 
           {/* Info Section */}
-          <div className="space-y-6">
+          <div className="flex h-full flex-col space-y-6">
             {/* Basic Info */}
             <div>
               <h1 className="text-2xl font-bold text-foreground mb-2">
@@ -411,22 +581,63 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Details Grid */}
             <Card className="border-0 bg-secondary/30">
-              <CardContent className="p-4 grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">체중</p>
-                  <p className="text-sm font-medium text-foreground">{animal.weight}kg</p>
+              <CardContent className="space-y-5 p-5">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">체중</p>
+                    <p className="text-sm font-medium text-foreground">{animal.weight}kg</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">색상</p>
+                    <p className="text-sm font-medium text-foreground">{animal.color}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">중성화</p>
+                    <p className="text-sm font-medium text-foreground">{neuteredLabel}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">주소</p>
+                    <p className="text-sm font-medium text-foreground break-words">{addressText}</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">색상</p>
-                  <p className="text-sm font-medium text-foreground">{animal.color}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">중성화</p>
-                  <p className="text-sm font-medium text-foreground">{neuteredLabel}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">주소</p>
-                  <p className="text-sm font-medium text-foreground break-words">{addressText}</p>
+
+                <div className="border-t border-border/60 pt-4">
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">보호소 정보</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background/70">
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 pt-0.5">
+                        <p className="text-xs text-muted-foreground">담당</p>
+                        <p className="text-sm font-medium text-foreground">{shelterDisplayName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background/70">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 pt-0.5">
+                        <p className="text-xs text-muted-foreground">연락처</p>
+                        {animal.shelterTel ? (
+                          <a href={`tel:${animal.shelterTel}`} className="text-sm font-medium text-primary hover:underline">
+                            {shelterDisplayTel}
+                          </a>
+                        ) : (
+                          <p className="text-sm font-medium text-foreground">{shelterDisplayTel}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background/70">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 pt-0.5">
+                        <p className="text-xs text-muted-foreground">주소</p>
+                        <p className="text-sm font-medium leading-6 text-foreground break-words">{shelterDisplayAddress}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -452,13 +663,13 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Heart/Cheer Section */}
             {isProtecting && (
-              <Card className="border-0 bg-primary/5">
-                <CardContent className="p-5 space-y-4">
+              <Card className="mt-auto border-0 bg-primary/5 lg:min-h-[286px]">
+                <CardContent className="flex h-full flex-col justify-between gap-4 p-5">
                   {/* Cheer Button - Full Width */}
                   <button
                     onClick={handleCheer}
                     disabled={remainingToday !== null && remainingToday <= 0}
-                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl transition-all bg-primary/10 hover:bg-primary/20 text-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary/10"
+                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 transition-all bg-primary/10 hover:bg-primary/20 text-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary/10"
                   >
                     <Heart className={cn(
                       "w-5 h-5 transition-transform",
@@ -468,7 +679,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                   </button>
 
                   {/* Temperature Bar */}
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium text-foreground">응원 온도</span>
                       <span className="text-primary font-semibold">{currentTemp.toFixed(1)}C / 100C</span>
@@ -489,7 +700,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                     )}
                   </div>
 
-                  <div className="rounded-2xl border border-primary/15 bg-background/80 p-3 shadow-sm">
+                  <div className="rounded-xl border border-primary/15 bg-background/80 p-3 shadow-sm">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground">입양을 고민 중이신가요?</p>
@@ -500,7 +711,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                       <Button
                         type="button"
                         onClick={handleOpenAdoptionDialog}
-                        className="shrink-0 rounded-xl bg-primary px-4 text-primary-foreground shadow-sm hover:bg-primary/90"
+                        className="h-10 shrink-0 rounded-xl bg-primary px-4 text-primary-foreground shadow-sm hover:bg-primary/90"
                       >
                         <PawPrint className="mr-2 h-4 w-4" />
                         입양 신청
@@ -513,39 +724,8 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
 
-        {/* Shelter Info */}
-        <Card className="mt-8 border-0 bg-card shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">보호소 정보</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
-                  <Info className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">담당: {animal.shelterName}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <a href={`tel:${animal.shelterTel}`} className="text-sm text-primary hover:underline">
-                  {animal.shelterTel}
-                </a>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <p className="text-sm text-muted-foreground break-words">{addressText}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Comments Section */}
-        <Card className="mt-6 border-0 bg-card shadow-sm">
+        <Card className="mt-8 border-0 bg-card shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <MessageCircle className="w-5 h-5 text-muted-foreground" />
