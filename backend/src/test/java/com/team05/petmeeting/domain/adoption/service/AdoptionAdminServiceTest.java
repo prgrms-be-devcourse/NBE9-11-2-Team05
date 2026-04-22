@@ -63,7 +63,7 @@ class AdoptionAdminServiceTest {
         // then
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getApplicationId()).isEqualTo(managedApplication.getId());
-        assertThat(responses.get(0).getStatus()).isEqualTo(AdoptionStatus.Processing);
+        assertThat(responses.get(0).getStatus()).isEqualTo(AdoptionStatus.PendingReview);
         assertThat(responses.get(0).getAnimalInfo().getCareNm()).isEqualTo("담당보호소");
     }
 
@@ -84,7 +84,7 @@ class AdoptionAdminServiceTest {
 
         // then
         assertThat(response.getApplicationId()).isEqualTo(application.getId());
-        assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Processing);
+        assertThat(response.getStatus()).isEqualTo(AdoptionStatus.PendingReview);
         assertThat(response.getApplyReason()).isEqualTo("입양하고 싶습니다.");
         assertThat(response.getApplyTel()).isEqualTo("010-1234-5678");
         assertThat(response.getAnimalInfo().getDesertionNo()).isEqualTo("A-001");

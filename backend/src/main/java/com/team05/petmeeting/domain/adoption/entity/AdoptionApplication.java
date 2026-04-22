@@ -49,7 +49,7 @@ public class AdoptionApplication extends BaseEntity {
     private AdoptionApplication(User user, Animal animal, String applyReason, String applyTel) {
         this.user = user;
         this.animal = animal;
-        this.status = AdoptionStatus.Processing;
+        this.status = AdoptionStatus.PendingReview;
         this.applyReason = applyReason;
         this.applyTel = applyTel;
     }
@@ -72,8 +72,10 @@ public class AdoptionApplication extends BaseEntity {
         this.rejectionReason = rejectionReason;
     }
 
-    // 입양 신청 심사 상태를 진행중으로 변경한다.
-    public void markProcessing() {
-        this.status = AdoptionStatus.Processing;
+    // 입양 신청 심사 상태를 심사중으로 변경하고 기존 심사 정보를 초기화한다.
+    public void startReview() {
+        this.status = AdoptionStatus.Reviewing;
+        this.reviewedAt = null;
+        this.rejectionReason = null;
     }
 }
