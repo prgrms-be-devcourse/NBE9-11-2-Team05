@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +55,7 @@ public class NamingController { // 제안/투표/후보조회 API
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/candidates/{candidateId}/confirm")
     @Operation(summary = "관리자가 이름 확정", description = "해당 동물의 보호소 관리자가 최종 확정 실시")
     public ResponseEntity<Void> confirmNameByAdmin(
