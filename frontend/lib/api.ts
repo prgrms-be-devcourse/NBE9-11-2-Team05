@@ -25,6 +25,14 @@ export const API_ENDPOINTS = {
   logout: `${API_BASE_URL}/auth/logout`,
   withdraw: `${API_BASE_URL}/auth/withdraw`,
 
+  // Naming
+  namingCandidates: (animalId: number) =>
+    `${API_BASE_URL}/naming/animals/${animalId}/candidates`,
+  proposeName: (animalId: number) =>
+    `${API_BASE_URL}/naming/animals/${animalId}/propose`,
+  voteNamingCandidate: (candidateId: number) =>
+    `${API_BASE_URL}/naming/candidates/${candidateId}/vote`,
+adminReadyNamingCandidates: `${API_BASE_URL}/naming/admin/candidates/ready`,
   // Animals
   animals: `${API_BASE_URL}/animals`,
   animalDetail: (id: number) => `${API_BASE_URL}/animals/${id}`,
@@ -477,3 +485,79 @@ export const getShelterCampaign = async (shelterId: string) => {
 export const getShelterDetail = async (shelterId: string) => {
   return await apiRequest<Shelter>(API_ENDPOINTS.shelterDetail(shelterId));
 };
+
+export interface NamingCandidate {
+  candidateId: number
+  proposedName: string
+  proposerNickname: string
+  voteCount: number
+  isVoted: boolean
+}
+
+export interface NamingCandidatesResponse {
+  animalId: number
+  animalName: string | null
+  candidateDtoList: NamingCandidate[]
+  totalCandidates: number
+}
+
+export const getNameCandidates = async (animalId: number) => {
+  return await apiRequest<NamingCandidatesResponse>(
+    API_ENDPOINTS.namingCandidates(animalId)
+  )
+}
+
+export const proposeName = async (
+  animalId: number,
+  payload: { proposedName: string }
+) => {
+  return await apiRequest(API_ENDPOINTS.proposeName(animalId), {
+    method: "POST",
+    body: JSON.stringify(payload),
+  })
+}
+
+export const voteName = async (candidateId: number) => {
+  return await apiRequest(API_ENDPOINTS.voteNamingCandidate(candidateId), {
+    method: "POST",
+  })
+}
+
+export interface AdminNameCandidate {
+  animalId: number
+  animalName: string | null
+  desertionNo: string
+  kindFullNm: string
+  candidateId: number
+  proposedName: string
+  proposerNickname: string
+  voteCount: number
+}
+
+export type AdoptionStatus = "Processing" | "Approved" | "Rejected"
+
+export interface AdminAdoptionApplication {
+  applicationId: number
+  status: AdoptionStatus
+  applyReason?: string | null
+  createdAt?: string
+  reviewedAt?: string | null
+  rejectionReason?: string | null
+  applyTel?: string | null
+  animalInfo: {
+    animalId?: number
+    desertionNo: string
+    kindFullNm?: string
+    specialMark?: string
+    careNm?: string
+    careOwnerNm?: string
+    careTel?: string
+    careAddr?: string
+  }
+}
+
+export const getAdminReadyNamingCandidates = async () => {
+  return await apiRequest<AdminNameCandidate[]>(
+    API_ENDPOINTS.adminReadyNamingCandidates
+  )
+}
