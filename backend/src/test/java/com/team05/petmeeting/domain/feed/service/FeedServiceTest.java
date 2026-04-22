@@ -1,7 +1,6 @@
 package com.team05.petmeeting.domain.feed.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +27,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
+import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
+import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
+import java.util.List;
+import static org.mockito.Mockito.mock;
 
 class FeedServiceTest {
 
@@ -42,6 +46,9 @@ class FeedServiceTest {
 
     @Mock
     private AnimalRepository animalRepository;
+
+    @Mock
+    private AdoptionApplicationRepository adoptionApplicationRepository;
 
     private User user;
 
@@ -81,15 +88,23 @@ class FeedServiceTest {
 
     @Test
     @DisplayName("write - ADOPTION_REVIEW + animalId 있을 때 작성 성공")
-    void write_adoption_review_with_animal_success() {
+    void write_adoption_review_with_animal_success() throws Exception {
         // given
         Long animalId = 1L;
         FeedReq req = new FeedReq(FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animalId);
         Animal animal = new Animal();
-        Feed savedFeed = new Feed(user, FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animal);
+
+        Field idField = BaseEntity.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(animal, animalId);
+
+        AdoptionApplication app = mock(AdoptionApplication.class);
+        when(app.getAnimal()).thenReturn(animal);
 
         when(animalRepository.findById(animalId)).thenReturn(Optional.of(animal));
-        when(feedRepository.save(any(Feed.class))).thenReturn(savedFeed);
+        when(adoptionApplicationRepository.findByUser_IdAndStatus(1L, AdoptionStatus.Approved))
+                .thenReturn(List.of(app));
+        when(feedRepository.save(any(Feed.class))).thenReturn(new Feed(user, FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animal));
 
         // when
         FeedRes res = feedService.write(req, user);
@@ -128,6 +143,50 @@ class FeedServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(AnimalErrorCode.ANIMAL_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("write - ADOPTION_REVIEW + 승인된 입양이 아닌 동물이면 예외 발생")
+    void write_adoption_review_not_approved_throws_exception() {
+        // given
+        Long animalId = 1L;
+        FeedReq req = new FeedReq(FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animalId);
+        Animal animal = new Animal();
+
+        when(animalRepository.findById(animalId)).thenReturn(Optional.of(animal));
+        when(adoptionApplicationRepository.findByUser_IdAndStatus(1L, AdoptionStatus.Approved))
+                .thenReturn(List.of()); // 승인된 입양 없음
+
+        // when & then
+        assertThatThrownBy(() -> feedService.write(req, user))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getErrorCode())
+                .isEqualTo(FeedErrorCode.NOT_ADOPTED_ANIMAL);
+    }
+
+    @Test
+    @DisplayName("write - ADOPTION_REVIEW + 승인된 동물이면 작성 성공")
+    void write_adoption_review_approved_success() throws Exception {
+        // given
+        Long animalId = 1L;
+        FeedReq req = new FeedReq(FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animalId);
+        Animal animal = new Animal();
+
+        AdoptionApplication app = mock(AdoptionApplication.class);
+        when(app.getAnimal()).thenReturn(animal);
+
+        Field idField = BaseEntity.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(animal, animalId);
+
+        when(animalRepository.findById(animalId)).thenReturn(Optional.of(animal));
+        when(adoptionApplicationRepository.findByUser_IdAndStatus(1L, AdoptionStatus.Approved))
+                .thenReturn(List.of(app));
+        when(feedRepository.save(any(Feed.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when & then
+        assertThatCode(() -> feedService.write(req, user))
+                .doesNotThrowAnyException();
     }
 
     // ════════════════════════════════════════════════════
