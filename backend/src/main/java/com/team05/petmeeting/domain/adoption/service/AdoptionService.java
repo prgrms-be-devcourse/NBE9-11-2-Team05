@@ -4,11 +4,15 @@ import com.team05.petmeeting.domain.adoption.dto.request.AdoptionApplyRequest;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
+import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
+import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
+import com.team05.petmeeting.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +55,7 @@ public class AdoptionService {
     public AdoptionDetailResponse getApplicationDetail(Long userId, Long applicationId) {
         AdoptionApplication application = adoptionApplicationRepository
                 .findByIdAndUser_Id(applicationId, userId)
-                .orElseThrow(() -> new RuntimeException("입양 신청 내역이 없습니다."));
+                .orElseThrow(() -> new BusinessException(AdoptionErrorCode.APPLICATION_NOT_FOUND));
 
         return toDetailResponse(application);
     }
@@ -85,14 +89,14 @@ public class AdoptionService {
     // 로그인한 사용자의 입양 신청을 저장하고 생성 결과를 응답 DTO로 반환한다.
     public AdoptionApplyResponse applyApplication(Long userId, Long animalId, AdoptionApplyRequest request) {
         if (adoptionApplicationRepository.existsByUser_IdAndAnimal_Id(userId, animalId)) {
-            throw new RuntimeException("이미 입양 신청한 동물입니다.");
+            throw new BusinessException(AdoptionErrorCode.ALREADY_APPLIED);
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
         Animal animal = animalRepository.findById(animalId)
-                .orElseThrow(() -> new RuntimeException("동물을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND));
 
         AdoptionApplication application = AdoptionApplication.create(
                 user,
@@ -108,7 +112,7 @@ public class AdoptionService {
     // 로그인한 사용자의 입양 신청을 조회한 뒤 본인 신청서만 삭제한다.
     public void cancelApplication(Long userId, Long applicationId) {
         AdoptionApplication application = adoptionApplicationRepository.findByIdAndUser_Id(applicationId, userId)
-                .orElseThrow(() -> new RuntimeException("입양 신청 내역이 없습니다."));
+                .orElseThrow(() -> new BusinessException(AdoptionErrorCode.APPLICATION_NOT_FOUND));
 
         adoptionApplicationRepository.delete(application);
     }
