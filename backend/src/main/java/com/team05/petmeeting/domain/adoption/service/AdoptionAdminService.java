@@ -63,6 +63,14 @@ public class AdoptionAdminService {
             application.startReview();
         }
 
+        if (request.getStatus() == AdoptionStatus.Rejected) {
+            if (request.getRejectionReason() == null || request.getRejectionReason().isBlank()) {
+                throw new RuntimeException("거절 사유를 입력해야 합니다.");
+            }
+
+            application.reject(request.getRejectionReason());
+        }
+
         return toDetailResponse(application);
     }
 
