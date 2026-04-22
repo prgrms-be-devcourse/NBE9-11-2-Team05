@@ -1,8 +1,10 @@
 package com.team05.petmeeting.domain.adoption.service;
 
+import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
 import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
+import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
@@ -34,6 +36,27 @@ public class AdoptionAdminService {
 
         if (!isManagedShelterApplication(application, userId)) {
             throw new RuntimeException("담당 보호소의 입양 신청만 조회할 수 있습니다.");
+        }
+
+        return toDetailResponse(application);
+    }
+
+    // 보호소 관리자가 담당 보호소의 입양 신청을 심사하고 변경된 상세 정보를 반환한다.
+    @Transactional
+    public AdoptionDetailResponse reviewApplication(
+            Long userId,
+            Long applicationId,
+            AdoptionReviewRequest request
+    ) {
+        AdoptionApplication application = adoptionApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("입양 신청 내역이 없습니다."));
+
+        if (!isManagedShelterApplication(application, userId)) {
+            throw new RuntimeException("담당 보호소의 입양 신청만 심사할 수 있습니다.");
+        }
+
+        if (request.getStatus() == AdoptionStatus.Approved) {
+            application.approve();
         }
 
         return toDetailResponse(application);
