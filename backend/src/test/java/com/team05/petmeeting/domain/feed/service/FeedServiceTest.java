@@ -1,4 +1,4 @@
-package com.team05.petmeeting.feed.service;
+package com.team05.petmeeting.domain.feed.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

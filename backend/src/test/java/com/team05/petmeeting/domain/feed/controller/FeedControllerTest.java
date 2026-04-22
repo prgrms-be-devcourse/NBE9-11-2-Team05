@@ -1,4 +1,4 @@
-package com.team05.petmeeting.feed.controller;
+package com.team05.petmeeting.domain.feed.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team05.petmeeting.domain.comment.dto.CommentReq;
