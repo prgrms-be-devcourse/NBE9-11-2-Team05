@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { Search, Bell, Heart, LogOut, Shield, User } from "lucide-react"
+import { Search, Bell, Heart, LogOut, PawPrint, Shield, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth-context"
@@ -89,7 +89,7 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Heart className="w-4 h-4 md:w-5 md:h-5 fill-current" />
+              <PawPrint className="w-4 h-4 md:w-5 md:h-5 fill-current" />
             </div>
             <span className="hidden min-[420px]:block text-lg md:text-xl font-bold text-foreground whitespace-nowrap">펫미팅</span>
           </Link>

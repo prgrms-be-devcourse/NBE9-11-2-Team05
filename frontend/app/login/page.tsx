@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Heart, Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, PawPrint } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -268,7 +268,7 @@ export default function LoginPage() {
         <CardHeader className="text-center pb-2">
           <Link href="/" className="inline-flex items-center justify-center gap-2 mb-2 md:mb-4">
             <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary text-primary-foreground">
-              <Heart className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+              <PawPrint className="w-5 h-5 md:w-6 md:h-6 fill-current" />
             </div>
           </Link>
           <h1 className="text-xl md:text-2xl font-bold text-foreground">로그인&amp;회원가입</h1>
