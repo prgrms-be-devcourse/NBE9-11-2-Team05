@@ -21,9 +21,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,8 +102,7 @@ public class NamingService {
     }
 
     @Transactional(readOnly = true)
-    public NameCandidateRes getAdminCandidate(Long animalId, Long managerId) {
-        // 1. 관리자 정보 및 보호소 소속 여부 확인
+    public List<NameCandidateRes> getAdminQualifiedList(Long managerId) {
         User manager = userRepository.findById(managerId)
                 .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
@@ -113,20 +113,27 @@ public class NamingService {
         String careName = manager.getShelter().getCareNm();
         int threshold = 10;
 
-        // 2. 해당 보호소 소속이면서 10표 넘긴 후보 조회
-        Optional<NameCandidateRes.CandidateDto> topCandidateOpt =
-                candidateRepository.getTopQualifiedCandidate(animalId, careName, threshold);
+        // 1. 해당 보호소의 10표 이상 모든 후보 조회
+        List<NameCandidateRes.CandidateDto> allQualified =
+                candidateRepository.findAllQualifiedCandidatesByShelter(careName, threshold);
 
-        List<NameCandidateRes.CandidateDto> candidates = topCandidateOpt
-                .map(List::of)
-                .orElse(Collections.emptyList());
+        // 2. 동물(AnimalId)별로 그룹화하여 "가장 득표수가 높은 후보 1개"만 추출
+        // (쿼리에서 voteCount.desc()로 정렬했으므로 첫 번째 값만 취하면 됨)
+        Map<Long, NameCandidateRes.CandidateDto> topCandidatePerAnimal = allQualified.stream()
+                .collect(Collectors.toMap(
+                        dto -> dto.animalId(), // CandidateDto에 animalId 필드 추가 권장
+                        dto -> dto,
+                        (existing, replacement) -> existing // 이미 들어가 있으면(득표수 높은 것) 유지
+                ));
 
-        return new NameCandidateRes(
-                animalId,
-                null,
-                candidates,
-                candidates.size()
-        );
+        // 3. 최종 응답 리스트 생성
+        return topCandidatePerAnimal.entrySet().stream()
+                .map(entry -> new NameCandidateRes(
+                        entry.getKey(),
+                        null,
+                        List.of(entry.getValue()),
+                        1))
+                .toList();
     }
 
     public void confirmName(Long candidateId, Long managerId) {
