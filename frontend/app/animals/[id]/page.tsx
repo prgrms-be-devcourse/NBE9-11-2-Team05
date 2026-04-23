@@ -68,32 +68,41 @@ const normalizeAnimalDetail = (payload: unknown): Animal | null => {
     ? (rawTemp <= 1 ? rawTemp * 100 : rawTemp)
     : 0
 
-  return {
-    animalId,
-    animalName: typeof rawAnimal.animalName === "string" ? rawAnimal.animalName : null,
-    stateGroup: Number(rawAnimal.stateGroup ?? (String(rawAnimal.processState ?? "").includes("보호") ? 0 : 1)),
-    noticeNo: String(rawAnimal.noticeNo ?? ""),
-    kind: String(rawAnimal.upKindNm ?? rawAnimal.kind ?? ""),
-    breed: String(rawAnimal.kindFullNm ?? rawAnimal.breed ?? ""),
-    age: String(rawAnimal.age ?? ""),
-    gender: mappedGender,
-    neutered: String(rawAnimal.neutered ?? ""),
-    weight: String(rawAnimal.weight ?? ""),
-    color: String(rawAnimal.colorCd ?? rawAnimal.color ?? ""),
-    specialMark: String(rawAnimal.specialMark ?? ""),
-    imageUrl: normalizeImageUrl(String(rawAnimal.popfile1 ?? rawAnimal.imageUrl ?? "")),
-    shelterName: String(rawAnimal.careNm ?? rawAnimal.shelterName ?? ""),
-    shelterTel: String(rawAnimal.careTel ?? rawAnimal.shelterTel ?? ""),
-    shelterAddr: String(rawAnimal.careAddr ?? rawAnimal.shelterAddr ?? ""),
-    chargeNm: String(rawAnimal.chargeNm ?? ""),
-    region: String(rawAnimal.region ?? ""),
-    noticeStartDate: String(rawAnimal.noticeStartDate ?? rawAnimal.noticeSdt ?? ""),
-    noticeEndDate: String(rawAnimal.noticeEndDate ?? rawAnimal.noticeEdt ?? ""),
-    processState: String(rawAnimal.processState ?? ""),
-    heartCount: Number(rawAnimal.totalCheerCount ?? rawAnimal.heartCount ?? 0) || 0,
-    temperature: mappedTemperature,
+    const rawShelterId = rawAnimal.careRegNo ?? 
+      rawAnimal.shelterId ?? 
+      rawAnimal.care_reg_no ?? 
+      rawAnimal.shelter_id ?? 
+      (typeof rawAnimal.shelter === "object" && rawAnimal.shelter !== null 
+        ? ((rawAnimal.shelter as any).shelterId ?? (rawAnimal.shelter as any).id ?? (rawAnimal.shelter as any).careRegNo)
+        : undefined);
+    
+    return {
+      animalId,
+      animalName: typeof rawAnimal.animalName === "string" ? rawAnimal.animalName : null,
+      stateGroup: Number(rawAnimal.stateGroup ?? (String(rawAnimal.processState ?? "").includes("보호") ? 0 : 1)),
+      noticeNo: String(rawAnimal.noticeNo ?? ""),
+      kind: String(rawAnimal.upKindNm ?? rawAnimal.kind ?? ""),
+      breed: String(rawAnimal.kindFullNm ?? rawAnimal.breed ?? ""),
+      age: String(rawAnimal.age ?? ""),
+      gender: mappedGender,
+      neutered: String(rawAnimal.neutered ?? ""),
+      weight: String(rawAnimal.weight ?? ""),
+      color: String(rawAnimal.colorCd ?? rawAnimal.color ?? ""),
+      specialMark: String(rawAnimal.specialMark ?? ""),
+      imageUrl: normalizeImageUrl(String(rawAnimal.popfile1 ?? rawAnimal.imageUrl ?? "")),
+      shelterName: String(rawAnimal.careNm ?? rawAnimal.shelterName ?? ""),
+      shelterTel: String(rawAnimal.careTel ?? rawAnimal.shelterTel ?? ""),
+      shelterAddr: String(rawAnimal.careAddr ?? rawAnimal.shelterAddr ?? ""),
+      chargeNm: String(rawAnimal.chargeNm ?? ""),
+      region: String(rawAnimal.region ?? ""),
+      noticeStartDate: String(rawAnimal.noticeStartDate ?? rawAnimal.noticeSdt ?? ""),
+      noticeEndDate: String(rawAnimal.noticeEndDate ?? rawAnimal.noticeEdt ?? ""),
+      processState: String(rawAnimal.processState ?? ""),
+      heartCount: Number(rawAnimal.totalCheerCount ?? rawAnimal.heartCount ?? 0) || 0,
+      temperature: mappedTemperature,
+      shelterId: rawShelterId ? String(rawShelterId) : undefined,
+    }
   }
-}
 
 export default function AnimalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -652,6 +661,17 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                     </div>
                   </div>
                 </div>
+
+                {animal.shelterId && (
+                  <div className="pt-2">
+                    <Link href={`/shelter/${animal.shelterId}`}>
+                      <Button variant="outline" className="w-full h-11 rounded-xl bg-background border-primary/20 hover:bg-primary/5 hover:border-primary/40 text-primary transition-all group">
+                        <Heart className="mr-2 h-4 w-4 fill-current group-hover:scale-110 transition-transform" />
+                        보호소 후원하기 & 알아보기
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
