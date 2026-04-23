@@ -1,9 +1,8 @@
-package com.team05.petmeeting.domain.animal;
+package com.team05.petmeeting.domain.animal.service;
 
 import com.team05.petmeeting.domain.animal.dto.AnimalRes;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
-import com.team05.petmeeting.domain.animal.service.AnimalService;
 import com.team05.petmeeting.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

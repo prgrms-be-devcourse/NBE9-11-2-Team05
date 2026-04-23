@@ -2,24 +2,25 @@ package com.team05.petmeeting.domain.animal;
 
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
-import com.team05.petmeeting.global.config.QueryDslConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Import(QueryDslConfig.class)
+@Transactional
+@ActiveProfiles("test")
 class AnimalRepositoryTest {
 
     @Autowired
@@ -27,35 +28,37 @@ class AnimalRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // 엔티티 구조에 맞게 테스트 데이터 생성
-        // stateGroup은 processState에 '보호' 포함 여부로 결정됨
         animalRepository.saveAll(List.of(
                 Animal.builder()
                         .desertionNo("2024001")
                         .noticeNo("경남-진주-2024-001")
                         .upKindNm("개")
-                        .processState("보호중")      // stateGroup: 0
+                        .processState("보호중")
+                        .stateGroup(0) // 필수 필드 추가!
                         .totalCheerCount(10)
                         .build(),
                 Animal.builder()
                         .desertionNo("2024002")
                         .noticeNo("경남-창원-2024-002")
                         .upKindNm("개")
-                        .processState("종료(입양)")   // stateGroup: 1
+                        .processState("종료(입양)")
+                        .stateGroup(1) // 필수 필드 추가!
                         .totalCheerCount(50)
                         .build(),
                 Animal.builder()
                         .desertionNo("2024003")
                         .noticeNo("서울-강남-2024-001")
                         .upKindNm("고양이")
-                        .processState("보호중")      // stateGroup: 0
+                        .processState("보호중")
+                        .stateGroup(0) // 필수 필드 추가!
                         .totalCheerCount(30)
                         .build(),
                 Animal.builder()
                         .desertionNo("2024004")
                         .noticeNo("서울-송파-2024-002")
                         .upKindNm("개")
-                        .processState("보호중")      // stateGroup: 0
+                        .processState("보호중")
+                        .stateGroup(0) // 필수 필드 추가!
                         .totalCheerCount(5)
                         .build()
         ));
