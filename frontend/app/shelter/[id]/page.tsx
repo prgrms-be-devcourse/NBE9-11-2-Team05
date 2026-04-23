@@ -167,6 +167,9 @@ export default function ShelterPage({ params }: { params: Promise<{ id: string }
                         </div>
                       </CardHeader>
                       <CardContent className="pt-6 space-y-6">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {campaign.description || "이 캠페인은 보호소의 아이들이 더 좋은 환경에서 지낼 수 있도록 도움을 줍니다."}
+                        </p>
                         <div className="space-y-4">
                           <div className="flex justify-between items-end">
                             <div className="space-y-1">
@@ -191,16 +194,13 @@ export default function ShelterPage({ params }: { params: Promise<{ id: string }
 
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
                           <Button 
-                            className="flex-1 rounded-xl h-12 text-lg font-bold"
+                            className="w-full rounded-xl h-12 text-lg font-bold"
                             onClick={() => {
                               setSelectedCampaign(campaign)
                               setIsDonationModalOpen(true)
                             }}
                           >
                             후원하기
-                          </Button>
-                          <Button variant="outline" className="flex-1 rounded-xl h-12">
-                            캠페인 상세 내용 보기
                           </Button>
                         </div>
                       </CardContent>

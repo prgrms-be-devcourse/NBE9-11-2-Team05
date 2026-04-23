@@ -101,8 +101,8 @@ export default function CampaignPage() {
                     <h3 className="text-xl font-bold mb-2 line-clamp-1 group-hover:text-primary transition-colors">
                       {campaign.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[2.5rem]">
-                      이 캠페인은 보호소의 아이들이 더 좋은 환경에서 지낼 수 있도록 도움을 줍니다.
+                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                      {campaign.description || "이 캠페인은 보호소의 아이들이 더 좋은 환경에서 지낼 수 있도록 도움을 줍니다."}
                     </p>
 
                     <div className="space-y-3">
