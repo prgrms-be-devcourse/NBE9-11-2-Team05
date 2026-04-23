@@ -616,8 +616,8 @@ function CreatePostModal({ onClose, onSubmit }: { onClose: () => void; onSubmit:
                 </option>
                 {animals.map((a) => (
                   <option key={a.animalId} value={a.animalId}>
-                    {a.upKindNm ?? ""} · {a.kindFullNm ?? ""}
-                  </option>
+                  {a.noticeNo}
+                </option>
                 ))}
               </select>
             </div>
@@ -764,8 +764,8 @@ function UpdatePostModal({ post, onClose, onSubmit }: { post: CommunityPost; onC
                 </option>
                 {animals.map((a) => (
                   <option key={a.animalId} value={a.animalId}>
-                    {a.upKindNm ?? ""} · {a.kindFullNm ?? ""}
-                  </option>
+                  {a.noticeNo}
+                </option>
                 ))}
               </select>
             </div>
