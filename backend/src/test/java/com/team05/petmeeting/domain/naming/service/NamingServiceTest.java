@@ -9,8 +9,8 @@ import com.team05.petmeeting.domain.naming.entity.NameVoteHistory;
 import com.team05.petmeeting.domain.naming.errorCode.NamingErrorCode;
 import com.team05.petmeeting.domain.naming.repository.AnimalNameCandidateRepository;
 import com.team05.petmeeting.domain.naming.repository.NameVoteHistoryRepository;
-import com.team05.petmeeting.domain.naming.service.BadWordService;
-import com.team05.petmeeting.domain.naming.service.NamingService;
+import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.exception.BusinessException;
@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,15 +116,38 @@ class NamingServiceTest {
     @Test
     @DisplayName("관리자 이름 확정 - Animal 엔티티에 이름이 정상 반영되는지 확인")
     void confirmName_Success() {
-        // given
+        // 1. 공통 Shelter 생성
+        String commonCareRegNo = "123456789";
+
+        // ShelterCommand를 mock하거나 직접 생성하여 Shelter 객체 생성
+        Shelter shelter = Shelter.create(new ShelterCommand(
+                commonCareRegNo, "행복보호소", "010-1234-5678",
+                "서울", "관리자", "서울시", LocalDateTime.now()
+        ));
+
+        // 2. Animal에 Shelter 주입 (Animal 엔티티에 getShelter()가 있다고 가정)
+        // Animal 생성 시점에 Shelter가 들어가는 구조라면 생성 시 주입,
+        // 아니라면 ReflectionTestUtils 사용
+        ReflectionTestUtils.setField(animal, "shelter", shelter);
+
+        // 3. Manager(User) 생성 및 Shelter 주입
+        User manager = User.create("admin@test.com", "관리자", "김관리");
+        ReflectionTestUtils.setField(manager, "id", 999L);
+        // User 엔티티에 shelter 필드가 있고, assignShelter 같은 메서드가 있다면 호출
+        // 없다면 Reflection 사용
+        ReflectionTestUtils.setField(manager, "shelter", shelter);
+
+        // 4. Given 설정
         Long candidateId = 1L;
         AnimalNameCandidate candidate = new AnimalNameCandidate(animal, user, "복실이");
+
         given(candidateRepository.findById(candidateId)).willReturn(Optional.of(candidate));
+        given(userRepository.findById(999L)).willReturn(Optional.of(manager));
 
-        // when
-        namingService.confirmName(candidateId, 999L); // managerId
+        // 5. When
+        namingService.confirmName(candidateId, 999L);
 
-        // then
+        // 6. Then
         assertThat(candidate.isConfirmed()).isTrue();
         assertThat(animal.getName()).isEqualTo("복실이");
     }
