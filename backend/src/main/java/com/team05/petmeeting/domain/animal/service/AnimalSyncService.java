@@ -79,8 +79,10 @@ public class AnimalSyncService {
             );
             return new AnimalSyncResponse(result.message(), result.savedCount(), result.elapsedMs());
         } catch (BusinessException e) {
+            // 이미 도메인 예외로 분류된 검증 오류는 그대로 전파한다.
             throw e;
         } catch (RuntimeException e) {
+            // 외부 API, 보호소 upsert, 동물 저장 중 발생한 예외는 동기화 실패 응답으로 변환한다.
             log.error("Animal sync failed: pageNo={}, numOfRows={}", pageNo, numOfRows, e);
             throw new BusinessException(AnimalErrorCode.ANIMAL_SYNC_FAILED, e);
         }
@@ -93,6 +95,7 @@ public class AnimalSyncService {
         try {
             Instant startedAt = Instant.now();
             int savedCount = fetchAndSaveMonthlyAnimalsFrom2008(numOfRows, Integer.MAX_VALUE);
+            // 모든 월별 적재가 정상 종료된 뒤에만 최초 적재 성공 시각을 갱신한다.
             updateSyncState(AnimalSyncType.INITIAL);
 
             long elapsedMs = elapsedMs(startedAt);
@@ -106,8 +109,10 @@ public class AnimalSyncService {
             );
             return new AnimalSyncResponse(INITIAL_SYNC_MESSAGE, savedCount, elapsedMs);
         } catch (BusinessException e) {
+            // 검증 단계에서 발생한 도메인 예외는 실패 원인을 유지한다.
             throw e;
         } catch (RuntimeException e) {
+            // 일부 월 처리 중 실패하면 성공 상태로 저장하지 않고 최초 적재 실패로 응답한다.
             log.error("Initial animal sync failed: numOfRows={}", numOfRows, e);
             throw new BusinessException(AnimalErrorCode.INITIAL_ANIMAL_SYNC_FAILED, e);
         }
@@ -122,6 +127,7 @@ public class AnimalSyncService {
             LocalDate bgupd = getUpdateStartDate();
             LocalDate enupd = LocalDate.now();
             int savedCount = fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
+            // 업데이트 반영이 끝난 경우에만 다음 업데이트 기준 시각을 갱신한다.
             updateSyncState(AnimalSyncType.UPDATE);
 
             long elapsedMs = elapsedMs(startedAt);
@@ -135,8 +141,10 @@ public class AnimalSyncService {
             );
             return new AnimalSyncResponse(UPDATE_SYNC_MESSAGE, savedCount, elapsedMs);
         } catch (BusinessException e) {
+            // 검증 단계에서 발생한 도메인 예외는 실패 원인을 유지한다.
             throw e;
         } catch (RuntimeException e) {
+            // 외부 API 조회나 저장 과정이 실패하면 업데이트 기준 시각을 앞당기지 않는다.
             log.error("Animal update sync failed: numOfRows={}", numOfRows, e);
             throw new BusinessException(AnimalErrorCode.UPDATE_ANIMAL_SYNC_FAILED, e);
         }
@@ -348,12 +356,14 @@ public class AnimalSyncService {
         return lastUpdatedAt.toLocalDate();
     }
 
+    // 외부 API 페이지 번호는 1부터 시작하므로 0 이하 요청을 차단한다.
     private void validatePageNo(int pageNo) {
         if (pageNo < 1) {
             throw new BusinessException(AnimalErrorCode.INVALID_PAGE_NUMBER);
         }
     }
 
+    // 한 번에 조회할 건수가 없으면 적재를 시작할 수 없으므로 사전에 차단한다.
     private void validateNumOfRows(int numOfRows) {
         if (numOfRows < 1) {
             throw new BusinessException(AnimalErrorCode.INVALID_SYNC_REQUEST);
