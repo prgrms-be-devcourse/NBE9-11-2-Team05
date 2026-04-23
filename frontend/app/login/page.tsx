@@ -534,9 +534,9 @@ export default function LoginPage() {
 
           {phase === "social_only" && (
             <div className="space-y-2 rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground text-center">
-              이 이메일은 네이버 또는 구글 계정으로 가입되어 있습니다.
+              이 이메일은 구글로 가입한 회원입니다.
               <br />
-              아래 버튼으로 소셜 로그인을 진행해주세요.
+              아래 "구글로 시작하기" 버튼으로 로그인해주세요.
             </div>
           )}
 
