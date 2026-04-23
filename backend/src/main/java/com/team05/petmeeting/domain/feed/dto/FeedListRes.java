@@ -20,13 +20,22 @@ public record FeedListRes(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public FeedListRes(Feed feed, Long likeCount, Long commentCount, boolean isLiked) {
+    public FeedListRes(
+            Feed feed,
+            Long userId,
+            String profileImageUrl,
+            String nickname,
+            Long animalId,
+            Long likeCount,
+            Long commentCount,
+            boolean isLiked
+    ) {
         this(
                 feed.getId(),
-                feed.getUser() != null ? feed.getUser().getId() : null,
-                feed.getUser() != null ? feed.getUser().getProfileImageUrl() : null,
-                feed.getAnimal() != null ? feed.getAnimal().getId() : null, // null 체크
-                feed.getUser() != null ? feed.getUser().getNickname() : null,
+                userId,
+                profileImageUrl,
+                animalId,
+                nickname,
                 feed.getCategory(),
                 feed.getTitle(),
                 feed.getContent(),
