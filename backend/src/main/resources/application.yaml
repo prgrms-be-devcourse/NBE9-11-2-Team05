@@ -97,3 +97,7 @@ gemini:
   api:
     key: ${GEMINI_API_KEY}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+portone:
+  api-secret: ${PORTONE_SECRET_KEY}
+  store-id: ${PORTONE_STORE_ID}

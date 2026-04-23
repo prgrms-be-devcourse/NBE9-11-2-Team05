@@ -67,4 +67,10 @@ public class CampaignService {
         List<Campaign> campaigns = campaignRepository.findAll();
         return CampaignRes.of(campaigns.size(), campaigns);
     }
+
+    public Campaign findById(Long aLong) {
+        return campaignRepository.findById(aLong).orElseThrow(
+                () -> new BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND)
+        );
+    }
 }

@@ -8,8 +8,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 import {
   Table,
   TableBody,
@@ -24,12 +26,16 @@ import {
   AdminAdoptionApplication,
   AdminNameCandidate,
   AdoptionStatus,
+  Campaign,
   confirmNamingCandidate,
+  createCampaign,
   getAdminReadyNamingCandidates,
   getAdminShelterApplications,
+  getShelterCampaign,
   getShelterDetail,
   isAdminUser,
   reviewAdminShelterApplication,
+  updateCampaignStatus,
 } from "@/lib/api"
 
 const ADMIN_SHELTERS_BY_EMAIL: Record<string, { careRegNo: string; managerName: string }> = {
@@ -70,6 +76,71 @@ export default function AdminPage() {
   const [isLoadingApplications, setIsLoadingApplications] = useState(false)
   const [reviewingApplicationId, setReviewingApplicationId] = useState<number | null>(null)
   const [rejectionReasons, setRejectionReasons] = useState<Record<number, string>>({})
+
+  // Campaign States
+  const [shelterCampaigns, setShelterCampaigns] = useState<Campaign[]>([])
+  const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(false)
+  const [campaignError, setCampaignError] = useState<string | null>(null)
+  const [newCampaign, setNewCampaign] = useState({ title: "", description: "", amount: "" })
+  const [isCreatingCampaign, setIsCreatingCampaign] = useState(false)
+
+  const loadShelterCampaigns = async () => {
+    if (!trimmedCareRegNo) return
+    setIsLoadingCampaigns(true)
+    setCampaignError(null)
+    const { data, error } = await getShelterCampaign(trimmedCareRegNo)
+    setIsLoadingCampaigns(false)
+    if (error) {
+      setCampaignError(error)
+      return
+    }
+    setShelterCampaigns(data?.campaigns || [])
+  }
+
+  const handleCreateCampaign = async () => {
+    if (!newCampaign.title.trim() || !newCampaign.amount) {
+      alert("제목과 목표 금액을 입력해주세요.")
+      return
+    }
+
+    const hasActive = shelterCampaigns.some(c => c.status === "ACTIVE")
+    if (hasActive) {
+      alert("이미 진행 중인 캠페인이 있습니다. 기존 캠페인을 종료한 후 새로 생성해주세요.")
+      return
+    }
+
+    setIsCreatingCampaign(true)
+    const { error } = await createCampaign(trimmedCareRegNo, {
+      title: newCampaign.title,
+      description: newCampaign.description,
+      amount: Number(newCampaign.amount)
+    })
+    setIsCreatingCampaign(true) // wait reset below
+
+    if (error) {
+      alert(error)
+      setIsCreatingCampaign(false)
+      return
+    }
+
+    alert("캠페인이 성공적으로 생성되었습니다.")
+    setNewCampaign({ title: "", description: "", amount: "" })
+    await loadShelterCampaigns()
+    setIsCreatingCampaign(false)
+  }
+
+  const handleCloseCampaign = async (campaignId: number) => {
+    if (!confirm("캠페인을 종료하시겠습니까? 종료 후에는 더 이상 후원을 받을 수 없습니다.")) return
+
+    const { error } = await updateCampaignStatus(campaignId)
+    if (error) {
+      alert(error)
+      return
+    }
+
+    alert("캠페인이 종료되었습니다.")
+    await loadShelterCampaigns()
+  }
 
   const pendingApplications = useMemo(
     () => applications.filter((application) => application.status === "Processing").length,
@@ -197,6 +268,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (!authLoading && isAdmin && assignedShelter && trimmedCareRegNo) {
       loadApplications()
+      loadShelterCampaigns()
     }
   }, [authLoading, isAdmin, assignedShelter, trimmedCareRegNo])
 
@@ -296,6 +368,7 @@ export default function AdminPage() {
           <TabsList>
             <TabsTrigger value="adoptions">입양 신청</TabsTrigger>
             <TabsTrigger value="naming">이름 확정</TabsTrigger>
+            <TabsTrigger value="campaigns">캠페인 관리</TabsTrigger>
           </TabsList>
 
           <TabsContent value="naming">
@@ -362,6 +435,122 @@ export default function AdminPage() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="campaigns">
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Create Campaign Form */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>새 캠페인 생성</CardTitle>
+                  <CardDescription>보호소의 새로운 후원 캠페인을 만듭니다. (동시 진행은 하나만 가능)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="campaign-title">캠페인 제목</Label>
+                    <Input 
+                      id="campaign-title" 
+                      placeholder="예: 겨울나기 난방비 모금" 
+                      value={newCampaign.title}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCampaign(prev => ({ ...prev, title: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="campaign-amount">목표 금액 (원)</Label>
+                    <Input 
+                      id="campaign-amount" 
+                      type="number" 
+                      placeholder="예: 1000000" 
+                      value={newCampaign.amount}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCampaign(prev => ({ ...prev, amount: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="campaign-desc">상세 설명</Label>
+                    <Textarea 
+                      id="campaign-desc" 
+                      placeholder="캠페인에 대한 상세 설명을 입력하세요." 
+                      className="min-h-[100px]"
+                      value={newCampaign.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewCampaign(prev => ({ ...prev, description: e.target.value }))}
+                    />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleCreateCampaign}
+                    disabled={isCreatingCampaign || shelterCampaigns.some(c => c.status === "ACTIVE")}
+                  >
+                    {isCreatingCampaign ? "생성 중..." : "캠페인 시작하기"}
+                  </Button>
+                  {shelterCampaigns.some(c => c.status === "ACTIVE") && (
+                    <p className="text-center text-xs text-destructive">
+                      이미 진행 중인 캠페인이 있습니다.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Campaign List */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>캠페인 현황</CardTitle>
+                    <CardDescription>최근 진행되었거나 진행 중인 캠페인 목록입니다.</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={loadShelterCampaigns} disabled={isLoadingCampaigns}>
+                    <RefreshCw className={cn("h-4 w-4", isLoadingCampaigns && "animate-spin")} />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {campaignError ? (
+                    <Alert variant="destructive">
+                      <AlertDescription>{campaignError}</AlertDescription>
+                    </Alert>
+                  ) : shelterCampaigns.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-muted-foreground">
+                      생성된 캠페인이 없습니다.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {shelterCampaigns.map((campaign) => (
+                        <div key={campaign.id} className="rounded-lg border p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold">{campaign.title}</h4>
+                                <Badge variant={campaign.status === "ACTIVE" ? "default" : "secondary"}>
+                                  {campaign.status === "ACTIVE" ? "진행중" : campaign.status === "COMPLETE" ? "달성완료" : "종료"}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {campaign.currentAmount.toLocaleString()}원 / {campaign.targetAmount.toLocaleString()}원
+                              </p>
+                            </div>
+                            {campaign.status === "ACTIVE" && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => handleCloseCampaign(campaign.id)}
+                              >
+                                종료하기
+                              </Button>
+                            )}
+                          </div>
+                          {campaign.status === "ACTIVE" && (
+                            <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden mt-3">
+                              <div 
+                                className="bg-primary h-full transition-all" 
+                                style={{ width: `${Math.min(100, Math.round((campaign.currentAmount / campaign.targetAmount) * 100))}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
           <TabsContent value="adoptions">
             <Card>
               <CardHeader>

@@ -100,7 +100,7 @@ public class SecurityConfig {
                                 "/api/v1/ads/run"
                         ).permitAll()
 
-                        .requestMatchers("/api/v1/me/**").permitAll()
+                        .requestMatchers("/api/v1/me/**").authenticated()
 
                         // 그 외 요청에 대해 인증된 접근만 허용
                         .anyRequest().authenticated());

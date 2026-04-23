@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Heart, Landmark, TrendingUp } from "lucide-react"
 import { getCampaigns, type Campaign } from "@/lib/api"
 import { cn } from "@/lib/utils"
+import { DonationModal } from "@/components/donation-modal"
 
 export default function CampaignPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false)
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -98,8 +101,8 @@ export default function CampaignPage() {
                     <h3 className="text-xl font-bold mb-2 line-clamp-1 group-hover:text-primary transition-colors">
                       {campaign.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[2.5rem]">
-                      이 캠페인은 보호소의 아이들이 더 좋은 환경에서 지낼 수 있도록 도움을 줍니다.
+                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                      {campaign.description || "이 캠페인은 보호소의 아이들이 더 좋은 환경에서 지낼 수 있도록 도움을 줍니다."}
                     </p>
 
                     <div className="space-y-3">
@@ -123,12 +126,21 @@ export default function CampaignPage() {
                     </div>
                   </div>
                   
-                  <div className="px-6 pb-6 pt-2">
-                    <Link href={`/shelter/${campaign.shelterId}`}>
-                      <Button className="w-full rounded-xl bg-secondary hover:bg-primary hover:text-primary-foreground text-foreground transition-all duration-300">
-                         보호소 정보 보기
+                  <div className="px-6 pb-6 pt-2 flex gap-2">
+                    <Link href={`/shelter/${campaign.shelterId}`} className="flex-1">
+                      <Button variant="outline" className="w-full rounded-xl bg-secondary/50 hover:bg-secondary text-foreground transition-all duration-300">
+                         보호소 정보
                       </Button>
                     </Link>
+                    <Button 
+                      className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-md shadow-primary/10"
+                      onClick={() => {
+                        setSelectedCampaign(campaign)
+                        setIsDonationModalOpen(true)
+                      }}
+                    >
+                      후원하기
+                    </Button>
                   </div>
                 </Card>
               )
@@ -136,6 +148,22 @@ export default function CampaignPage() {
           </div>
         )}
       </main>
+
+      {selectedCampaign && (
+        <DonationModal
+          isOpen={isDonationModalOpen}
+          onClose={() => {
+            setIsDonationModalOpen(false)
+            setSelectedCampaign(null)
+          }}
+          campaignTitle={selectedCampaign.title}
+          campaignId={selectedCampaign.id}
+          onSuccess={() => {
+            // Optional: Refresh data
+            window.location.reload()
+          }}
+        />
+      )}
     </div>
   )
 }

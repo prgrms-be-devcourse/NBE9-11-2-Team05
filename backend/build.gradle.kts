@@ -58,6 +58,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
+    implementation("io.portone:server-sdk:0.23.0")
+
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 }
 
@@ -68,5 +70,3 @@ tasks.withType<Test> {
 tasks.withType<JavaCompile> {
     options.generatedSourceOutputDirectory.set(file("build/generated"))
 }
-
-

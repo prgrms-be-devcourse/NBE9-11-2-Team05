@@ -95,6 +95,7 @@ export const API_ENDPOINTS = {
   // Campaigns
   campaigns: `${API_BASE_URL}/campaigns`,
   shelterCampaign: (shelterId: string) => `${API_BASE_URL}/shelters/${shelterId}/campaign`,
+  updateCampaignStatus: (campaignId: number) => `${API_BASE_URL}/campaigns/${campaignId}/status`,
 
   // Shelters
   shelterDetail: (shelterId: string) => `${API_BASE_URL}/shelters/${shelterId}`,
@@ -455,6 +456,7 @@ export interface Feed {
 export interface Campaign {
   id: number;
   title: string;
+  description?: string;
   targetAmount: number;
   currentAmount: number;
   status: "ACTIVE" | string;
@@ -547,6 +549,19 @@ export const getCampaigns = async () => {
 
 export const getShelterCampaign = async (shelterId: string) => {
   return await apiRequest<ShelterCampaignResponse>(API_ENDPOINTS.shelterCampaign(shelterId));
+};
+
+export const createCampaign = async (shelterId: string, payload: { title: string; description: string; amount: number }) => {
+  return await apiRequest<Campaign>(API_ENDPOINTS.shelterCampaign(shelterId), {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+};
+
+export const updateCampaignStatus = async (campaignId: number) => {
+  return await apiRequest<void>(API_ENDPOINTS.updateCampaignStatus(campaignId), {
+    method: "PATCH",
+  });
 };
 
 // Shelters

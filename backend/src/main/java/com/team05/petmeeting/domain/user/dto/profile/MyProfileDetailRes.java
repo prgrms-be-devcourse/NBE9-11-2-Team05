@@ -1,5 +1,8 @@
 package com.team05.petmeeting.domain.user.dto.profile;
 
+import lombok.Builder;
+
+@Builder
 public record MyProfileDetailRes(
         Long feedCount,
         Long cheerCount,
