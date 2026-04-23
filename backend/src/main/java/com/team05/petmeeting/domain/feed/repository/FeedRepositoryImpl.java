@@ -32,20 +32,26 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .select(Projections.constructor(
                         FeedListRes.class,
                         feed,
+                        feed.user.id,
+                        feed.user.profileImageUrl,
+                        feed.user.nickname,
+                        feed.animal.id,
                         feedLike.countDistinct(),
                         feedComment.countDistinct(),
                         userId != null ?
                                 com.querydsl.jpa.JPAExpressions
-                                        .selectOne()
-                                        .from(feedLike)
-                                        .where(
-                                                feedLike.feed.eq(feed),
-                                                feedLike.user.id.eq(userId)
-                                        )
-                                        .exists()
+                                .selectOne()
+                                .from(feedLike)
+                                .where(
+                                        feedLike.feed.eq(feed),
+                                        feedLike.user.id.eq(userId)
+                                )
+                                .exists()
                                 : com.querydsl.core.types.dsl.Expressions.FALSE
                 ))
                 .from(feed)
+                .leftJoin(feed.user)
+                .leftJoin(feed.animal)
                 .leftJoin(feedLike).on(feedLike.feed.eq(feed))
                 .leftJoin(feedComment).on(feedComment.feed.eq(feed))
                 .where(categoryEq(category))
