@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Heart, MessageCircle, Send, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 import { API_ENDPOINTS, apiRequest, normalizeAnimalTemperatureDisplay, parseAddCheerResponse } from "@/lib/api"
@@ -138,7 +138,7 @@ export function FeedCard({
       {/* Image - Clickable */}
       <Link href={`/animals/${animalId}`}>
         <div className="relative aspect-square mx-4 rounded-2xl overflow-hidden cursor-pointer group">
-          <Image
+          <ImageWithFallback
             src={imageUrl}
             alt={animalInfo}
             fill

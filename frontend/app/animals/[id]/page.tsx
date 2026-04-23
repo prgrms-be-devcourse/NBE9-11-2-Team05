@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Heart, Phone, MapPin, Calendar, Info, User as UserIcon, Send, MessageCircle, Edit2, Trash2, PawPrint } from "lucide-react"
@@ -531,7 +531,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
           {/* Image Section */}
           <div className="flex h-full flex-col space-y-4">
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-secondary">
-              <Image
+              <ImageWithFallback
                 src={animal.imageUrl}
                 alt={`${animal.breed} - ${animal.noticeNo}`}
                 fill
@@ -746,7 +746,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                   <div key={comment.commentId} className="flex gap-3 group">
                     <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
                       {comment.profileImageUrl ? (
-                        <Image 
+                        <ImageWithFallback 
                           src={comment.profileImageUrl} 
                           alt={comment.nickname || "User"} 
                           width={32} 

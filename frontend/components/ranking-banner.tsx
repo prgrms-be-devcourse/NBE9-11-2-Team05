@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import { ImageWithFallback } from "@/components/ui/image-with-fallback"
 import Link from "next/link"
 import { Heart, TrendingUp } from "lucide-react"
 import { Card } from "@/components/ui/card"
@@ -75,7 +75,7 @@ export function RankingBanner({ animals }: RankingBannerProps) {
 
                 {/* Image */}
                 <div className="relative aspect-[4/3]">
-                  <Image
+                  <ImageWithFallback
                     src={animal.imageUrl}
                     alt={animal.name}
                     fill
