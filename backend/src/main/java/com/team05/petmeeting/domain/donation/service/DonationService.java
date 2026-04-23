@@ -51,7 +51,12 @@ public class DonationService {
     public CompleteRes donate(Long userId, CompleteReq req) {
         // todo : 검증 로직
         Donation donation = donationRepository.findByPaymentId(req.paymentId());
-        Payment payment = portOne.getPayment().getPayment(req.paymentId());
+        Payment payment = null;
+
+        try {portOne.getPayment().getPayment(req.paymentId());}
+        catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
         int paidAmount = (int)((PaidPayment) payment).getAmount().getTotal();
         if (paidAmount != donation.getAmount()) {
             donation.fail();
