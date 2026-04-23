@@ -24,36 +24,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check for existing session on mount
-    const storedUser = localStorage.getItem("user")
-    const storedToken = localStorage.getItem("auth_token")
+    let isCancelled = false
 
-    if (storedUser && storedToken) {
-      try {
-        const parsedUser = JSON.parse(storedUser)
-        const payload = decodeJWT(storedToken)
-        const roleFromToken = extractPrimaryRole(payload)
-        const restoredUser = {
-          ...parsedUser,
-          role: roleFromToken || parsedUser.role,
-          roles: payload?.roles || parsedUser.roles,
-        }
-        setUser(restoredUser)
+    const removeOAuthSuccessParam = () => {
+      const currentUrl = new URL(window.location.href)
+      currentUrl.searchParams.delete("oauth")
+      window.history.replaceState({}, "", `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+    }
 
-        // Background sync with API to refresh name/nickname instantly on reload
-        apiRequest<any>(API_ENDPOINTS.myProfile).then((res) => {
-          if (res.data) {
-            const syncedUser = { ...restoredUser, ...res.data }
-            setUser(syncedUser)
-            localStorage.setItem("user", JSON.stringify(syncedUser))
+    const bootstrapAuth = async () => {
+      const storedUser = localStorage.getItem("user")
+      const storedToken = localStorage.getItem("auth_token")
+
+      if (storedUser && storedToken) {
+        try {
+          const parsedUser = JSON.parse(storedUser)
+          const payload = decodeJWT(storedToken)
+          const roleFromToken = extractPrimaryRole(payload)
+          const restoredUser = {
+            ...parsedUser,
+            role: roleFromToken || parsedUser.role,
+            roles: payload?.roles || parsedUser.roles,
           }
+
+          if (!isCancelled) {
+            setUser(restoredUser)
+          }
+
+          apiRequest<any>(API_ENDPOINTS.myProfile).then((res) => {
+            if (!isCancelled && res.data) {
+              const syncedUser = { ...restoredUser, ...res.data }
+              setUser(syncedUser)
+              localStorage.setItem("user", JSON.stringify(syncedUser))
+            }
+          })
+
+          return
+        } catch {
+          localStorage.removeItem("user")
+          localStorage.removeItem("auth_token")
+        }
+      }
+
+      const params = new URLSearchParams(window.location.search)
+      if (params.get("oauth") === "success") {
+        const { data } = await apiRequest<{ tokenType: string; accessToken: string }>(API_ENDPOINTS.refresh, {
+          method: "POST",
         })
-      } catch {
-        localStorage.removeItem("user")
-        localStorage.removeItem("auth_token")
+
+        if (data?.accessToken) {
+          const session = await establishSessionFromAccessToken(data.accessToken, "social-user")
+          if (session.success) {
+            removeOAuthSuccessParam()
+          }
+        }
       }
     }
-    setIsLoading(false)
+
+    bootstrapAuth().finally(() => {
+      if (!isCancelled) {
+        setIsLoading(false)
+      }
+    })
+
+    return () => {
+      isCancelled = true
+    }
   }, [])
 
   const establishSessionFromAccessToken = async (accessToken: string, fallbackIdentifier: string) => {

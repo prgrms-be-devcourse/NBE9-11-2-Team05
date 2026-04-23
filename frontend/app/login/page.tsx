@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { useAuth } from "@/lib/auth-context"
 import { API_ENDPOINTS, apiRequest, oauthAuthorizationUrl } from "@/lib/api"
-import { GoogleBrandIcon, NaverBrandIcon } from "@/components/oauth-brand-icons"
+import { GoogleBrandIcon } from "@/components/oauth-brand-icons"
 
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]:;"'<>,.?/]).+$/
 
@@ -537,6 +537,21 @@ export default function LoginPage() {
               이 이메일은 네이버 또는 구글 계정으로 가입되어 있습니다.
               <br />
               아래 버튼으로 소셜 로그인을 진행해주세요.
+            </div>
+          )}
+
+          {(phase === "entry" || phase === "social_only") && (
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-12 rounded-xl border-border/80 bg-background hover:bg-secondary/40 text-foreground"
+                onClick={() => startOAuth("google")}
+                disabled={isLoading}
+              >
+                <GoogleBrandIcon className="mr-2" />
+                구글로 시작하기
+              </Button>
             </div>
           )}
 

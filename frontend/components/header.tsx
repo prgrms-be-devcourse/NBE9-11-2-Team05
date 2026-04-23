@@ -46,7 +46,7 @@ const extractRemainingToday = (payload: unknown): number | null => {
 }
 
 export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading } = useAuth()
   const isAdmin = isAdminUser(user)
   const effectiveMax = maxDailyHearts ?? DEFAULT_MAX_DAILY_HEARTS
   const isControlled = dailyHeartsRemaining != null && maxDailyHearts != null
@@ -125,7 +125,9 @@ export function Header({ dailyHeartsRemaining, maxDailyHearts }: HeaderProps) {
             </div>
             */}
             
-            {user ? (
+            {isLoading ? (
+              <div className="h-8 w-24 rounded-xl bg-secondary/70 animate-pulse" />
+            ) : user ? (
               <>
                 {/* Daily Hearts Indicator */}
                 <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-xl">
