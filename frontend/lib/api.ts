@@ -344,6 +344,9 @@ export interface Animal {
   processState: string
   heartCount: number
   temperature: number
+  shelterId?: string
+  animalName?: string | null
+  stateGroup?: number
 }
 
 export interface AnimalDropdownItem {

@@ -24,7 +24,9 @@ public record AnimalRes(
         String careAddr,
 
         Integer totalCheerCount,
-        double temperature
+        double temperature,
+
+        String care_reg_no
 ) {
     public AnimalRes(Animal animal) {
         this(
@@ -49,7 +51,9 @@ public record AnimalRes(
                 animal.getCareAddr(),
 
                 animal.getTotalCheerCount(),
-                animal.getTotalCheerCount() / (double) 50 // 목표하트수 50 임시설정값
+                animal.getTotalCheerCount() / (double) 50, // 목표하트수 50 임시설정값
+
+                animal.getShelter().getCareRegNo()
         );
     }
 }

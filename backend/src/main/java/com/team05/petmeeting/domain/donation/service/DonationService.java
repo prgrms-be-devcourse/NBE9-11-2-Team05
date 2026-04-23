@@ -13,6 +13,8 @@ import com.team05.petmeeting.domain.user.dto.profile.UserDonationRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.service.UserService;
 import io.portone.sdk.server.PortOneClient;
+import io.portone.sdk.server.payment.PaidPayment;
+import io.portone.sdk.server.payment.Payment;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +49,20 @@ public class DonationService {
 
     // 결제 완료 + 검증
     public CompleteRes donate(Long userId, CompleteReq req) {
-//        Payment payment = portOne.getPayment().getPayment();
         // todo : 검증 로직
+        Donation donation = donationRepository.findByPaymentId(req.paymentId());
+        Payment payment = null;
+
+        try {portOne.getPayment().getPayment(req.paymentId());}
+        catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        int paidAmount = (int)((PaidPayment) payment).getAmount().getTotal();
+        if (paidAmount != donation.getAmount()) {
+            donation.fail();
+            throw new IllegalStateException("결제 금액 불일치");
+        }
+
         return CompleteRes.create();
     }
 
