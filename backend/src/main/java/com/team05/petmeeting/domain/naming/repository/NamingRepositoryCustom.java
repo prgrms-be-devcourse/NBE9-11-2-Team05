@@ -13,7 +13,7 @@ public interface NamingRepositoryCustom {
 
     Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(
             Long animalId,
-            String careRegNo,
+            String careNm,
             int threshold
     );
 }

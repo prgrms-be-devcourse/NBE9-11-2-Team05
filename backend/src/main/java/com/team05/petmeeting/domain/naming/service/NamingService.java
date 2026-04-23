@@ -110,12 +110,12 @@ public class NamingService {
             throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
         }
 
-        String careRegNo = manager.getShelter().getCareRegNo();
+        String careName = manager.getShelter().getCareNm();
         int threshold = 10;
 
         // 2. 해당 보호소 소속이면서 10표 넘긴 후보 조회
         Optional<NameCandidateRes.CandidateDto> topCandidateOpt =
-                candidateRepository.getTopQualifiedCandidate(animalId, careRegNo, threshold);
+                candidateRepository.getTopQualifiedCandidate(animalId, careName, threshold);
 
         List<NameCandidateRes.CandidateDto> candidates = topCandidateOpt
                 .map(List::of)
@@ -143,7 +143,7 @@ public class NamingService {
 
         // 관리자의 careRegNo 과 동물이 속한 보호소의 careRegNo 을 비교
          if (manager.getShelter() == null ||
-                 !manager.getShelter().getCareRegNo().equals(animal.getShelter().getCareRegNo())) {
+                 !manager.getShelter().getCareNm().equals(animal.getShelter().getCareNm())) {
              throw new BusinessException(NamingErrorCode.ACCESS_DENIED);
          }
 
@@ -182,7 +182,7 @@ public class NamingService {
             throw new BusinessException(NamingErrorCode.ALREADY_COMPLETED_ANIMAL);
         }
         // 이미 이름이 확정되었는지 체크
-        if (animal.getName() != null) {
+        if (animal.getName() != null && !animal.getName().isEmpty()) {
             throw new BusinessException(NamingErrorCode.ALREADY_HAS_NAME);
         }
     }

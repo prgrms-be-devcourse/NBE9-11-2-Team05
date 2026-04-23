@@ -73,8 +73,8 @@ class NamingRepositoryTest {
     }
 
     @Test
-    @DisplayName("득표수 기준 Top 3 조회가 정상적으로 정렬되어 나오는지 확인")
-    void getCandidates_Top3_Ordering_Success() {
+    @DisplayName("득표수 기준 조회가 정상적으로 정렬되어 나오는지 확인")
+    void getCandidates_Ordering_Success() {
         // given: 5개의 후보를 생성하고 득표수를 다르게 설정
         for (int i = 1; i <= 5; i++) {
             AnimalNameCandidate candidate = new AnimalNameCandidate(animal, user, "후보" + i);
@@ -91,14 +91,16 @@ class NamingRepositoryTest {
         // when
         NameCandidateRes result = candidateRepository.getCandidates(animal.getId(), user.getId());
 
-        // then: 득표순으로 정렬되었는지, 상위 3개만 나왔는지 검증
+        // then: 득표순으로 정렬되었는지, 모든 후보가 나왔는지 검증
         List<NameCandidateRes.CandidateDto> list = result.candidateDtoList();
 
-        assertThat(list).hasSize(3); // limit(3) 작동 확인
+        assertThat(list).hasSize(5); // 모든 후보가 나오는지 확인
         assertThat(list.get(0).proposedName()).isEqualTo("후보5"); // 최고 득표자 확인
         assertThat(list.get(0).voteCount()).isEqualTo(5);
         assertThat(list.get(1).proposedName()).isEqualTo("후보4");
         assertThat(list.get(2).proposedName()).isEqualTo("후보3");
+        assertThat(list.get(3).proposedName()).isEqualTo("후보2");
+        assertThat(list.get(4).proposedName()).isEqualTo("후보1");
     }
 
     @Test

@@ -23,7 +23,7 @@ public class NamingController { // 제안/투표/후보조회 API
     private final NamingService namingService;
 
     @GetMapping("/animals/{animalId}/candidates")
-    @Operation(summary = "이름 후보 조회", description = "득표순 내림차순 상위3개 조회")
+    @Operation(summary = "이름 후보 조회", description = "득표순 내림차순 조회, 동표는 생성일순")
     public ResponseEntity<NameCandidateRes> getNameCandidates(
             @PathVariable Long animalId,
             // 로그인 안 한 유저도 조회는 가능하므로 null 체크 필요

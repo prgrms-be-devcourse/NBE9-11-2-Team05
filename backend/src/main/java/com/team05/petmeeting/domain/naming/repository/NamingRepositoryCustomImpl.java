@@ -20,6 +20,7 @@ import static com.team05.petmeeting.domain.animal.entity.QAnimal.animal;
 import static com.team05.petmeeting.domain.naming.entity.QAnimalNameCandidate.animalNameCandidate;
 import static com.team05.petmeeting.domain.naming.entity.QNameVoteHistory.nameVoteHistory;
 import static com.team05.petmeeting.domain.user.entity.QUser.user;
+import static com.team05.petmeeting.domain.shelter.entity.QShelter.shelter;
 
 @RequiredArgsConstructor
 public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
@@ -56,7 +57,6 @@ public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
                         animalNameCandidate.voteCount.desc(), // 1순위: 득표수 많은 순
                         animalNameCandidate.createdAt.asc()   // 2순위: 먼저 등록된 순 (동점자 처리)
                 )
-                .limit(3) // 상위 3개만 조회
                 .fetch();
 
         return new NameCandidateRes(
@@ -68,20 +68,22 @@ public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
     }
 
     @Override
-    public Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(Long animalId, String careRegNo, int threshold) {
+    public Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(Long animalId, String careNm, int threshold) {
         return Optional.ofNullable(queryFactory
                 .select(Projections.constructor(NameCandidateRes.CandidateDto.class,
                         animalNameCandidate.id,
                         animalNameCandidate.proposedName,
-                        animalNameCandidate.user.nickname,
+                        user.nickname,
                         animalNameCandidate.voteCount,
                         Expressions.asBoolean(false)
                 ))
                 .from(animalNameCandidate)
                 .join(animalNameCandidate.animal, animal) // 동물 정보 조인
+                .join(animal.shelter, shelter)
+                .leftJoin(animalNameCandidate.user, user)
                 .where(
                         animal.id.eq(animalId),
-                        animal.shelter.careRegNo.eq(careRegNo), // [추가] 해당 보호소 동물인지 확인
+                        animal.shelter.careNm.eq(careNm), // [추가] 해당 보호소 동물인지 확인
                         animalNameCandidate.voteCount.goe(threshold)
                 )
                 .orderBy(
