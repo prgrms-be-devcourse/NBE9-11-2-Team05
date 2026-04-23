@@ -63,6 +63,10 @@ cloud:
     region:
       static: ap-northeast-2
     s3:
-      bucket: test-bucket-name  # <--- 이 부분이 이번 에러의 원인입니다!
+      bucket: test-bucket-name
     stack:
       auto: false
+
+portone:
+  api-secret: test-secret
+  store-id: test-store-id

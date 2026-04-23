@@ -2,9 +2,11 @@ package com.team05.petmeeting.domain.user.dto.profile;
 
 import com.team05.petmeeting.domain.donation.entity.Donation;
 import com.team05.petmeeting.domain.donation.enums.DonationStatus;
+import lombok.Builder;
 
 import java.util.List;
 
+@Builder
 public record UserDonationRes(
     int donationCount,
     int donationTotalAmount,

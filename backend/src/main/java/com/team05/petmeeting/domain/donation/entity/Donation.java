@@ -25,27 +25,33 @@ public class Donation extends BaseEntity {
     Campaign campaign;
 
     @Column(unique = true)
-    String impUid;
-
-    @Column(unique = true)
-    String merchantUid;
+    String paymentId;
 
     int amount;
 
     @Enumerated(EnumType.STRING)
     private DonationStatus status = DonationStatus.PENDING;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public Donation(User user, Campaign campaign,
-                    String merchantUid, int amount) {
+                    String paymentId, int amount) {
         this.user = user;
         this.campaign = campaign;
-        this.merchantUid = merchantUid;
+        this.paymentId = paymentId;
         this.amount = amount;
     }
 
-    public void complete(String impUid) {
-        this.impUid = impUid;
+    public static Donation create(User user, Campaign campaign, String paymentId, int amount) {
+        return new Donation(
+                user,
+                campaign,
+                paymentId,
+                amount
+        );
+    }
+
+    public void complete(String paymentId) {
+        this.paymentId = paymentId;
         this.status = DonationStatus.PAID;
     }
 

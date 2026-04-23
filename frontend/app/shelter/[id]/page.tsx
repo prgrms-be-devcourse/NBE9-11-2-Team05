@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Heart, ArrowLeft, Phone, MapPin, Info } from "lucide-react"
 import { getShelterCampaign, getShelterDetail, type Campaign, type Shelter } from "@/lib/api"
 import { cn } from "@/lib/utils"
+import { DonationModal } from "@/components/donation-modal"
 
 export default function ShelterPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -17,6 +18,8 @@ export default function ShelterPage({ params }: { params: Promise<{ id: string }
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false)
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -187,7 +190,13 @@ export default function ShelterPage({ params }: { params: Promise<{ id: string }
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                          <Button className="flex-1 rounded-xl h-12 text-lg font-bold">
+                          <Button 
+                            className="flex-1 rounded-xl h-12 text-lg font-bold"
+                            onClick={() => {
+                              setSelectedCampaign(campaign)
+                              setIsDonationModalOpen(true)
+                            }}
+                          >
                             후원하기
                           </Button>
                           <Button variant="outline" className="flex-1 rounded-xl h-12">
@@ -207,6 +216,21 @@ export default function ShelterPage({ params }: { params: Promise<{ id: string }
           </section>
         </div>
       </main>
+
+      {selectedCampaign && (
+        <DonationModal
+          isOpen={isDonationModalOpen}
+          onClose={() => {
+            setIsDonationModalOpen(false)
+            setSelectedCampaign(null)
+          }}
+          campaignTitle={selectedCampaign.title}
+          campaignId={selectedCampaign.id}
+          onSuccess={() => {
+            window.location.reload()
+          }}
+        />
+      )}
     </div>
   )
 }
