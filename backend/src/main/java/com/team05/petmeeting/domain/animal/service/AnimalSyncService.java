@@ -6,12 +6,14 @@ import com.team05.petmeeting.domain.animal.dto.external.AnimalItem;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.entity.AnimalSyncType;
 import com.team05.petmeeting.domain.animal.entity.SyncState;
+import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.animal.repository.SyncStateRepository;
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.shelter.service.ShelterService;
+import com.team05.petmeeting.global.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -63,53 +65,81 @@ public class AnimalSyncService {
 
     // 특정 페이지를 한 번 조회해 동물 데이터를 저장한다.
     public AnimalSyncResponse fetchAndSaveAnimals(int pageNo, int numOfRows) {
-        SyncPageResult result = fetchAndInsertAnimals(pageNo, numOfRows, null, null, Integer.MAX_VALUE);
-        log.info(
-                "Animal sync completed: pageNo={}, numOfRows={}, savedCount={}, elapsedMs={}",
-                pageNo,
-                numOfRows,
-                result.savedCount(),
-                result.elapsedMs()
-        );
-        return new AnimalSyncResponse(result.message(), result.savedCount(), result.elapsedMs());
+        validatePageNo(pageNo);
+        validateNumOfRows(numOfRows);
+
+        try {
+            SyncPageResult result = fetchAndInsertAnimals(pageNo, numOfRows, null, null, Integer.MAX_VALUE);
+            log.info(
+                    "Animal sync completed: pageNo={}, numOfRows={}, savedCount={}, elapsedMs={}",
+                    pageNo,
+                    numOfRows,
+                    result.savedCount(),
+                    result.elapsedMs()
+            );
+            return new AnimalSyncResponse(result.message(), result.savedCount(), result.elapsedMs());
+        } catch (BusinessException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            log.error("Animal sync failed: pageNo={}, numOfRows={}", pageNo, numOfRows, e);
+            throw new BusinessException(AnimalErrorCode.ANIMAL_SYNC_FAILED, e);
+        }
     }
 
     // 2008년 1월부터 현재까지 월 단위로 나눠 최초 적재를 수행한다.
     public AnimalSyncResponse runInitialMonthlySync(int numOfRows) {
-        Instant startedAt = Instant.now();
-        int savedCount = fetchAndSaveMonthlyAnimalsFrom2008(numOfRows, Integer.MAX_VALUE);
-        updateSyncState(AnimalSyncType.INITIAL);
+        validateNumOfRows(numOfRows);
 
-        long elapsedMs = elapsedMs(startedAt);
-        log.info(
-                "Initial animal sync completed: from={}, to={}, numOfRows={}, savedCount={}, elapsedMs={}",
-                INITIAL_SYNC_START_DATE,
-                LocalDate.now(),
-                numOfRows,
-                savedCount,
-                elapsedMs
-        );
-        return new AnimalSyncResponse(INITIAL_SYNC_MESSAGE, savedCount, elapsedMs);
+        try {
+            Instant startedAt = Instant.now();
+            int savedCount = fetchAndSaveMonthlyAnimalsFrom2008(numOfRows, Integer.MAX_VALUE);
+            updateSyncState(AnimalSyncType.INITIAL);
+
+            long elapsedMs = elapsedMs(startedAt);
+            log.info(
+                    "Initial animal sync completed: from={}, to={}, numOfRows={}, savedCount={}, elapsedMs={}",
+                    INITIAL_SYNC_START_DATE,
+                    LocalDate.now(),
+                    numOfRows,
+                    savedCount,
+                    elapsedMs
+            );
+            return new AnimalSyncResponse(INITIAL_SYNC_MESSAGE, savedCount, elapsedMs);
+        } catch (BusinessException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            log.error("Initial animal sync failed: numOfRows={}", numOfRows, e);
+            throw new BusinessException(AnimalErrorCode.INITIAL_ANIMAL_SYNC_FAILED, e);
+        }
     }
 
     // 마지막 업데이트 시점 이후 수정된 데이터를 다시 반영한다.
     public AnimalSyncResponse runUpdateSync(int numOfRows) {
-        Instant startedAt = Instant.now();
-        LocalDate bgupd = getUpdateStartDate();
-        LocalDate enupd = LocalDate.now();
-        int savedCount = fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
-        updateSyncState(AnimalSyncType.UPDATE);
+        validateNumOfRows(numOfRows);
 
-        long elapsedMs = elapsedMs(startedAt);
-        log.info(
-                "Animal update sync completed: from={}, to={}, numOfRows={}, savedCount={}, elapsedMs={}",
-                bgupd,
-                enupd,
-                numOfRows,
-                savedCount,
-                elapsedMs
-        );
-        return new AnimalSyncResponse(UPDATE_SYNC_MESSAGE, savedCount, elapsedMs);
+        try {
+            Instant startedAt = Instant.now();
+            LocalDate bgupd = getUpdateStartDate();
+            LocalDate enupd = LocalDate.now();
+            int savedCount = fetchAndSaveAnimalsByUpdatedDate(bgupd, enupd, numOfRows);
+            updateSyncState(AnimalSyncType.UPDATE);
+
+            long elapsedMs = elapsedMs(startedAt);
+            log.info(
+                    "Animal update sync completed: from={}, to={}, numOfRows={}, savedCount={}, elapsedMs={}",
+                    bgupd,
+                    enupd,
+                    numOfRows,
+                    savedCount,
+                    elapsedMs
+            );
+            return new AnimalSyncResponse(UPDATE_SYNC_MESSAGE, savedCount, elapsedMs);
+        } catch (BusinessException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            log.error("Animal update sync failed: numOfRows={}", numOfRows, e);
+            throw new BusinessException(AnimalErrorCode.UPDATE_ANIMAL_SYNC_FAILED, e);
+        }
     }
 
     // 최초 적재 범위를 월별로 순회하면서 저장 건수를 누적한다.
@@ -316,6 +346,18 @@ public class AnimalSyncService {
         }
 
         return lastUpdatedAt.toLocalDate();
+    }
+
+    private void validatePageNo(int pageNo) {
+        if (pageNo < 1) {
+            throw new BusinessException(AnimalErrorCode.INVALID_PAGE_NUMBER);
+        }
+    }
+
+    private void validateNumOfRows(int numOfRows) {
+        if (numOfRows < 1) {
+            throw new BusinessException(AnimalErrorCode.INVALID_SYNC_REQUEST);
+        }
     }
 
     // 동기화가 끝난 시각을 sync type 별로 저장한다.

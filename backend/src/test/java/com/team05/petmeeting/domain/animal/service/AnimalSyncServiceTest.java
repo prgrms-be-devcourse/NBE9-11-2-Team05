@@ -1,7 +1,9 @@
 package com.team05.petmeeting.domain.animal.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -18,12 +20,14 @@ import com.team05.petmeeting.domain.animal.dto.external.AnimalResponse;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.entity.AnimalSyncType;
 import com.team05.petmeeting.domain.animal.entity.SyncState;
+import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
 import com.team05.petmeeting.domain.animal.repository.SyncStateRepository;
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository;
 import com.team05.petmeeting.domain.shelter.service.ShelterService;
+import com.team05.petmeeting.global.exception.BusinessException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -185,6 +189,55 @@ class AnimalSyncServiceTest {
         assertThat(syncStateCaptor.getValue().getLastUpdatedAt()).isNotNull();
         verify(animalRepository, never()).save(any(Animal.class));
         verify(shelterService, never()).createOrUpdateShelters(anyList());
+    }
+
+    @Test
+    @DisplayName("업데이트 동기화 - 외부 API 오류가 발생하면 업데이트 실패 예외로 변환하고 상태를 갱신하지 않는다")
+    void runUpdateSync_whenExternalApiFailsThrowsBusinessException() {
+        // given
+        LocalDateTime lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30);
+        SyncState updateState = SyncState.create(AnimalSyncType.UPDATE);
+        updateState.updateLastUpdatedAt(lastUpdatedAt);
+
+        when(syncStateRepository.findBySyncType(AnimalSyncType.UPDATE)).thenReturn(Optional.of(updateState));
+        when(animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(1),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(LocalDate.now())
+        )).thenThrow(new IllegalStateException("외부 API 오류"));
+
+        // when & then
+        assertThatThrownBy(() -> animalSyncService.runUpdateSync(10))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(AnimalErrorCode.UPDATE_ANIMAL_SYNC_FAILED);
+
+        verify(syncStateRepository, never()).save(any(SyncState.class));
+        verify(animalRepository, never()).save(any(Animal.class));
+    }
+
+    @Test
+    @DisplayName("페이지 동기화 - 잘못된 페이지 번호면 적재를 시작하지 않고 검증 예외를 던진다")
+    void fetchAndSaveAnimals_withInvalidPageNoThrowsBusinessException() {
+        assertThatThrownBy(() -> animalSyncService.fetchAndSaveAnimals(0, 10))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(AnimalErrorCode.INVALID_PAGE_NUMBER);
+
+        verify(animalExternalService, never()).fetchAnimals(anyInt(), anyInt(), any(), any());
+    }
+
+    @Test
+    @DisplayName("초기 적재 - 잘못된 조회 건수면 적재를 시작하지 않고 검증 예외를 던진다")
+    void runInitialMonthlySync_withInvalidNumOfRowsThrowsBusinessException() {
+        assertThatThrownBy(() -> animalSyncService.runInitialMonthlySync(0))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(AnimalErrorCode.INVALID_SYNC_REQUEST);
+
+        verify(animalExternalService, never()).fetchAnimals(anyInt(), anyInt(), any(), any());
+        verify(syncStateRepository, never()).save(any(SyncState.class));
     }
 
     private AnimalApiResponse apiResponse(List<AnimalItem> itemList) {
