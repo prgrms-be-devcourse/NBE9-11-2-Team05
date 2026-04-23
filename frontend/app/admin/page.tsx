@@ -152,23 +152,9 @@ export default function AdminPage() {
   const assignedShelter = adminIdentifier ? ADMIN_SHELTERS_BY_EMAIL[adminIdentifier] : undefined
 
   const loadNameCandidates = async () => {
-    if (!trimmedCareRegNo) {
-      setNameError("보호소 등록번호를 먼저 입력해주세요.")
-      return
-    }
-
     setIsLoadingNames(true)
     setNameError(null)
-    const resolvedShelterName = await resolveShelterName()
-    if (!resolvedShelterName) {
-      setIsLoadingNames(false)
-      return
-    }
-
-    const { data, error } = await getAdminReadyNamingCandidates({
-      careRegNo: trimmedCareRegNo,
-      careNm: resolvedShelterName,
-    })
+    const { data, error } = await getAdminReadyNamingCandidates()
     setIsLoadingNames(false)
 
     if (error) {
@@ -177,7 +163,7 @@ export default function AdminPage() {
       return
     }
 
-    setNameCandidates((data ?? []).filter((candidate) => candidate.careNm === resolvedShelterName))
+    setNameCandidates(data ?? [])
   }
 
   const loadApplications = async () => {
@@ -379,7 +365,7 @@ export default function AdminPage() {
                   <CardDescription>담당 보호소 동물의 이름 후보를 확인하고 확정합니다.</CardDescription>
                 </div>
                 <Button variant="outline" onClick={loadNameCandidates} disabled={isLoadingNames}>
-                  <RefreshCw className="mr-2 h-4 w-4" />
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingNames ? "animate-spin" : ""}`} />
                   새로고침
                 </Button>
               </CardHeader>
@@ -389,6 +375,10 @@ export default function AdminPage() {
                     <AlertTitle>목록을 불러오지 못했습니다</AlertTitle>
                     <AlertDescription>{nameError}</AlertDescription>
                   </Alert>
+                ) : isLoadingNames ? (
+                  <div className="rounded-md border border-dashed py-10 text-center text-sm text-muted-foreground">
+                    후보 목록을 불러오는 중...
+                  </div>
                 ) : nameCandidates.length === 0 ? (
                   <div className="rounded-md border border-dashed py-10 text-center text-sm text-muted-foreground">
                     담당 보호소에서 확정할 이름 후보가 없습니다.
@@ -407,7 +397,7 @@ export default function AdminPage() {
                     </TableHeader>
                     <TableBody>
                       {nameCandidates.map((candidate) => (
-                        <TableRow key={candidate.candidateId}>
+                        <TableRow key={`${candidate.candidateId}-${candidate.animalId}`}>
                           <TableCell>
                             <div className="font-medium">{candidate.animalName || candidate.kindFullNm}</div>
                             <div className="text-xs text-muted-foreground">{candidate.desertionNo}</div>
@@ -420,7 +410,7 @@ export default function AdminPage() {
                             <Button
                               size="sm"
                               onClick={() => handleConfirmName(candidate.candidateId)}
-                              disabled={confirmingCandidateId === candidate.candidateId}
+                              disabled={confirmingCandidateId === candidate.candidateId || !candidate.candidateId}
                             >
                               <Check className="mr-2 h-4 w-4" />
                               확정

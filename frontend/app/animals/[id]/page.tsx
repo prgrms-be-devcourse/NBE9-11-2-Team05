@@ -119,6 +119,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
   const [isNamingLoading, setIsNamingLoading] = useState(false)
   const [isSubmittingName, setIsSubmittingName] = useState(false)
   const [votingCandidateId, setVotingCandidateId] = useState<number | null>(null)
+  const [showAllCandidates, setShowAllCandidates] = useState(false)
 
   const extractRemainingToday = (
     payload: { [key: string]: any } | string | number | null
@@ -474,7 +475,7 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
             <div className="py-5 text-center text-xs text-muted-foreground">아직 제안된 이름이 없습니다.</div>
           ) : (
             <div className="grid gap-2">
-              {sortedNameCandidates.map((candidate) => {
+              {(showAllCandidates ? sortedNameCandidates : sortedNameCandidates.slice(0, 3)).map((candidate) => {
                 const isVoteDone = candidate.isVoted
                 return (
                   <div
@@ -509,6 +510,16 @@ export default function AnimalDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 )
               })}
+              {!showAllCandidates && sortedNameCandidates.length > 3 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAllCandidates(true)}
+                  className="w-full text-xs text-muted-foreground hover:text-primary mt-1"
+                >
+                  모두 보기 ({sortedNameCandidates.length})
+                </Button>
+              )}
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@ package com.team05.petmeeting.domain.naming.repository;
 
 import com.team05.petmeeting.domain.naming.dto.NameCandidateRes;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface NamingRepositoryCustom {
 
@@ -11,9 +11,6 @@ public interface NamingRepositoryCustom {
             Long userId
     );
 
-    Optional<NameCandidateRes.CandidateDto> getTopQualifiedCandidate(
-            Long animalId,
-            String careRegNo,
-            int threshold
-    );
+    List<NameCandidateRes.CandidateDto> findAllQualifiedCandidatesByShelter(String careNm, int threshold);
+
 }

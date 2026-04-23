@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
   voteNamingCandidate: (candidateId: number) =>
     `${API_BASE_URL}/naming/candidates/${candidateId}/vote`,
   adminReadyNamingCandidates: `${API_BASE_URL}/naming/admin/candidates/ready`,
+  adminQualifiedNamingCandidates: `${API_BASE_URL}/naming/admin/qualified-candidates`,
   adminQualifiedNamingCandidate: (animalId: number) =>
     `${API_BASE_URL}/naming/admin/animals/${animalId}/qualified-candidate`,
   confirmNamingCandidate: (candidateId: number) =>
@@ -631,12 +632,18 @@ export interface AdminNameCandidate {
   voteCount: number
 }
 
-interface AdminNamingAnimal {
+export interface NameCandidateRes {
   animalId: number
-  desertionNo: string
-  careRegNo?: string
-  careNm?: string
-  kindFullNm: string
+  animalName: string | null
+  candidateDtoList: {
+    candidateId: number
+    animalId: number
+    proposedName: string
+    proposerNickname: string
+    voteCount: number
+    isVoted: boolean
+  }[]
+  totalCandidates: number
 }
 
 export type AdoptionStatus = "Processing" | "Approved" | "Rejected"
@@ -663,89 +670,35 @@ export interface AdminAdoptionApplication {
 
 export type MyAdoptionApplication = AdminAdoptionApplication
 
-export const getAdminReadyNamingCandidates = async (filters?: { careRegNo?: string; careNm?: string }) => {
-  const animalsResponse = await apiRequest<unknown>(`${API_ENDPOINTS.animals}?size=100`)
+export const getAdminReadyNamingCandidates = async () => {
+  const response = await apiRequest<NameCandidateRes[]>(
+    API_ENDPOINTS.adminQualifiedNamingCandidates
+  )
 
-  if (animalsResponse.error) {
+  if (response.error || !response.data) {
     return {
+      ...response,
       data: null,
-      error: animalsResponse.error,
-      errorCode: animalsResponse.errorCode,
-      status: animalsResponse.status,
     }
   }
 
-  const animalCandidates = parseAnimalListForAdminNaming(animalsResponse.data)
-    .filter((animal) => {
-      if (filters?.careRegNo && animal.careRegNo) {
-        return animal.careRegNo === filters.careRegNo
-      }
-
-      if (filters?.careNm && animal.careNm) {
-        return animal.careNm === filters.careNm
-      }
-
-      return true
-    })
-  const candidateResponses = await Promise.all(
-    animalCandidates.map(async (animal) => {
-      const response = await getAdminQualifiedNamingCandidate(animal.animalId)
-      return { animal, response }
-    })
-  )
-
-  const candidates = candidateResponses.flatMap(({ animal, response }) => {
-    if (!response.data?.candidateDtoList) return []
-    if (response.data.animalName) return []
-
-    return response.data.candidateDtoList.map((candidate) => ({
-      animalId: animal.animalId,
-      animalName: response.data?.animalName ?? null,
-      desertionNo: animal.desertionNo,
-      careRegNo: animal.careRegNo,
-      careNm: animal.careNm,
-      kindFullNm: animal.kindFullNm,
+  const flattenedCandidates: AdminNameCandidate[] = response.data.flatMap((animalCandidates) =>
+    (animalCandidates.candidateDtoList ?? []).map((candidate) => ({
+      animalId: candidate.animalId ?? animalCandidates.animalId,
+      animalName: animalCandidates.animalName ?? null,
+      desertionNo: "",
+      kindFullNm: "품종 정보 없음",
       candidateId: candidate.candidateId,
       proposedName: candidate.proposedName,
       proposerNickname: candidate.proposerNickname,
       voteCount: candidate.voteCount,
     }))
-  })
+  )
 
-  candidates.sort((a, b) => b.voteCount - a.voteCount)
-
-  return { data: candidates, error: null, status: 200 }
-}
-
-function parseAnimalListForAdminNaming(payload: unknown): AdminNamingAnimal[] {
-  if (!payload) return []
-
-  const list = Array.isArray(payload)
-    ? payload
-    : typeof payload === "object"
-      ? Array.isArray((payload as Record<string, unknown>).content)
-        ? ((payload as Record<string, unknown>).content as unknown[])
-        : Array.isArray((payload as Record<string, unknown>).animals)
-          ? ((payload as Record<string, unknown>).animals as unknown[])
-          : []
-      : []
-
-  return list
-    .flatMap((item): AdminNamingAnimal[] => {
-      if (!item || typeof item !== "object") return []
-      const animal = item as Record<string, unknown>
-      const animalId = Number(animal.animalId ?? animal.id)
-      if (!Number.isFinite(animalId)) return []
-
-      return [{
-        animalId,
-        desertionNo: String(animal.desertionNo ?? animal.noticeNo ?? ""),
-        kindFullNm: String(animal.kindFullNm ?? animal.kindFillName ?? animal.breed ?? animal.kind ?? "품종 정보 없음"),
-        ...(typeof animal.careRegNo === "string" ? { careRegNo: animal.careRegNo } : {}),
-        ...(typeof animal.careNm === "string" ? { careNm: animal.careNm } : {}),
-      }]
-    })
-.filter((animal): animal is NonNullable<typeof animal> => animal !== null)
+  return {
+    ...response,
+    data: flattenedCandidates,
+  }
 }
 
 export const getAdminShelterApplications = async (careRegNo: string) => {

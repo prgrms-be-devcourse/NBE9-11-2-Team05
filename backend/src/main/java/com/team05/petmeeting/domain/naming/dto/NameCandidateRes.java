@@ -11,6 +11,7 @@ public record NameCandidateRes(
 ) {
     public record CandidateDto(
         Long candidateId,
+        Long animalId,      // 추가됨: 어떤 동물의 후보인지 식별
         String proposedName,
         String proposerNickname,
         int voteCount,
