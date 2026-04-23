@@ -357,6 +357,7 @@ export const getAnimals = async () => {
 
 export interface AdoptedAnimalItem {
   animalId: number
+  noticeNo: string
   upKindNm: string
   kindFullNm: string
   imageUrl: string
